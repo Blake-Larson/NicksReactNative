@@ -1,0 +1,36 @@
+CREATE DATABASE IF NOT EXISTS test;
+
+CREATE TABLE USER_PROGRESS(logid INT PRIMARY KEY NOT NULL AUTO_INCREMENT, userid VARCHAR(200) NOT NULL, series VARCHAR(20) NOT NULL, status CHAR(10), json_notes JSON, modified DATE, created DATE, deleted CHAR(1) DEFAULT 'N');
+CREATE TABLE USERS(
+  userid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  firstname VARCHAR(200) NOT NULL,
+  lastname VARCHAR(200) NOT NULL,
+  email VARCHAR(200) NOT NULL,
+  json_notes JSON,
+  json_stats JSON,
+  subscription_status VARCHAR(200) NOT NULL,
+  subscription_date DATE,
+  modified DATE,
+  created DATE,
+  deleted CHAR(10) DEFAULT 'N'
+);
+
+
+INSERT INTO USER_PROGRESS VALUES (1, "Lift Off", NULL, "{}", NULL, NULL);
+INSERT INTO USER_PROGRESS VALUES (1, "Yoga", NULL, "{}", NULL, NULL);
+INSERT INTO USER_PROGRESS VALUES (1, "Greatest HIITs", NULL, "{}", NULL, NULL);
+
+CREATE TABLE WORKOUT_SERIES(name VARCHAR(20), file VARCHAR(120), status VARCHAR(20), json_content JSON, modified DATE, created DATE);
+
+INSERT INTO WORKOUT_SERIES VALUES ("Lift Off", "https://fitappmedia1.s3.us-west-1.amazonaws.com/lifting.jpeg", "Intermediate", "{}", NULL, NULL);
+
+INSERT INTO WORKOUT_SERIES VALUES ("Yoga", "https://fitappmedia1.s3.us-west-1.amazonaws.com/yoga.jpeg", "Beginner", "{}", NULL, NULL);
+
+INSERT INTO WORKOUT_SERIES VALUES ("Greatest HIITs", "https://fitappmedia1.s3.us-west-1.amazonaws.com/pushup.jpeg", "Advanced", "{}", NULL, NULL);
+
+INSERT INTO WORKOUT_SERIES VALUES ("Skipping Class", "https://fitappmedia1.s3.us-west-1.amazonaws.com/Skipping+Class.jpeg", "Beginner", '{"course_content": ["V1-0074", "V1-0075", "V1-0069", "V1-0070", "V1-0071", "V1-0072"]}', NULL, NULL);
+
+
+CREATE TABLE EXERCISES(id VARCHAR(120), name VARCHAR(120), filename VARCHAR(120), json_content JSON, deleted CHAR(1) DEFAULT 'N');
+ALTER USER 'root' IDENTIFIED WITH mysql_native_password BY 'password';
+flush privileges;
