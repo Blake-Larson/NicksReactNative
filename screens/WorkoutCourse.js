@@ -8,8 +8,6 @@ var RNFS = require("react-native-fs");
 const WorkoutCourse = ({navigation, route, uid}) => {
 
   const VideoData = route.params[0]['exerciseList'];
-  console.log('VideoData');
-  console.log(VideoData);
   /*
   console.log(route.params)
   console.log('VideoData................................................');
@@ -85,6 +83,7 @@ const WorkoutCourse = ({navigation, route, uid}) => {
 
   const nextVideo = () => {
 
+    setPaused(true);
     if (currentNumber >= (VideoData.length - 1))
     {
       completeWorkout();

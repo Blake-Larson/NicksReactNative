@@ -106,16 +106,15 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       </Image>
       {content.map((item, index) => (
         <View key={index} style={{flexDirection:"row"}}>
-          <View style={{flex:1}}>
-            <TouchableOpacity style={{justifyContent: 'flex-start', marginTop: 20}} image={image} onPress={() => exercisePreview(item)} >
-              <ThumbnailImage image={image}/>
-            </TouchableOpacity>
-          </View>
+
           <View style={{flex:2, marginRight: 20}}>
             <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Name: {item.name}</Text>
             <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Minutes: {item.minutes}</Text>
             <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Seconds: {item.seconds}</Text>
             <Text style={{justifyContent: 'flex-end', marginTop: 20}}>{JSON.stringify(item)}</Text>
+            <TouchableOpacity style={{justifyContent: 'flex-start', marginTop: 20, width: 30}} style={styles.button} onPress={() => exercisePreview(item)} >
+              <Text style={styles.text}>PREVIEW</Text>
+            </TouchableOpacity>
           </View>
         </View>
       ))}
@@ -160,7 +159,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5
   },
-
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: 'black',
+    marginTop: 30,
+    marginLeft: 30,
+    marginRight: 30
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
 });
 
 export default WorkoutSelected;
