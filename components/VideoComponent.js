@@ -36,6 +36,8 @@ const VideoComponent = ({fileName, pausedVideo, loading}) => {
       muted={true}
       audioOnly={false}
       paused={pausedVideo}
+      mixWithOthers={"mix"}
+      ignoreSilentSwitch={"ignore"}
       onReadyForDisplay={videoReady}/>
   </View>
   )

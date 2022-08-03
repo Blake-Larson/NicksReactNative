@@ -8,11 +8,6 @@ var RNFS = require("react-native-fs");
 const WorkoutCourse = ({navigation, route, uid}) => {
 
   const VideoData = route.params[0]['exerciseList'];
-  /*
-  console.log(route.params)
-  console.log('VideoData................................................');
-  console.log(VideoData);
-*/
   const pauseButton = require('../media/pauseButton.png');
   const [workoutVideo, setWorkoutVideo] = useState([]);
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");
@@ -104,6 +99,8 @@ const WorkoutCourse = ({navigation, route, uid}) => {
   const completeWorkout = async () => {
     console.log('completed workout!')
     setWorkoutCompleted(true);
+
+    // TODO: complete workout in db 
     /*
     try {
       const response = await fetch(`http://${url}:3000/user_progress_update?userid=${uid}&status=complete&series=${route.params[0]}`);
