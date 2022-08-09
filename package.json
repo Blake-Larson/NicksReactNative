@@ -13,6 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-native-fontawesome": "^0.2.7",
     "@invertase/react-native-apple-authentication": "^2.2.0",
+    "@react-native-async-storage/async-storage": "^1.17.7",
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native-stack": "^6.6.2",
     "apple-signin-auth": "^1.5.1",

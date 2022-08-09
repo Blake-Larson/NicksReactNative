@@ -6,18 +6,9 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 
 const AwsMedia = ({filename, title, json_content, status, description, navigation}) => {
-  //const output = Buffer.from(file, 'base64').toString();
-console.log('file!!!')
-console.log(filename)
-//  if (!json_content) json_content = JSON.stringify({"description": "test..", "time": "test........"});
+
   const content = JSON.parse(json_content);
-  console.log('14 content')
-  console.log(content)
-//  console.log('CONTENT')
-//  console.log(content)
   const apiParams = {};
-  console.log('navyyyyyyy')
-  console.log(navigation)
 
   apiParams['title'] = title;
   apiParams['image'] = filename;
