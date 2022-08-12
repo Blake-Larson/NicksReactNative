@@ -5,6 +5,7 @@ import ThumbnailImage from '../components/ThumbnailImage.js';
 import VideoComponent from '../components/VideoComponent.js';
 import Video from 'react-native-video';
 var RNFS = require("react-native-fs");
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //var path = RNFS.ExternalDirectoryPath + "/abc.png";
 
@@ -23,7 +24,10 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const workoutSelectedData = async () => {
 
     const filenamecontent = await getExerciseById();
-    rnfsDownload(filenamecontent);
+    console.log('starting to download')
+    await rnfsDownload(filenamecontent);
+    console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
+
   }
 
   const getExerciseById = async () => {
@@ -33,9 +37,26 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     for (let i = 0; i < content.length; i++)
     {
       const exerciseid = content[i]['exerciseid'];
-      const api = `https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`;
-      const response = await fetch(api);
+    //  const api = `https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`;
+
+      console.log('going to get the exercises by id ')
+      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+      console.log(storageToken)
+      const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({"id_token": storageToken})
+        });
+
+      // TODO: add error messages
+
+
+    //  const response = await fetch(api);
       const data = await response.json();
+      console.log('data')
+
+      console.log(data)
       content[i]['filename'] = data[0]['filename'];
       content[i]['name'] = data[0]['name'];
       exerciseArray.push(content[i]);
@@ -69,23 +90,27 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
         if (await RNFS.exists(path)){
             console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
+          //  RNFS.unlink(path)
             continue;
         }
         else {
           console.log(`PATH ${path}  DOES NOT EXISTS`);
 
-          const filename = row['filename'];
-          console.log(filename);
+          let filename = row['filename'].replace(/\s/, "%20");
+          console.log(row['filename']);
+          filename = row['filename'].replace(/\s/, "%20");
+
+          console.log('now downloading: ', filename);
           const downloadInfo = await RNFS.downloadFile({
             fromUrl: filename,
             toFile: path,
-            //headers: getOpts.headers,
           })
           if (await downloadInfo.promise) {
             console.log('downloaded : D')
           }
         }
       }
+      console.log('done with all downloads!!')
     }
 
     useEffect(() => {

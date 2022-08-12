@@ -1,4 +1,4 @@
-// TODO: Add SDKs for Firebase products that you want to use
+/*// TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { initializeApp } from 'firebase/app';
 import React, { useState, useEffect } from 'react';
@@ -51,26 +51,6 @@ export async function test3(count) {
   return output;
 }
 
-export async function setData(db, count) {
-
-  console.log(' set new count')
-  console.log(count)
-  const badgesRef = collection(db, "badges");
-  //const badgesRef = db.collection('badges');
-
-  await setDoc(doc(badgesRef, "stepBadge"), {
-      count: count });
-  /*const res = await db.collection('badges').doc('stepBadges') /*.update({
-    count: count
-  });*/
-  /*
-  const usersRef = ref.child('users');
-  const hopperRef = usersRef.child('gracehop');
-  hopperRef.update({
-    'nickname': 'Amazing Grace'
-  });
-  */
-}
 
 const Badges = () => {
   const [badges, setBadges] = useState([]);
@@ -97,4 +77,4 @@ const Badges = () => {
   );
 };
 
-export default Badges;
+export default Badges;*/

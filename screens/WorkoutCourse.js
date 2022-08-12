@@ -100,7 +100,7 @@ const WorkoutCourse = ({navigation, route, uid}) => {
     console.log('completed workout!')
     setWorkoutCompleted(true);
 
-    // TODO: complete workout in db 
+    // TODO: complete workout in db
     /*
     try {
       const response = await fetch(`http://${url}:3000/user_progress_update?userid=${uid}&status=complete&series=${route.params[0]}`);

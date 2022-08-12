@@ -31,12 +31,8 @@ const UserProgress = ({navigation, uid}) => {
     }
     };
 
-  const iPhoneTesting = true;
-  let url = 'localhost';
-  if (iPhoneTesting) url = '192.168.1.76';
-
   const getUserProgress = () => {
-  return fetch(`http://${url}:3000/user_progress?userid=${uid}`)
+  return '';/*//fetch(`http://${url}:3000/user_progress?userid=${uid}`)
     .then((response) => response.json())
     .then((json) => {
       markedDatesFn(json)
@@ -45,7 +41,7 @@ const UserProgress = ({navigation, uid}) => {
     })
     .catch((error) => {
       console.error(error);
-    });
+    });*/
   };
   console.log('USER ::')
   console.log(uid);
@@ -61,7 +57,7 @@ const UserProgress = ({navigation, uid}) => {
     setWrittenDate(now.format('ll'))
     setStartingDate(dateSelected);
     onDateSelected(dateSelected);
-    getUserProgress();
+    //getUserProgress();
   }, []);
 
   const renderItem = ({ item }) => (
@@ -81,7 +77,7 @@ const UserProgress = ({navigation, uid}) => {
     setWrittenDate(dateSelected.format('ll'))
     setSelectedDate(newDate);
     try {
-      const response = await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${newDate}`);
+      const response = ''//await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${newDate}`);
       const json = await response.json();
       setProgress(json);
       return json;
@@ -92,7 +88,7 @@ const UserProgress = ({navigation, uid}) => {
   const refreshDateSelected = async () => {
 
     try {
-      const response = await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${selectedDate}`);
+      const response = ''//await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${selectedDate}`);
       const json = await response.json();
       setProgress(json);
       return json;
@@ -105,7 +101,7 @@ const UserProgress = ({navigation, uid}) => {
 
     setModalVisible(!modalVisible);
     try {
-      const response = await fetch(`http://${url}:3000/user_progress_delete?userid=${uid}&logid=${deleteCardContent.logid}`);
+      const response = ''// await fetch(`http://${url}:3000/user_progress_delete?userid=${uid}&logid=${deleteCardContent.logid}`);
       const json = await response.json();
       getUserProgress();
       refreshDateSelected();

@@ -17,6 +17,7 @@
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native-stack": "^6.6.2",
     "apple-signin-auth": "^1.5.1",
+    "deprecated-react-native-prop-types": "^2.3.0",
     "express": "^4.18.1",
     "jwt-decode": "^3.1.2",
     "mysql": "^2.18.1",

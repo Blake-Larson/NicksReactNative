@@ -9,7 +9,6 @@ import { ScrollView, StatusBar, StyleSheet, Text, Button, useColorScheme, View, 
 import { BrowserRouter } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faRunning, faCog, faChartBar } from '@fortawesome/free-solid-svg-icons';
-//import { Colors, DebugInstructions, Header, LearnMoreLinks, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
 
 import Workouts from './screens/Workouts';
 import WorkoutSelected from './screens/WorkoutSelected';
@@ -66,6 +65,7 @@ const App = () => {
       console.log('\n\n\n')
       console.log('get current user ~~~~~~~ @@@@');
 
+
       const myHeaders = new Headers();
       myHeaders.append('Content-Type', 'application/json');
       myHeaders.append('Authorization', storageToken);
@@ -75,22 +75,46 @@ const App = () => {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
           body: JSON.stringify({"id_token": storageToken})
-        })
-        console.log('response ***** -------');
-        if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
-        {
-          console.log('login error')
-          return 'error';
-        }
-        const data = await response.json();
+        });
+      console.log('response ***** -------');
+      if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
+      {
+        console.log(response.status)
+        console.log('login error')
+        return 'error';
+      }
+    //  const data = await response.json();
 
-        console.log('data APPPPPPP');
-        console.log(data);
-        setValidLogin(true);
+      console.log('data APPPPPPP');
+      ///console.log(data);
+      //console.log(data.authData);
+      const email = "nnystrom409@gmail.com"
+      const sub = ""
+      const userParams = {};
+      userParams['firstname'] = null;
+      userParams['lastname'] = null;
+      userParams['email'] = email;
+      userParams['apple_sub'] = sub;
+      userParams['id_token'] = storageToken;
+      console.log('userParams');
+      console.log(userParams);
+
+      const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(userParams)
+        })
+      console.log('userResponse');
+      console.log(userResponse.status);
+
+      console.log(await userResponse.json());
+
+      setValidLogin(true);
     }
 
   useEffect(() => {
-    validateSession();
+        validateSession();
   }, []);
 
   if (!validLogin) {
