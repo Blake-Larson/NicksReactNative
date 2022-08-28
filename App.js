@@ -60,6 +60,7 @@ const App = () => {
     const validateSession = async () => {
 
       const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+      const sub = await AsyncStorage.getItem("APPLE_SUB");
 
       console.log('storageToken')
       console.log(storageToken)
@@ -87,27 +88,26 @@ const App = () => {
       }
 
       console.log('data APPPPPPP');
-      ///console.log(data);
-      //console.log(data.authData);
-      const email = "nnystrom409@gmail.com"
-      const sub = ""
       const userParams = {};
-      userParams['firstname'] = null;
-      userParams['lastname'] = null;
-      userParams['email'] = email;
       userParams['apple_sub'] = sub;
       userParams['id_token'] = storageToken;
       console.log('userParams');
       console.log(userParams);
 
       const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify(userParams)
-        })
-      console.log('userResponse');
-      console.log(userResponse.status);
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(userParams)
+      });
+      console.log('userResponse', userResponse.status);
+      if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
+      {
+        console.log(response.status)
+        console.log('login error')
+        setLoadingScreen(false);
+        return 'error';
+      }
       setLoadingScreen(false);
       setValidLogin(true);
     }
