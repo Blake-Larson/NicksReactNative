@@ -55,6 +55,7 @@ const App = () => {
   const [initializing, setInitializing] = useState(false);
   const [uid, setUid] = useState([]);
   const [validLogin, setValidLogin] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState(true);
 
     const validateSession = async () => {
 
@@ -81,9 +82,9 @@ const App = () => {
       {
         console.log(response.status)
         console.log('login error')
+        setLoadingScreen(false);
         return 'error';
       }
-    //  const data = await response.json();
 
       console.log('data APPPPPPP');
       ///console.log(data);
@@ -107,15 +108,38 @@ const App = () => {
         })
       console.log('userResponse');
       console.log(userResponse.status);
-
-      console.log(await userResponse.json());
-
+      setLoadingScreen(false);
       setValidLogin(true);
     }
 
   useEffect(() => {
         validateSession();
   }, []);
+
+  if (loadingScreen) {
+    return (
+      <View>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+        <Text> LOADING ... </Text>
+      </View>
+    )
+  }
 
   if (!validLogin) {
 

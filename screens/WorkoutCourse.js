@@ -167,7 +167,18 @@ const WorkoutCourse = ({navigation, route, uid}) => {
           }
         </View>
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 35}}>
-          <Text style={{fontSize: 35}}>{minutes} : {seconds}</Text>
+          { seconds > 10 && <Text style={{fontSize: 35}}>{minutes} : {seconds}</Text> }
+          { seconds == 9 && <Text style={{fontSize: 35}}>{minutes} : 09 </Text> }
+          { seconds == 8 && <Text style={{fontSize: 35}}>{minutes} : 08 </Text> }
+          { seconds == 7 && <Text style={{fontSize: 35}}>{minutes} : 07 </Text> }
+          { seconds == 6 && <Text style={{fontSize: 35}}>{minutes} : 06 </Text> }
+          { seconds == 5 && <Text style={{fontSize: 35}}>{minutes} : 05 </Text> }
+          { seconds == 4 && <Text style={{fontSize: 35}}>{minutes} : 04 </Text> }
+          { seconds == 3 && <Text style={{fontSize: 35}}>{minutes} : 03 </Text> }
+          { seconds == 2 && <Text style={{fontSize: 35}}>{minutes} : 02 </Text> }
+          { seconds == 1 && <Text style={{fontSize: 35}}>{minutes} : 01 </Text> }
+          { seconds == 0 && <Text style={{fontSize: 35}}>{minutes} : 00 </Text> }
+
         </View>
         </View>
       }
