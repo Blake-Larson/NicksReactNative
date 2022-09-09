@@ -8,7 +8,6 @@ var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //var path = RNFS.ExternalDirectoryPath + "/abc.png";
-
 const WorkoutSelected = ({navigation, route, uid}) => {
 
   const title = route.params[0].title;
@@ -17,17 +16,19 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const content = route.params[0].content;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [exerciseContent, setExerciseContent] = useState([]);
   const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
 
   const workoutSelectedData = async () => {
 
+    console.log('loading');
     const filenamecontent = await getExerciseById();
     console.log('starting to download')
     await rnfsDownload(filenamecontent);
     console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-
+    setLoading(false);
   }
 
   const getExerciseById = async () => {
@@ -37,11 +38,9 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     for (let i = 0; i < content.length; i++)
     {
       const exerciseid = content[i]['exerciseid'];
-    //  const api = `https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`;
-
       console.log('going to get the exercises by id ')
       const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-      console.log(storageToken)
+
       const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -50,86 +49,78 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         });
 
       // TODO: add error messages
-
-
-    //  const response = await fetch(api);
       const data = await response.json();
-      console.log('data')
-
-      console.log(data)
+      console.log('data');
+      console.log(data);
       content[i]['filename'] = data[0]['filename'];
       content[i]['name'] = data[0]['name'];
       exerciseArray.push(content[i]);
     }
     setExerciseList(exerciseArray);
     return content;
-
   };
-    const beginWorkout = () => {
 
-      const apiParams = {};
-      apiParams['title'] = title;
-      apiParams['exerciseList'] = exerciseList;
-      navigation.navigate('WorkoutCourse', [apiParams]);
-    }
+  const beginWorkout = () => {
 
-    const rnfsDownload = async (content) => {
+    const apiParams = {};
+    apiParams['title'] = title;
+    apiParams['exerciseList'] = exerciseList;
+    navigation.navigate('WorkoutCourse', [apiParams]);
+  }
 
-      console.log('inside rnfsDownload')
-      console.log(content);
-      console.log('\n\n')
-      var path = RNFS.DocumentDirectoryPath + '/hwtest.mp4';
-      console.log(RNFS.DocumentDirectoryPath)
-      console.log('\nexrcise list')
-      console.log(content)
-      for (let i = 0; i < content.length; i++)
+  const rnfsDownload = async (content) => {
+
+    console.log('inside rnfsDownload')
+    console.log(content);
+    console.log('\n\n')
+    var path = RNFS.DocumentDirectoryPath + '/hwtest.mp4';
+    console.log(RNFS.DocumentDirectoryPath)
+    console.log('content', content);
+
+    for (let i = 0; i < content.length; i++)
+    {
+      const row = content[i];
+      console.log('row')
+      console.log(row)
+      const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
+      if (await RNFS.exists(path))
       {
-        const row = content[i];
-        console.log('row')
-        console.log(row)
-        const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
-        if (await RNFS.exists(path)){
-            console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
-          //  RNFS.unlink(path)
-            continue;
-        }
-        else {
-          console.log(`PATH ${path}  DOES NOT EXISTS`);
-
-          let filename = row['filename'].replace(/\s/, "%20");
-          console.log(row['filename']);
-          filename = row['filename'].replace(/\s/, "%20");
-
-          console.log('now downloading: ', filename);
-          const downloadInfo = await RNFS.downloadFile({
-            fromUrl: filename,
-            toFile: path,
-          })
-          if (await downloadInfo.promise) {
-            console.log('downloaded : D')
-          }
-        }
+          console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
+        //  RNFS.unlink(path)
+          continue;
       }
-      console.log('done with all downloads!!')
-    }
+      else {
+        console.log(`PATH ${path}  DOES NOT EXISTS`);
 
-    useEffect(() => {
-      workoutSelectedData();
-    }, []);
+        let filename = row['filename'].replace(/\s/, "%20");
+        console.log(row['filename']);
+        filename = row['filename'].replace(/\s/, "%20");
 
-    const exercisePreview = (item) => {
-      console.log('ex prev')
-      navigation.navigate('ExercisePreview', [item])
+        console.log('now downloading: ', filename);
+        const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path });
+        if (await downloadInfo.promise) { console.log('downloaded : D') }
+      }
     }
+    console.log('done with all downloads!!')
+  }
+
+  useEffect(() => {
+    workoutSelectedData();
+  }, []);
+
+  const exercisePreview = (item) => {
+    console.log('ex prev')
+    navigation.navigate('ExercisePreview', [item])
+  }
 
   return (
     <ScrollView>
-      <Text>{route.params[0].title}</Text>
       <Image
         style={{height: 200, width: ScreenWidth}}
         source={{uri: image}}>
       </Image>
-      {content.map((item, index) => (
+      { loading == true && <Text>LOADING</Text> }
+      {loading == false && content.map((item, index) => (
         <View key={index} style={{flexDirection:"row"}}>
 
           <View style={{flex:2, marginRight: 20}}>
@@ -143,17 +134,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           </View>
         </View>
       ))}
-      <Button title="Begin" onPress={beginWorkout}></Button>
-        <Modal
-          style={styles.centeredView}
-          transparent={true}
-          visible={modalVisible}>
-          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-            <View style={{flex:2,backgroundColor:'#6666669c'}}>
-               <VideoComponent fileName={videoFile} pausedVideo={false} style={{marginTop: 40}}/>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+      {loading == false && <Button title="Begin" onPress={beginWorkout}></Button> }
     </ScrollView>
   )
 }
@@ -206,6 +187,18 @@ const styles = StyleSheet.create({
 });
 
 export default WorkoutSelected;
+/*
+<Modal
+  style={styles.centeredView}
+  transparent={true}
+  visible={modalVisible}>
+  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+    <View style={{flex:2,backgroundColor:'#6666669c'}}>
+       <VideoComponent fileName={videoFile} pausedVideo={false} style={{marginTop: 40}}/>
+    </View>
+  </TouchableWithoutFeedback>
+</Modal>*
+
 /*
   return fetch(api)
     .then((response) => response.json())

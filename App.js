@@ -18,6 +18,8 @@ import Settings from './screens/Settings';
 import ExercisePreview from './screens/ExercisePreview';
 import AppleAuth from './components/AppleAuth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import PushNotification from "react-native-push-notification";
 
 const Section = ({children, title}): Node => {
 
@@ -56,64 +58,113 @@ const App = () => {
   const [uid, setUid] = useState([]);
   const [validLogin, setValidLogin] = useState(false);
   const [loadingScreen, setLoadingScreen] = useState(true);
+  const [token, setToken] = useState({});
 
-    const validateSession = async () => {
+  const validateSession = async () => {
 
-      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-      const sub = await AsyncStorage.getItem("APPLE_SUB");
+    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const sub = await AsyncStorage.getItem("APPLE_SUB");
 
-      console.log('storageToken')
-      console.log(storageToken)
-      console.log('\n\n\n')
-      console.log('get current user ~~~~~~~ @@@@');
+    console.log('storageToken')
+    console.log(storageToken)
+    console.log('\n\n\n')
+    console.log('get current user ~~~~~~~ @@@@');
 
 
-      const myHeaders = new Headers();
-      myHeaders.append('Content-Type', 'application/json');
-      myHeaders.append('Authorization', storageToken);
+    const myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    myHeaders.append('Authorization', storageToken);
 
-      const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({"id_token": storageToken})
-        });
-      console.log('response ***** -------');
-      if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
-      {
-        console.log(response.status)
-        console.log('login error')
-        setLoadingScreen(false);
-        return 'error';
-      }
-
-      console.log('data APPPPPPP');
-      const userParams = {};
-      userParams['apple_sub'] = sub;
-      userParams['id_token'] = storageToken;
-      console.log('userParams');
-      console.log(userParams);
-
-      const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
+    const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify(userParams)
+        body: JSON.stringify({"id_token": storageToken})
       });
-      console.log('userResponse', userResponse.status);
-      if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
-      {
-        console.log(response.status)
-        console.log('login error')
-        setLoadingScreen(false);
-        return 'error';
-      }
+    console.log('response ***** -------');
+    if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
+    {
+      console.log(response.status)
+      console.log('login error')
       setLoadingScreen(false);
-      setValidLogin(true);
+      return 'error';
     }
 
+    const userParams = {};
+    userParams['apple_sub'] = sub;
+    userParams['id_token'] = storageToken;
+    console.log('userParams');
+    console.log(userParams);
+
+    const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(userParams)
+    });
+    console.log('userResponse', userResponse.status);
+    if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
+    {
+      console.log(response.status)
+      console.log('login error')
+      setLoadingScreen(false);
+      return 'error';
+    }
+    setLoadingScreen(false);
+    setValidLogin(true);
+  }
+
+  const setupNotifications = () => {
+    PushNotificationIOS.addEventListener('notification', onRemoteNotification);
+    PushNotificationIOS.addEventListener('register', onRegistered);
+    PushNotificationIOS.addEventListener('registrationError', onRegistrationError);
+    PushNotificationIOS.addEventListener('localNotification', onLocalNotification);
+    PushNotificationIOS.requestPermissions({
+      alert: true,
+      badge: true,
+      sound: true,
+    }).then((data) => {
+      console.log('PushNotificationIOS.requestPermissions', data);
+    }, (err) => {
+      console.error('[NOTIFICATIONS] register error: ', err);
+    });
+  }
+
+  const onRegistered = (deviceToken) => {
+    setToken(deviceToken)
+    console.log('Registered For Remote Push', `Device Token: ${deviceToken}`)
+  };
+
+  const onRemoteNotification = (notification) => {
+    console.log('remote notification !')
+    const isClicked = notification.getData().userInteraction === 1;
+    setToken('remote notificaiton')
+    if (isClicked) {
+     // Navigate user to another screen
+    } else {
+     // Do something else with push notification
+    }
+  };
+
+  const onRegistrationError = (remoteNotification) => {
+   console.log('onRegistrationError', remoteNotification)
+  };
+
+  const onLocalNotification = (localNotification) => {
+   console.log('onLocalNotification', locaNotification)
+  };
+
+  const notifyPress = () => {
+    console.log('notify press')
+    PushNotification.localNotification({
+      title: "title hw",
+      message: "hw"
+    });
+  }
+
   useEffect(() => {
-        validateSession();
+    validateSession();
+    setupNotifications();
   }, []);
 
   if (loadingScreen) {
@@ -156,6 +207,8 @@ const App = () => {
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
+        <Text> token: {JSON.stringify(token)}</Text>
+        <Button title="notify" onPress={notifyPress} />
         <AppleAuth setValidLogin={setValidLogin} />
       </View>
     );

@@ -13,7 +13,9 @@ const Settings = ({setValidLogin}) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    console.log('here')
+
+    // WORKS
+    /*
 
     RNIap.initConnection().catch(() => {
       console.log('ERROR connecting to store...')
@@ -34,19 +36,20 @@ const Settings = ({setValidLogin}) => {
           }
           catch (error) { console.log('error', error)}
       });
-    });
-/*
-    const purchaseUpdatedListener = RNIap.purchaseUpdatedListener((purchase) => {
-      try {
-        const receipt = purchase.transactionReceipt;
-        console.log('receipt')
-        console.log(receipt)
-        setPurchase("purchased!")
-      }
-      catch (error) {
 
-      }
-    })*/
+    });*/
+                /*    LISTENER...
+                    const purchaseUpdatedListener = RNIap.purchaseUpdatedListener((purchase) => {
+                      try {
+                        const receipt = purchase.transactionReceipt;
+                        console.log('receipt')
+                        console.log(receipt)
+                        setPurchase("purchased!")
+                      }
+                      catch (error) {
+
+                      }
+                    })*/
   }, []);
 
   const LogOut = () => {
@@ -70,27 +73,22 @@ const Settings = ({setValidLogin}) => {
       await RNIap.clearTransactionIOS();
     }
 
-
-      await RNIap.requestSubscription({sku}, sku).catch((error) => {
-        console.log(sku)
-        console.log('ERROR ', error)
-      }).then((result) => {
-        console.log('result')
-        console.log(sku)
-        console.log(result)
-
-      });
-
+    await RNIap.requestSubscription({sku}, sku).catch((error) => {
+      console.log(sku)
+      console.log('ERROR ', error)
+    }).then((result) => {
+      console.log('result')
+      console.log(sku)
+      console.log(result)
+    });
   //  await RNIap.clearTransactionIOS();
-
   }
 
   const makeSubscription = async (sku) => {
-        try {
-            RNIap.requestSubscription(sku);
-          }
-          catch (error) { console.log('error', error)}
-
+    try {
+      RNIap.requestSubscription(sku);
+    }
+    catch (error) { console.log('error', error)}
   }
 
   return (

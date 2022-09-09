@@ -19,20 +19,13 @@ const Workouts = ({navigation, uid}) => {
 
     console.log('going to get the workouts ')
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    console.log(storageToken)
     const response = await fetch(`https://hautewellnessapp.com/api/getWorkouts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({"id_token": storageToken})
       });
-
-      console.log(response)
-
-    //const api = `http://localhost:3000/api/getWorkouts`;
-    //const response = await fetch(api);
     const data = await response.json();
-    console.log(data);
     setWorkouts(data);
   };
 
