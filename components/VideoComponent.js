@@ -8,34 +8,25 @@ const VideoComponent = ({fileName, pausedVideo, loading}) => {
   //TODO: change to loading video
   if (typeof fileName != "string") fileName = "https://fitappmedia1.s3.us-west-1.amazonaws.com/zoom.mp4";
   const [loadingVideo, setLoadingVideo] = useState(true);
-  const [height, setHeight] = useState(0);
-  const [width, setWidth] = useState(0);
-
   const [workoutsIntermediate, setWorkoutsIntermediate] = useState([]);
 
   const videoReady = () => {
     console.log('video ready');
     setLoadingVideo(false);
-    setHeight(200);
-    setWidth(400);
   }
 
   return (
-    <View>
-    {
-      loadingVideo == true &&
-      <Text> L O A D I N G .... </Text>
-    }
-    <Video
-      style={{height: height, width: width, marginTop: 10}}
-      source={{uri: fileName}}
-      repeat={true}
-      muted={true}
-      audioOnly={false}
-      paused={pausedVideo}
-      mixWithOthers={"mix"}
-      ignoreSilentSwitch={"ignore"}
-      onReadyForDisplay={videoReady}/>
+    <View style={{flexDirection: "row", padding: 10}}>
+      <Video
+        style={{width: ScreenWidth, height: ScreenWidth}}
+        source={{uri: fileName}}
+        repeat={true}
+        muted={true}
+        audioOnly={false}
+        paused={pausedVideo}
+        mixWithOthers={"mix"}
+        ignoreSilentSwitch={"ignore"}
+        onReadyForDisplay={videoReady}/>
   </View>
   )
 };

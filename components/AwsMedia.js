@@ -63,7 +63,7 @@ const AwsMedia = ({filename, title, json_content, status, description, navigatio
     >
       <TouchableOpacity onPress={() => navigation.navigate('WorkoutSelected', [apiParams])}>
         <ImageBackground
-          style={{height: 200, width: 300, padding: 10}}
+          style={{height: 400, width: 300, padding: 10}}
           source={{uri: filename}}
           borderRadius={8}
           resizeMode="cover">

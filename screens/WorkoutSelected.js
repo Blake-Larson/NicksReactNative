@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, Button, Image, Dimensions, ScrollView, SafeAreaView, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Text, View, FlatList, Button, Image, Dimensions, ScrollView, SafeAreaView,
+          StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Animated, StatusBar, ImageBackground } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import ThumbnailImage from '../components/ThumbnailImage.js';
 import VideoComponent from '../components/VideoComponent.js';
 import Video from 'react-native-video';
 var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import WorkoutContent from "../components/WorkoutContent.js";
+
+const HEADER_MAX_HEIGHT = 240;
+const HEADER_MIN_HEIGHT = 84;
+const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 //var path = RNFS.ExternalDirectoryPath + "/abc.png";
 const WorkoutSelected = ({navigation, route, uid}) => {
@@ -21,14 +27,17 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
 
+  const scrollY = useRef(new Animated.Value(0)).current;
   const workoutSelectedData = async () => {
 
     console.log('loading');
+    setLoading(false);
+
     const filenamecontent = await getExerciseById();
     console.log('starting to download')
+
     await rnfsDownload(filenamecontent);
     console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-    setLoading(false);
   }
 
   const getExerciseById = async () => {
@@ -108,188 +117,174 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     workoutSelectedData();
   }, []);
 
-  const exercisePreview = (item) => {
-    console.log('ex prev')
-    navigation.navigate('ExercisePreview', [item])
-  }
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, -HEADER_SCROLL_DISTANCE],
+    extrapolate: 'clamp',
+  });
+
+  const imageOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 3, HEADER_SCROLL_DISTANCE],
+    outputRange: [1, 1, 0],
+    extrapolate: 'clamp',
+  });
+  const imageTranslateY = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, 100],
+    extrapolate: 'clamp',
+  });
+
+  const titleScale = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+    outputRange: [1, 1, 0.9],
+    extrapolate: 'clamp',
+  });
+  const titleTranslateY = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, 0, -8],
+    extrapolate: 'clamp',
+  });
+
+  const backgroundImage = require("../media/lifting.jpeg");
 
   return (
-    <ScrollView>
-      <Image
-        style={{height: 200, width: ScreenWidth}}
-        source={{uri: image}}>
-      </Image>
-      { loading == true && <Text>LOADING</Text> }
-      {loading == false && content.map((item, index) => (
-        <View key={index} style={{flexDirection:"row"}}>
-
-          <View style={{flex:2, marginRight: 20}}>
-            <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Name: {item.name}</Text>
-            <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Minutes: {item.minutes}</Text>
-            <Text style={{justifyContent: 'flex-end', marginTop: 20}}>Seconds: {item.seconds}</Text>
-            <Text style={{justifyContent: 'flex-end', marginTop: 20}}>{JSON.stringify(item)}</Text>
-            <TouchableOpacity style={{justifyContent: 'flex-start', marginTop: 20, width: 30}} style={styles.button} onPress={() => exercisePreview(item)} >
-              <Text style={styles.text}>PREVIEW</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-      {loading == false && <Button title="Begin" onPress={beginWorkout}></Button> }
-    </ScrollView>
+    <View style={{flex: 1}}>
+      <View style={{ position:'absolute',top:45, zIndex: 100}}>
+        <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workout', [])}>
+          <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
+        </TouchableOpacity>
+      </View>
+      <SafeAreaView style={styles.saveArea}>
+        <Animated.ScrollView
+          contentContainerStyle={{ paddingTop: HEADER_MAX_HEIGHT - 32 }}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY }}}],
+            { useNativeDriver: true },
+          )}>
+          <WorkoutContent navigation={navigation} route={route} content={content}/>
+        </Animated.ScrollView>
+        <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
+          <Animated.Image style={[
+            styles.headerBackground,
+            {
+              opacity: imageOpacity,
+              transform: [{ translateY: imageTranslateY }],
+            },
+          ]} source={require("../media/lifting.jpeg")} />
+        </Animated.View>
+        <Animated.View
+         style={[
+           styles.topBar,
+           {
+             transform: [{ scale: titleScale }, { translateY: titleTranslateY }],
+           },
+         ]}>
+          <Text style={styles.title}>{title}</Text>
+       </Animated.View>
+       <TouchableOpacity style={{width: 10, height: 10, marginBottom: 20}} style={styles.buttonStart}  onPress={beginWorkout}  >
+         <Text style={{fontWeight: "bold", fontSize: 20}}>Begin Workout</Text>
+       </TouchableOpacity>
+      </SafeAreaView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  centeredView: {
+  saveArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-    backgroundColor: "red",
-    paddingTop: 50,
-    margin: 60,
+    backgroundColor: 'black',
   },
-  modalView: {
-    margin: 60,
-    justifyContent: "center",
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#402583',
+    backgroundColor: '#ffffff',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 0,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 1,
+    borderRadius: 10,
+    marginHorizontal: 12,
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  button: {
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'black',
+    overflow: 'hidden',
+    height: HEADER_MAX_HEIGHT,
+
+  },
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: null,
+    height: HEADER_MAX_HEIGHT,
+    resizeMode: 'cover',
+  },
+  topBar: {
+    marginTop: 40,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  title: {
+    color: 'white',
+    fontSize: 35,
+    fontWeight: "bold",
+  },
+  avatar: {
+    height: 54,
+    width: 54,
+    resizeMode: 'contain',
+    borderRadius: 54 / 2,
+  },
+  fullNameText: {
+    fontSize: 16,
+    marginLeft: 24,
+  },
+  touchableOpacityStyle: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 330,
+  },
+  floatingButtonStyle: {
+    resizeMode: 'contain',
+    width: 50,
+    height: 50,
+    position: "absolute",
+  },
+  buttonStart: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     marginTop: 30,
-    marginLeft: 30,
-    marginRight: 30
-  },
-  text: {
-    fontSize: 16,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-    color: 'white',
+    marginBottom: 30,
+    marginLeft: 40,
+    marginRight: 40
   },
 });
 
 export default WorkoutSelected;
-/*
-<Modal
-  style={styles.centeredView}
-  transparent={true}
-  visible={modalVisible}>
-  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-    <View style={{flex:2,backgroundColor:'#6666669c'}}>
-       <VideoComponent fileName={videoFile} pausedVideo={false} style={{marginTop: 40}}/>
-    </View>
-  </TouchableWithoutFeedback>
-</Modal>*
-
-/*
-  return fetch(api)
-    .then((response) => response.json())
-    .then((json) => {
-      console.log('EXERCISE JSON..')
-      console.log(json);
-      setExerciseContent(json)
-      setVideoFile(json[0]['filename'])
-      return json;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-    */
-
-/*
-  const getWorkoutSelected = () => {
-  return fetch(`http://${url}:3000/user_series_progress?userid=${uid}&series=${title}`)
-    .then((response) => response.json())
-    .then((json) => {
-      setExerciseContent(json)
-      console.log(json);
-      return json;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  };
-  */
-
-
-/*
-  const completeStatus = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/user_progress_update?userid=${uid}&status=complete&series=${title}`);
-      const json = await response.json();
-      getWorkoutSelected();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-*/
-/*
-  const resetStatus = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/user_progress_reset?userid=${uid}&series=${title}`);
-      const json = await response.json();
-      getWorkoutSelected();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-*/
-
-//    console.log('yeah it doesnt exist here')
-
-    /*
-    RNFS.readDir(RNFS.DocumentDirectoryPath) // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
-    .then((result) => {
-      console.log('GOT RESULT', result);
-
-      // stat the first file
-      return Promise.all([RNFS.stat(result[0].path), result[0].path]);
-    })
-    .then((statResult) => {
-      if (statResult[0].isFile()) {
-        // if we have a file, read it
-        return RNFS.readFile(statResult[1], 'utf8');
-      }
-      console.log('no file...')
-      return 'no file';
-    })
-    .then((contents) => {
-      // log the file contents
-      console.log(contents);
-    })
-    .catch((err) => {
-      console.log(err.message, err.code);
-    });*/
-
-/*
-    const downloadInfo = await RNFS.downloadFile({
-      fromUrl: "https://d3c4ht1ghv1me9.cloudfront.net/Bosu%20Sump%20Jump.m4v",
-      toFile: path,
-      //headers: getOpts.headers,
-    })
-    if (await downloadInfo.promise) {
-      // ASSET HAS BEEN DOWNLOADED!
-      console.log('downloaded : D')
-    }
-
-    */

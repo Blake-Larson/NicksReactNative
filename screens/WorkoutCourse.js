@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, ScrollView, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { Text, ScrollView, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, Linking } from 'react-native';
 import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
@@ -126,16 +126,26 @@ const WorkoutCourse = ({navigation, route, uid}) => {
   }
 
   return (
-    <View>
+    <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
+    <View style={{ position:'absolute',top:45, zIndex: 100}}>
+      <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workout', [])}>
+        <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
+      </TouchableOpacity>
+    </View>
     <ScrollView>
-    {workoutCompleted == true ? <Text style={{color: "red", fontSize:30, alignItems: 'center', justifyContent: 'center',flexDirection: 'row'}}>Workout Completed ! </Text> :
+    {workoutCompleted == true ? <Text style={{color: "white", fontSize:30, alignItems: 'center', justifyContent: 'center',flexDirection: 'row'}}>Workout Completed ! </Text> :
       <View>
-        <Text style={{color: "red", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
-        <Text style={{fontSize: 25}}>  {currentNumber + 1} of {totalNumber + 1}</Text>
+        <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
+        <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
           { currentNumber < VideoData.length - 1 &&
-            <Text style={{fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
+            <Text style={{color: "white", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
           }
-        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused} style={{marginTop: 40}}/>
+        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused} style={{marginTop: 50}}/>
+
+          <TouchableOpacity onPress={() => {setPaused(true),Linking.openURL('spotify:')}}>
+            <Text style={{color: "white"}}>Open Spotify</Text>
+          </TouchableOpacity>
+
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 5}}>
             <TouchableOpacity onPress={previousVideo}>
               <ImageBackground
@@ -160,25 +170,24 @@ const WorkoutCourse = ({navigation, route, uid}) => {
           {currentNumber == VideoData.length - 1 ?
             <TouchableOpacity onPress={completeWorkout}>
               <ImageBackground
-                style={{height: 100, width: 100, padding: 10, justifyContent: 'center'}}
+                style={{height: 100, width: 100, padding: 10, justifyContent: 'center', color: "white"}}
                 source={nextButton}>
               </ImageBackground>
             </TouchableOpacity> : null
           }
         </View>
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 35}}>
-          { seconds > 10 && <Text style={{fontSize: 35}}>{minutes} : {seconds}</Text> }
-          { seconds == 9 && <Text style={{fontSize: 35}}>{minutes} : 09 </Text> }
-          { seconds == 8 && <Text style={{fontSize: 35}}>{minutes} : 08 </Text> }
-          { seconds == 7 && <Text style={{fontSize: 35}}>{minutes} : 07 </Text> }
-          { seconds == 6 && <Text style={{fontSize: 35}}>{minutes} : 06 </Text> }
-          { seconds == 5 && <Text style={{fontSize: 35}}>{minutes} : 05 </Text> }
-          { seconds == 4 && <Text style={{fontSize: 35}}>{minutes} : 04 </Text> }
-          { seconds == 3 && <Text style={{fontSize: 35}}>{minutes} : 03 </Text> }
-          { seconds == 2 && <Text style={{fontSize: 35}}>{minutes} : 02 </Text> }
-          { seconds == 1 && <Text style={{fontSize: 35}}>{minutes} : 01 </Text> }
-          { seconds == 0 && <Text style={{fontSize: 35}}>{minutes} : 00 </Text> }
-
+          { seconds > 10 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : {seconds}</Text> }
+          { seconds == 9 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 09 </Text> }
+          { seconds == 8 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 08 </Text> }
+          { seconds == 7 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 07 </Text> }
+          { seconds == 6 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 06 </Text> }
+          { seconds == 5 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 05 </Text> }
+          { seconds == 4 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 04 </Text> }
+          { seconds == 3 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 03 </Text> }
+          { seconds == 2 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 02 </Text> }
+          { seconds == 1 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 01 </Text> }
+          { seconds == 0 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 00 </Text> }
         </View>
         </View>
       }

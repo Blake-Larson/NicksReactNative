@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import jwt_decode from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 import appleAuth, {
   AppleButton,
@@ -100,10 +101,11 @@ const AppleAuth = ({setValidLogin}) => {
 
 const styles = StyleSheet.create({
   appleButton: {
-    width: '100%',
-    height: 45,
+    width: ScreenWidth*.9,
+    height: 55,
     shadowColor: '#555',
-    shadowOpacity: 0.5,
+    borderRadius: 60,
+    shadowOpacity: 0.2,
     shadowOffset: {
       width: 0,
       height: 3

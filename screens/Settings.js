@@ -92,38 +92,37 @@ const Settings = ({setValidLogin}) => {
   }
 
   return (
-    <View>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Text>        SETTINGS</Text>
-      <Image source={{uri: "https://fitappmedia1.s3.us-west-1.amazonaws.com/weights.jpeg"}} style={{ width: 100, height: 100 }}/>
+    <View style={{"backgroundColor": "black", "height": 10000}}>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
+      <Text style={{"color": "white"}}>        SETTINGS</Text>
       <Button onPress={() => makeSubscription(products[0]["productId"]) } title="Purchase"/>
       <Button onPress={LogOut} title="Log Out"/>
-      <Text>Price: {price}</Text>
-      <Text>{purchase}</Text>
-      <Text>{JSON.stringify(products)}</Text>
+      <Text style={{"color": "white"}}>Price: {price}</Text>
+      <Text style={{"color": "white"}}>{purchase}</Text>
+      <Text style={{"color": "white"}}>{JSON.stringify(products)}</Text>
 
     </View>
   )

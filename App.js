@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-//import auth from '@react-native-firebase/auth';
-
-import type {Node} from 'react';
-import { ScrollView, StatusBar, StyleSheet, Text, Button, useColorScheme, View, Image, Stack } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, Button, View, Image, Stack, Dimensions } from 'react-native';
 import { BrowserRouter } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faRunning, faCog, faChartBar } from '@fortawesome/free-solid-svg-icons';
@@ -20,35 +17,7 @@ import AppleAuth from './components/AppleAuth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from "react-native-push-notification";
-
-const Section = ({children, title}): Node => {
-
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
+const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 const App = () => {
 
@@ -65,27 +34,19 @@ const App = () => {
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
     const sub = await AsyncStorage.getItem("APPLE_SUB");
 
-    console.log('storageToken')
-    console.log(storageToken)
-    console.log('\n\n\n')
-    console.log('get current user ~~~~~~~ @@@@');
-
-
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
     myHeaders.append('Authorization', storageToken);
 
     const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({"id_token": storageToken})
-      });
-    console.log('response ***** -------');
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({"id_token": storageToken})
+    });
     if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
     {
-      console.log(response.status)
-      console.log('login error')
+      console.log('login error', response.status);
       setLoadingScreen(false);
       return 'error';
     }
@@ -105,8 +66,7 @@ const App = () => {
     console.log('userResponse', userResponse.status);
     if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
-      console.log(response.status)
-      console.log('login error')
+      console.log('login error', response.status)
       setLoadingScreen(false);
       return 'error';
     }
@@ -193,9 +153,9 @@ const App = () => {
   }
 
   if (!validLogin) {
-
     return (
-      <View>
+      <View style={{flex:1, alignItems: 'center', height: ScreenHeight, backgroundColor: "black"}}>
+        <Text style={{color: "white", fontSize: 45, marginTop: 100}}> Haute Wellness </Text>
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
@@ -207,9 +167,10 @@ const App = () => {
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
-        <Text> token: {JSON.stringify(token)}</Text>
-        <Button title="notify" onPress={notifyPress} />
-        <AppleAuth setValidLogin={setValidLogin} />
+        <Button onPress={notifyPress} title="notify"></Button>
+        <View style={{position:'absolute', bottom:80}}>
+          <AppleAuth setValidLogin={setValidLogin} />
+        </View>
       </View>
     );
   }
@@ -218,28 +179,34 @@ const App = () => {
     return (
       <WorkoutsStack.Navigator
         options={{ headerShown: false }}>
-        <WorkoutsStack.Screen name="Workout">
+        <WorkoutsStack.Screen name="Workout" options={{headerShown: false, headerStyle: {
+            marginTop: 1000,
+          }}}  >
           {({navigation, route}) => (<Workouts uid={uid} navigation={navigation} route={route}/>)}
         </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="WorkoutSelected">
+        <WorkoutsStack.Screen name="WorkoutSelected" options={{headerShown: false}}>
           {({navigation, route}) => (<WorkoutSelected uid={uid} navigation={navigation} route={route}/>)}
         </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="WorkoutCourse">
+        <WorkoutsStack.Screen name="WorkoutCourse" options={{headerShown: false}} >
           {({navigation, route}) => (<WorkoutCourse uid={uid} navigation={navigation} route={route}/>)}
         </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="ExercisePreview">
+        <WorkoutsStack.Screen name="ExercisePreview" options={{headerShown: false}}>
           {({navigation, route}) => (<ExercisePreview uid={uid} navigation={navigation} route={route}/>)}
         </WorkoutsStack.Screen>
       </WorkoutsStack.Navigator>
     );
   }
+
   return (
       <NavigationContainer>
         <Tab.Navigator
           initialRouteName="Workouts"
           screenOptions={{
             tabBarShowLabel: false,
+            headerTitleAlign: "left",
             tabBarStyle: {
+              backgroundColor: "black",
+              borderTopWidth: 0,
               height: 70,
             },
             tabBarActiveTintColor: '#e91e63',
@@ -280,6 +247,8 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    position: 'absolute',
+    bottom: 50
   },
   sectionTitle: {
     fontSize: 24,
