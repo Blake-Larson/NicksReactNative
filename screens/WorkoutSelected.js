@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     overflow: 'hidden',
     height: HEADER_MAX_HEIGHT,
-
+    borderRadius: 10,
   },
   headerBackground: {
     position: 'absolute',
@@ -246,6 +246,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 35,
     fontWeight: "bold",
+    fontFamily: "System",
   },
   avatar: {
     height: 54,

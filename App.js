@@ -209,7 +209,7 @@ const App = () => {
               borderTopWidth: 0,
               height: 70,
             },
-            tabBarActiveTintColor: '#e91e63',
+            tabBarActiveTintColor: 'red',
           }}>
           <Tab.Screen
             name="UserProgress"

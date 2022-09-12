@@ -8,7 +8,8 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import Video from 'react-native-video';
 var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, View, FlatList, Button, Image, Dimensions, ScrollView, SafeAreaView, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, FlatList, Button, Image, Dimensions, ScrollView,
+  StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
 const WorkoutContent = ({navigation, route, content}) => {
 
@@ -20,22 +21,29 @@ const WorkoutContent = ({navigation, route, content}) => {
   return (
     <View>
     {
-      loading == false && content.map((item, index) => (
+      content.map((item, index) => (
         <View>
-        <View key={index} style={{flexDirection:"row", paddingLeft: 28, paddingTop: 10}}>
-          <Video
-            style={{height: 130, width: 180, marginBottom: 1}}
-            source={{uri: `file://${RNFS.DocumentDirectoryPath}/${item.exerciseid}.mp4`}}
-            paused={true}
-          />
-          <View style={{flex:2, marginRight: 10, marginLeft: 20, marginTop: 10}}>
-            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold"}}>{item.name}</Text>
-            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>{item.minutes} : {item.seconds}</Text>
-            <TouchableOpacity style={{width: 10, height: 10}} style={styles.button} onPress={() => exercisePreview(item)} >
-              <Text style={styles.text}>PREVIEW</Text>
-            </TouchableOpacity>
+          <View key={index} style={{flexDirection:"row", paddingLeft: 28, paddingTop: 10}}>
+            <View style={{flex: 1}}>
+              <TouchableOpacity style={{}} onPress={() => exercisePreview(item)}>
+                <Video
+                  style={{width: "100%", marginLeft: 13}}
+                  style={styles.backgroundVideo}
+                  source={{uri: `file://${RNFS.DocumentDirectoryPath}/${item.exerciseid}.mp4`}}
+                  paused={true}
+                  />
+                <Text style={{color: "white", top: 0, paddingBottom: 80, zIndex: 999}}></Text>
+                <ImageBackground
+                  style={{color: "white", height: 36, width: 36, opacity: .7, position: "absolute", top: 28, marginLeft: 67}}
+                  source={require("../media/previewbutton.png")}>
+                </ImageBackground>
+              </TouchableOpacity>
+            </View>
+            <View style={{flex:1, marginRight: 10, marginLeft: 20, marginTop: 10}}>
+              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "System"}}>{item.name}</Text>
+              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>{item.minutes} : {item.seconds}</Text>
+            </View>
           </View>
-        </View>
         </View>
       ))
     }
@@ -44,61 +52,14 @@ const WorkoutContent = ({navigation, route, content}) => {
 };
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-    backgroundColor: "red",
-    paddingTop: 50,
-    margin: 60,
-  },
-  modalView: {
-    margin: 60,
-    justifyContent: "center",
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    backgroundColor: 'grey',
-    marginTop: 10,
-    marginRight: 30
-  },
-  buttonStart: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    backgroundColor: 'white',
-    marginTop: 30,
-    marginLeft: 30,
-    marginRight: 30
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 14,
-    fontWeight: 'bold',
-    letterSpacing: 0.15,
-    color: 'white',
-  },
+  backgroundVideo: {
+   position: 'absolute',
+   top: 0,
+   left: 0,
+   bottom: 0,
+   right: 0,
+   borderRadius: 6,
+ },
 });
 
 export default WorkoutContent;
