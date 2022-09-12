@@ -141,7 +141,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   });
   const titleTranslateY = scrollY.interpolate({
     inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
-    outputRange: [0, 0, -8],
+    outputRange: [130, 40, -18],
     extrapolate: 'clamp',
   });
 
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     elevation: 3,
     backgroundColor: 'white',
-    marginTop: 30,
+    marginTop: 10,
     marginBottom: 30,
     marginLeft: 40,
     marginRight: 40
