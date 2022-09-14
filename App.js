@@ -21,10 +21,7 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 const App = () => {
 
-  const WorkoutsStack = createNativeStackNavigator();
-  const Tab = createBottomTabNavigator();
   const [initializing, setInitializing] = useState(false);
-  const [uid, setUid] = useState([]);
   const [validLogin, setValidLogin] = useState(false);
   const [loadingScreen, setLoadingScreen] = useState(true);
   const [token, setToken] = useState({});
@@ -167,60 +164,38 @@ const App = () => {
     );
   }
 
-  function WorkoutsStackScreen() {
-    return (
-      <WorkoutsStack.Navigator
-        options={{ headerShown: false }}>
-        <WorkoutsStack.Screen name="Workout" options={{headerShown: false, headerStyle: {
-            marginTop: 1000,
-          }}}  >
-          {({navigation, route}) => (<Workouts uid={uid} navigation={navigation} route={route}/>)}
-        </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="WorkoutSelected" options={{headerShown: false}}>
-          {({navigation, route}) => (<WorkoutSelected uid={uid} navigation={navigation} route={route}/>)}
-        </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="WorkoutCourse" options={{headerShown: false}} >
-          {({navigation, route}) => (<WorkoutCourse uid={uid} navigation={navigation} route={route}/>)}
-        </WorkoutsStack.Screen>
-        <WorkoutsStack.Screen name="ExercisePreview" options={{headerShown: false}}>
-          {({navigation, route}) => (<ExercisePreview uid={uid} navigation={navigation} route={route}/>)}
-        </WorkoutsStack.Screen>
-      </WorkoutsStack.Navigator>
-    );
-  }
 
-  return (
-      <NavigationContainer>
-        <Tab.Navigator
-          initialRouteName="Workouts"
-          screenOptions={{
-            tabBarShowLabel: false,
-            headerTitleAlign: "left",
-            tabBarStyle: {
-              backgroundColor: "black",
-              borderTopWidth: 0,
-              height: 70,
-            },
-            tabBarActiveTintColor: 'red',
-          }}>
+  const Tab = createBottomTabNavigator();
+  const Stack = createNativeStackNavigator();
+
+  function HomeTabs() {
+    return (
+      <Tab.Navigator initialRouteName="Workouts" screenOptions={{
+        tabBarShowLabel: false,
+        headerTitleAlign: "left",
+        tabBarStyle: {
+          backgroundColor: "black",
+          borderTopWidth: 0,
+          height: 70,
+        },
+        tabBarActiveTintColor: 'red'}}>
           <Tab.Screen
             name="UserProgress"
-            options={{
-              tabBarOptions: { activeTintColor: '#fff',
-              activeBackgroundColor: '#c4461c' },
-              tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faChartBar } size={25} color={color}/>)
-            }}>
-              {() => (<UserProgress uid={uid} />)}
-            </Tab.Screen>
-          <Tab.Screen
-            name="Workouts"
-            component={WorkoutsStackScreen}
+            component={UserProgress}
             options={{
               headerShown: false,
-              tabBarOptions: { activeTintColor:'red' },
+              tabBarOptions: { activeTintColor: '#fff',
+              activeBackgroundColor: 'red' },
+              tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faChartBar } size={25} color={color}/>)
+            }} />
+          <Tab.Screen
+            name="Workouts"
+            component={Workouts}
+            options={{
+              headerShown: false,
+              tabBarOptions: { backgroundColor: "black", activeTintColor:'red', visible: false},
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faRunning } size={25} color={color}/>)
-           }}
-          />
+           }}/>
           <Tab.Screen
             name="Settings"
             children={()=><Settings setValidLogin={setValidLogin}/>}
@@ -228,11 +203,28 @@ const App = () => {
               headerShown: false,
               tabBarOptions: { activeTintColor:'red' },
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faCog } size={25} color={color}/>)
-           }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
+          }}/>
+      </Tab.Navigator>
     );
+  }
+
+  return (
+  <NavigationContainer options={{ color: "black" }} >
+    <Stack.Navigator >
+      <Stack.Screen options={{ headerShown: false, activeTintColor: '#fff',
+      activeBackgroundColor: '#c4461c' }}  name="Home" component={HomeTabs} />
+      <Stack.Screen name="WorkoutSelected" options={{headerShown: false}}>
+        {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route}/>)}
+      </Stack.Screen>
+      <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
+        {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route}/>)}
+      </Stack.Screen>
+      <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
+        {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
+      </Stack.Screen>
+    </Stack.Navigator>
+  </NavigationContainer>
+  )
 };
 
 const styles = StyleSheet.create({

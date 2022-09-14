@@ -5,7 +5,7 @@ import VideoComponent from '../components/VideoComponent.js';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 var RNFS = require("react-native-fs");
 
-const WorkoutCourse = ({navigation, route, uid}) => {
+const WorkoutCourse = ({navigation, route}) => {
 
   const VideoData = route.params[0]['exerciseList'];
   const pauseButton = require('../media/pauseButton.png');
@@ -128,7 +128,7 @@ const WorkoutCourse = ({navigation, route, uid}) => {
   return (
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
     <View style={{ position:'absolute',top:45, zIndex: 100}}>
-      <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workout', [])}>
+      <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workouts', [])}>
         <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
       </TouchableOpacity>
     </View>

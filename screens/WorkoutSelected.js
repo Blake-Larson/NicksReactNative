@@ -193,10 +193,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const openScheduleWorkoutModal = () => {
 
     PushNotificationIOS.checkPermissions(Localarray => {
-        console.log("getScheduledLocalNotifications", Localarray);
-        console.log('status')
-
-        console.log(Localarray['authorizationStatus'])
         if (Localarray['authorizationStatus'] != 2) setApnDisabled(true);
         if (Localarray['authorizationStatus'] == 2) setOpen(true);
     });
@@ -205,7 +201,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   return (
     <View style={{flex: 1}}>
       <View style={{ position:'absolute',top:45, zIndex: 100}}>
-        <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workout', [])}>
+        <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workouts', [])}>
           <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
         </TouchableOpacity>
       </View>
@@ -217,10 +213,8 @@ const WorkoutSelected = ({navigation, route, uid}) => {
             [{ nativeEvent: { contentOffset: { y: scrollY }}}],
             { useNativeDriver: true },
           )}>
-
           <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10,   alignItems: 'center',
             justifyContent: 'center'}}>
-
           <TouchableOpacity style={{width: 100, height: 58, alignItems: 'center',
             justifyContent: 'center'}}  onPress={() => { setMusicModal(true)}}>
                 <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
@@ -241,8 +235,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                   justifyContent: 'center'}} source={require("../media/send.png")} />
                 <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Share </Text>
             </TouchableOpacity>
-
-
           </View>
           <WorkoutContent navigation={navigation} route={route} content={content}/>
         </Animated.ScrollView>
@@ -298,7 +290,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                     <Text style={{fontWeight: "bold", color: "white", fontSize: 26}}>Are Disabled</Text>
                     <Text style={{marginTop: 15, fontSize: 18,  color: "white"}}> Enable Notifications</Text>
                     <Text style={{fontSize: 18,  color: "white"}}> In Settings </Text>
-
                   </View>
                   <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setApnDisabled(false)}} >
                     <Text style={{fontWeight: "bold", color: "black", fontSize: 18}}>Close</Text>
@@ -310,7 +301,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
             </Pressable>
           </View>
         </Modal>
-
         <Modal
           transparent={true}
           animationType="slide"

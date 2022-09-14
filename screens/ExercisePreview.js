@@ -5,7 +5,7 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import VideoComponent from '../components/VideoComponent.js';
 var RNFS = require("react-native-fs");
 
-const ExercisePreview = ({navigation, route, uid}) => {
+const ExercisePreview = ({navigation, route}) => {
 
   const title = route.params[1].title;
   const image = route.params[1].image;

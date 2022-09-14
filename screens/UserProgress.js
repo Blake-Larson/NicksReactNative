@@ -3,7 +3,7 @@ import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, 
 import CalendarStrip from 'react-native-calendar-strip';
 const moment = require('moment');
 
-const UserProgress = ({navigation, uid}) => {
+const UserProgress = ({navigation}) => {
 
   const [progress, setProgress] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -16,9 +16,6 @@ const UserProgress = ({navigation, uid}) => {
   const [writtenDate, setWrittenDate] = useState([]);
   const [currentView, setCurrentView] = useState([]);
   const [allProgress, setAllProgress] = useState([]);
-
-  console.log('userid');
-  console.log(uid);
 
   const onRefresh = async () => {
     try {
@@ -43,8 +40,6 @@ const UserProgress = ({navigation, uid}) => {
       console.error(error);
     });*/
   };
-  console.log('USER ::')
-  console.log(uid);
   useEffect(() => {
 
 

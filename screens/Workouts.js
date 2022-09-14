@@ -6,13 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CalendarStrip from 'react-native-calendar-strip';
 const moment = require('moment');
 
-const Item = ({ filename }) => (
-  <View>
-    <Text>{filename}</Text>
-  </View>
-);
-
-const Workouts = ({navigation, uid}) => {
+const Workouts = ({navigation}) => {
 
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState([]);
