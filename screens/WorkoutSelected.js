@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, FlatList, Button, Image, Dimensions, ScrollView, SafeAreaView,
+import { Text, View, FlatList, Button, Image, Dimensions, ScrollView, SafeAreaView, Linking,Pressable, Share,
           StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Animated, StatusBar, ImageBackground } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+import PushNotification from "react-native-push-notification";
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import DatePicker from 'react-native-date-picker';
+const moment = require('moment');
+
 import ThumbnailImage from '../components/ThumbnailImage.js';
 import VideoComponent from '../components/VideoComponent.js';
 import Video from 'react-native-video';
@@ -9,8 +14,8 @@ var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WorkoutContent from "../components/WorkoutContent.js";
 
-const HEADER_MAX_HEIGHT = 240;
-const HEADER_MIN_HEIGHT = 84;
+const HEADER_MAX_HEIGHT = 340;
+const HEADER_MIN_HEIGHT = 120;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 //var path = RNFS.ExternalDirectoryPath + "/abc.png";
@@ -26,6 +31,10 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [exerciseContent, setExerciseContent] = useState([]);
   const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
+  const [date, setDate] = useState(new Date());
+  const [open, setOpen] = useState(false);
+  const [apnDisabled, setApnDisabled] = useState(false);
+  const [musicModal, setMusicModal] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const workoutSelectedData = async () => {
@@ -141,11 +150,57 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   });
   const titleTranslateY = scrollY.interpolate({
     inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
-    outputRange: [130, 40, -18],
+    outputRange: [210, 80, 18],
     extrapolate: 'clamp',
   });
 
   const backgroundImage = require("../media/lifting.jpeg");
+
+  const notifyPress = () => {
+
+    const incrementedMin = new Date(Date.now(date) + (60 * 1000))
+    const details = {};
+    details['fireDate'] = moment(incrementedMin).toISOString();
+    details['title'] = 'Haute Wellness';
+    details['alertTitle'] = 'Haute Wellness';
+    details['alertBody'] = 'Workout Scheduled';
+
+    PushNotificationIOS.cancelLocalNotifications();
+    PushNotificationIOS.scheduleLocalNotification(details);
+  }
+
+  const shareApp = async () => {
+
+      try {
+        const result = await Share.share({
+          message:
+            'Check out Haute Wellness',
+        });
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // shared with activity type of result.activityType
+          } else {
+            // shared
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // dismissed
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+  }
+
+  const openScheduleWorkoutModal = () => {
+
+    PushNotificationIOS.checkPermissions(Localarray => {
+        console.log("getScheduledLocalNotifications", Localarray);
+        console.log('status')
+
+        console.log(Localarray['authorizationStatus'])
+        if (Localarray['authorizationStatus'] != 2) setApnDisabled(true);
+        if (Localarray['authorizationStatus'] == 2) setOpen(true);
+    });
+  }
 
   return (
     <View style={{flex: 1}}>
@@ -162,6 +217,33 @@ const WorkoutSelected = ({navigation, route, uid}) => {
             [{ nativeEvent: { contentOffset: { y: scrollY }}}],
             { useNativeDriver: true },
           )}>
+
+          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10,   alignItems: 'center',
+            justifyContent: 'center'}}>
+
+          <TouchableOpacity style={{width: 100, height: 58, alignItems: 'center',
+            justifyContent: 'center'}}  onPress={() => { setMusicModal(true)}}>
+                <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                  justifyContent: 'center'}} source={require("../media/musicplayer.png")} />
+                  <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}>Music</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{width: 100, height: 60, alignItems: 'center',
+              justifyContent: 'center',}} onPress={openScheduleWorkoutModal}>
+                <ImageBackground style={{color: "white", height: 38, width: 38, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                  justifyContent: 'center'}} source={require("../media/clock.png")} />
+                <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Schedule </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{width: 95, height: 60, alignItems: 'center',
+              justifyContent: 'center',}} onPress={shareApp}>
+                <ImageBackground style={{color: "white", height: 38, width: 38, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                  justifyContent: 'center'}} source={require("../media/send.png")} />
+                <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Share </Text>
+            </TouchableOpacity>
+
+
+          </View>
           <WorkoutContent navigation={navigation} route={route} content={content}/>
         </Animated.ScrollView>
         <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
@@ -182,10 +264,77 @@ const WorkoutSelected = ({navigation, route, uid}) => {
          ]}>
           <Text style={styles.title}>{title}</Text>
        </Animated.View>
-       <TouchableOpacity style={{width: 10, height: 10, marginBottom: 20}} style={styles.buttonStart}  onPress={beginWorkout}  >
+       <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart}  onPress={beginWorkout}  >
          <Text style={{fontWeight: "bold", fontSize: 20}}>Begin Workout</Text>
        </TouchableOpacity>
       </SafeAreaView>
+       <DatePicker
+         modal
+         mode={"time"}
+         open={open}
+         date={date}
+         theme={"dark"}
+         onConfirm={(date) => {
+           setOpen(false)
+           setDate(date)
+           notifyPress()
+         }}
+         onCancel={() => {
+           setOpen(false)
+         }}
+       />
+       <Modal
+         transparent={true}
+         animationType="slide"
+         visible={apnDisabled}
+         onRequestClose={() => {
+            setApnDisabled(!apnDisabled);
+          }}>
+           <View style={styles.apnModalContainer}>
+             <Pressable style={styles.apnModalContainer} onPress={() => {setApnDisabled(false)}} >
+                <View style={styles.apnModalView}>
+                  <View style={styles.scheduleModalView}>
+                    <Text style={{fontWeight: "bold", color: "white", fontSize: 26}}>Notifications</Text>
+                    <Text style={{fontWeight: "bold", color: "white", fontSize: 26}}>Are Disabled</Text>
+                    <Text style={{marginTop: 15, fontSize: 18,  color: "white"}}> Enable Notifications</Text>
+                    <Text style={{fontSize: 18,  color: "white"}}> In Settings </Text>
+
+                  </View>
+                  <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setApnDisabled(false)}} >
+                    <Text style={{fontWeight: "bold", color: "black", fontSize: 18}}>Close</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.openSettings}  onPress={() => { setApnDisabled(false), Linking.openURL('app-settings://notification/')}} >
+                    <Text style={{fontWeight: "bold", fontSize: 20}}>Open Settings</Text>
+                  </TouchableOpacity>
+                </View>
+            </Pressable>
+          </View>
+        </Modal>
+
+        <Modal
+          transparent={true}
+          animationType="slide"
+          visible={musicModal}
+          onRequestClose={() => {
+             setMusicModal(!musicModal);
+           }}>
+            <View style={styles.apnModalContainer}>
+              <Pressable style={styles.apnModalContainer} onPress={() => {setMusicModal(false)}} >
+                 <View style={styles.musicModalView}>
+                   <TouchableOpacity   style={styles.musicModal} onPress={() => { Linking.openURL('spotify:')}}>
+                     <ImageBackground style={{color: "white", height: 60, width: 60, marginBottom: 0, top: 15, left: 10, flexDirection: 'row',flex: 1, position: 'absolute',
+                        }} source={require("../media/spotify.png")} />
+                      <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Spotify</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity   style={styles.musicModal}  onPress={() => { Linking.openURL('music:')}}>
+                   <ImageBackground style={{color: "white", height: 60, border: 10, width: 60, marginBottom: 0, top: 15, left: 10, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                    justifyContent: 'center'}} source={require("../media/applemusic.png")} />
+                     <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Apple Music</Text>
+                   </TouchableOpacity>
+                 </View>
+             </Pressable>
+           </View>
+         </Modal>
     </View>
   )
 }
@@ -286,6 +435,112 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     marginRight: 40
   },
+  openSettings: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: 'white',
+    marginTop: 15,
+    marginBottom: 15,
+    marginLeft: 40,
+    marginRight: 40,
+    borderRadius: 22,
+  },
+  closeApnModal: {
+    alignItems: 'center',
+    backgroundColor: "#2F2D2D",
+    height: 55,
+    shadowRadius: 4,
+    elevation: 1,
+    width: 200,
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    borderWidth: 2,
+    marginTop: 10,
+    marginBottom: 4,
+    marginLeft: 40,
+    marginRight: 40,
+    borderRadius: 22,
+    marginTop: 35,
+  },
+  musicModal: {
+    alignItems: 'center',
+    backgroundColor: "black",
+    height: 100,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 1,
+    width: 200,
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+    marginTop: 10,
+    marginBottom: 4,
+    marginLeft: 40,
+    marginRight: 40,
+    borderRadius: 22,
+    marginTop: 35,
+  },
+  apnModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    shadowOpacity: 0.25,
+  },
+  musicModalView: {
+    margin: 20,
+    backgroundColor: "#2F2D2D",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  scheduleModalView: {
+    margin: 20,
+    backgroundColor: "black",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  apnModalView: {
+    margin: 20,
+    backgroundColor: "#2F2D2D",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  }
 });
 
 export default WorkoutSelected;

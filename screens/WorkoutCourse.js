@@ -133,7 +133,7 @@ const WorkoutCourse = ({navigation, route, uid}) => {
       </TouchableOpacity>
     </View>
     <ScrollView>
-    {workoutCompleted == true ? <Text style={{color: "white", fontSize:30, alignItems: 'center', justifyContent: 'center',flexDirection: 'row'}}>Workout Completed ! </Text> :
+    {workoutCompleted == true ? <Text style={{color: "white", fontSize:30, fontWeight: "bold", alignItems: 'center', justifyContent: 'center',paddingLeft: 50, paddingTop: 100,flexDirection: 'row'}}>Workout Completed ! </Text> :
       <View>
         <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
         <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
@@ -141,11 +141,6 @@ const WorkoutCourse = ({navigation, route, uid}) => {
             <Text style={{color: "white", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
           }
         <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused} style={{marginTop: 50}}/>
-
-          <TouchableOpacity onPress={() => {setPaused(true),Linking.openURL('spotify:')}}>
-            <Text style={{color: "white"}}>Open Spotify</Text>
-          </TouchableOpacity>
-
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 5}}>
             <TouchableOpacity onPress={previousVideo}>
               <ImageBackground

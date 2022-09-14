@@ -110,17 +110,10 @@ const App = () => {
    console.log('onRegistrationError', remoteNotification)
   };
 
-  const onLocalNotification = (localNotification) => {
-   console.log('onLocalNotification', locaNotification)
+  const onLocalNotification = () => {
+  // console.log('onLocalNotification', locaNotification)
   };
 
-  const notifyPress = () => {
-    console.log('notify press')
-    PushNotification.localNotification({
-      title: "title hw",
-      message: "hw"
-    });
-  }
 
   useEffect(() => {
     validateSession();
@@ -167,7 +160,6 @@ const App = () => {
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
         <Text> LOGIN ! </Text>
-        <Button onPress={notifyPress} title="notify"></Button>
         <View style={{position:'absolute', bottom:80}}>
           <AppleAuth setValidLogin={setValidLogin} />
         </View>
