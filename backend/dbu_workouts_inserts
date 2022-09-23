@@ -1,6 +1,16 @@
 CREATE DATABASE IF NOT EXISTS test;
 
-CREATE TABLE USER_PROGRESS(logid INT PRIMARY KEY NOT NULL AUTO_INCREMENT, userid VARCHAR(200) NOT NULL, series VARCHAR(20) NOT NULL, status CHAR(10), json_notes JSON, modified DATE, created DATE, deleted CHAR(1) DEFAULT 'N');
+CREATE TABLE USER_PROGRESS(
+  logid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  userid VARCHAR(200) NOT NULL,
+  series VARCHAR(20) NOT NULL,
+  status CHAR(10),
+  json_notes JSON,
+  modified DATE,
+  created DATE,
+  deleted CHAR(1) DEFAULT 'N'
+);
+
 CREATE TABLE USERS(
   userid VARCHAR(120),
   firstname VARCHAR(200),
@@ -19,22 +29,205 @@ CREATE TABLE USERS(
   deleted CHAR(10) DEFAULT 'N'
 );
 
+CREATE TABLE WORKOUTS_SCHEDULE(
+  workoutid VARCHAR(200),
+  schedule_date DATE
+);
 
-INSERT INTO USER_PROGRESS VALUES (1, "Lift Off", NULL, "{}", NULL, NULL);
-INSERT INTO USER_PROGRESS VALUES (1, "Yoga", NULL, "{}", NULL, NULL);
-INSERT INTO USER_PROGRESS VALUES (1, "Greatest HIITs", NULL, "{}", NULL, NULL);
+CREATE TABLE WORKOUTS(
+  workoutid VARCHAR(200) NOT NULL,
+  name VARCHAR(200),
+  filename VARCHAR(200),
+  json_content JSON,
+  modified DATE,
+  created DATE,
+  deleted CHAR(10) DEFAULT 'N'
+);
 
-CREATE TABLE WORKOUT_SERIES(name VARCHAR(20), file VARCHAR(120), status VARCHAR(20), json_content JSON, modified DATE, created DATE);
+CREATE TABLE EXERCISES(
+  exerciseid VARCHAR(120),
+  name VARCHAR(120),
+  filename VARCHAR(120),
+  json_content JSON,
+  deleted CHAR(1) DEFAULT 'N'
+);
 
-INSERT INTO WORKOUT_SERIES VALUES ("Lift Off", "https://fitappmedia1.s3.us-west-1.amazonaws.com/lifting.jpeg", "Intermediate", "{}", NULL, NULL);
+CREATE TABLE IMAGES(
+  imageid VARCHAR(120) NOT NULL,
+  filename VARCHAR(120),
+  deleted CHAR(1) DEFAULT 'N'
+);
 
-INSERT INTO WORKOUT_SERIES VALUES ("Yoga", "https://fitappmedia1.s3.us-west-1.amazonaws.com/yoga.jpeg", "Beginner", "{}", NULL, NULL);
+// TODO: MAKE IDS PRIMARKY KEYS 
 
-INSERT INTO WORKOUT_SERIES VALUES ("Greatest HIITs", "https://fitappmedia1.s3.us-west-1.amazonaws.com/pushup.jpeg", "Advanced", "{}", NULL, NULL);
+/*********************************************************
+                        SEQUENCES
+*********************************************************/
 
-INSERT INTO WORKOUT_SERIES VALUES ("Skipping Class", "https://fitappmedia1.s3.us-west-1.amazonaws.com/Skipping+Class.jpeg", "Beginner", '{"course_content": ["V1-0074", "V1-0075", "V1-0069", "V1-0070", "V1-0071", "V1-0072"]}', NULL, NULL);
+
+DROP TABLE IF EXISTS sequences;
+CREATE TABLE sequences
+(
+	sequence_name VARCHAR(32) NOT NULL,
+	infix VARCHAR(8) DEFAULT NULL,
+	used_value INT NOT NULL DEFAULT 0
+);
+-- ALTER TABLE DROP CONSTRAINT sequences_no_duplicate_infix;
+ALTER TABLE sequences ADD CONSTRAINT UNIQUE sequences_no_duplicate_infix (sequence_name, infix);
+
+DROP TABLE IF EXISTS sequences_cfg;
+CREATE TABLE sequences_cfg
+(
+	sequence_name VARCHAR(32) NOT NULL,
+	prefix VARCHAR(8) DEFAULT NULL,
+	padding TINYINT NOT NULL DEFAULT 5,
+    isinfixed BOOL  NULL DEFAULT FALSE,
+	PRIMARY KEY (sequence_name)
+);
+
+DROP PROCEDURE IF EXISTS getnextid;
+DELIMITER \\
+CREATE PROCEDURE getnextid (OUT _id VARCHAR(64), OUT _msg VARCHAR(64), IN _sequence_name VARCHAR(32), IN _infix VARCHAR(8))
+sp: BEGIN
+	DECLARE _prefix VARCHAR(8);
+    DECLARE _isinfixed VARCHAR(8);
+	DECLARE _padding VARCHAR(8);
+	DECLARE _used_value VARCHAR(8);
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+
+	IF _sequence_name = '' OR _sequence_name IS NULL THEN LEAVE sp; END IF;
+    IF _infix = '' THEN SET _infix = NULL; END IF;
+
+	START TRANSACTION;
+
+    BEGIN
+		DECLARE CONTINUE HANDLER FOR 1329 -- SQL ERROR "No data", Handler upserts the row
+        spContHandlerSequenceCfg:
+		BEGIN
+			IF _infix IS NOT NULL THEN SET _isinfixed = TRUE; END IF;
+			IF _infix IS NULL THEN SET _isinfixed = FALSE; END IF;
+			IF _prefix IS NULL AND _infix IS NOT NULL THEN
+				SET _msg = "Sequence does not have a prefix but passed an infix";
+				LEAVE spContHandlerSequenceCfg;
+			END IF;
+			INSERT INTO sequences_cfg (sequence_name, isinfixed) VALUES (_sequence_name, _isinfixed);
+			SELECT prefix, padding, isinfixed INTO _prefix, _padding, _isinfixed
+			FROM sequences_cfg WHERE sequence_name = _sequence_name;
+		END;
+
+		SELECT prefix, padding, isinfixed INTO _prefix, _padding, _isinfixed
+		FROM sequences_cfg WHERE sequence_name = _sequence_name;
+
+		IF _isinfixed IS FALSE AND _infix IS NOT NULL THEN
+			SET _msg = "Sequence not allowed to have infix";
+			LEAVE sp;
+		END IF;
+	END;
+
+	-- If infixed and no prefix, error
+	IF _isinfixed IS TRUE AND _prefix IS NULL THEN
+		SET _msg = "Sequence not allowed to have infix";
+		LEAVE sp;
+	END IF;
+
+	-- If infixed and no infix provided
+	IF _isinfixed IS TRUE AND _infix IS NULL THEN
+		SET _msg = "Sequence must have an infix";
+		LEAVE sp;
+	END IF;
+
+    -- Case 1: Sequence Number, no prefix, no infix
+	IF _prefix IS NULL THEN
+        BEGIN
+			DECLARE CONTINUE HANDLER FOR 1329 -- SQL ERROR "No data", Handler upserts the row
+            spContHandlerCase1:
+			BEGIN
+				INSERT INTO sequences (sequence_name) VALUES (_sequence_name);
+				SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix IS NULL;
+                LEAVE spContHandlerCase1;
+			END;
+			SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix IS NULL;
+            SET _used_value = _used_value + 1;
+			UPDATE sequences SET used_value = _used_value WHERE sequence_name = _sequence_name AND infix IS NULL;
+			SET _id = LPAD(_used_value, _padding, 0);
+            COMMIT;
+            LEAVE sp;
+		END;
+	END IF;
+
+	-- Case 2: Prefix + Sequence Number, no infix
+    IF _isinfixed IS FALSE THEN
+		BEGIN
+			DECLARE CONTINUE HANDLER FOR 1329 -- SQL ERROR "No data", Handler upserts the row
+            spContHandlerCase2:
+			BEGIN
+				INSERT INTO sequences (sequence_name) VALUES (_sequence_name);
+				SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix IS NULL;
+                LEAVE spContHandlerCase2;
+			END;
+			SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix IS NULL;
+			SET _used_value = _used_value + 1;
+			UPDATE sequences SET used_value = _used_value WHERE sequence_name = _sequence_name AND infix IS NULL;
+            SET _id = CONCAT(_prefix, LPAD(_used_value, _padding, 0));
+            COMMIT;
+            LEAVE sp;
+		END;
+	END IF;
+
+    -- Case 3: Prefix + Infix + Sequence Number
+	IF _isinfixed IS TRUE THEN
+		BEGIN
+			DECLARE CONTINUE HANDLER FOR 1329 -- SQL ERROR "No data", Handler upserts the row
+            spContHandlerCase3:
+			BEGIN
+				INSERT INTO sequences (sequence_name, infix) VALUES (_sequence_name, _infix);
+				SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix = _infix;
+                LEAVE spContHandlerCase3;
+			END;
+			SELECT used_value INTO _used_value FROM sequences WHERE sequence_name = _sequence_name AND infix = _infix;
+            SET _used_value = _used_value + 1;
+			UPDATE sequences SET used_value = _used_value WHERE sequence_name = _sequence_name AND infix = _infix;
+            SET _id = CONCAT(_prefix, _infix, LPAD(_used_value, _padding, 0));
+            COMMIT;
+            LEAVE sp;
+		END;
+    END IF;
+COMMIT;
+END \\
+DELIMITER ;
+COMMIT;
+
+/*
+SELECT * FROM sequences_cfg;
+SELECT * FROM sequences;
+
+-- Case 1: Sequence Number
+CALL getnextid (@id, @msg, 'testseq1', NULL);
+SELECT @id, @msg;
+
+-- Case 2: Prefix + Sequence Number
+INSERT INTO sequences_cfg (sequence_name, prefix) VALUES ('testseq2', 'TST');
+COMMIT;
+CALL getnextid (@id, @msg, 'testseq2', NULL);
+SELECT @id, @msg;
+
+-- Case 3: Prefix + Infix + Sequence Number
+INSERT INTO sequences_cfg (sequence_name, prefix, isinfixed) VALUES ('testseq3', 'TTT', TRUE);
+COMMIT;
+CALL getnextid (@id, @msg, 'testseq3', '22A');
+SELECT @id, @msg;
+CALL getnextid (@id, @msg, 'testseq3', '22B');
+SELECT @id, @msg;
+*/
 
 
-CREATE TABLE EXERCISES(exerciseid VARCHAR(120), name VARCHAR(120), filename VARCHAR(120), json_content JSON, deleted CHAR(1) DEFAULT 'N');
+
+
+
+
 ALTER USER 'root' IDENTIFIED WITH mysql_native_password BY 'password';
 flush privileges;

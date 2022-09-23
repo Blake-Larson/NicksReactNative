@@ -3,9 +3,9 @@ import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions } fro
 import Video from 'react-native-video';
 import { Buffer } from 'buffer';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+const ITEM_SIZE = Dimensions.get('window').width * 0.72;
 
-
-const AwsMedia = ({filename, title, json_content, status, description, navigation}) => {
+const AwsMedia = ({filename, title, json_content, status, description, day, navigation}) => {
 
   const content = JSON.parse(json_content);
   const apiParams = {};
@@ -16,9 +16,7 @@ const AwsMedia = ({filename, title, json_content, status, description, navigatio
   apiParams['status'] = status;
   apiParams['description'] = description;
   apiParams['content'] = content.course_content;
-
   const time = content.time;
-
 
   const backgroundStyle = {
     borderRadius: 8,
@@ -55,26 +53,35 @@ const AwsMedia = ({filename, title, json_content, status, description, navigatio
     fontFamily: "System"
   };
   return (
-    <View style={{marginLeft: 25, marginTop: 5, marginBottom: 15, shadowColor: '#000',
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.5,
-      borderRadius:15,
-      shadowRadius: 5 }}
-    >
+    <View>
       <TouchableOpacity onPress={() => navigation.navigate('WorkoutSelected', [apiParams])}>
         <ImageBackground
-          style={{height: 400, width: 300, padding: 10}}
+          style={{
+            width: '100%',
+            height: ITEM_SIZE * 1.2,
+            resizeMode: 'cover',
+            borderRadius: 24,
+            margin: 0,
+            marginBottom: 10}}
           source={{uri: filename}}
           borderRadius={8}
           resizeMode="cover">
             <Text style={{fontSize: 30,
               position: "absolute",
               bottom: 10,
-              left: 15,
+              left: 25,
               opacity: 0.9,
               color: "#fffdfe",
               fontWeight: "bold",
               fontFamily: "System" }}>{title}</Text>
+            <Text style={{fontSize: 30,
+              position: "absolute",
+              top: 10,
+              left: 15,
+              opacity: 0.9,
+              color: "#fffdfe",
+              fontWeight: "bold",
+              fontFamily: "System" }}>{day}</Text>
             <Text style={{fontSize: 15,
               position: "absolute",
               bottom: 10,
@@ -92,6 +99,7 @@ const AwsMedia = ({filename, title, json_content, status, description, navigatio
               fontWeight: "bold",
               fontFamily: "System" }}>{status}</Text>
         </ImageBackground>
+        <Text >{JSON.stringify(filename)}</Text>
       </TouchableOpacity>
     </View>
   )

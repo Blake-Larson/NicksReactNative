@@ -7,9 +7,6 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import DatePicker from 'react-native-date-picker';
 const moment = require('moment');
 
-import ThumbnailImage from '../components/ThumbnailImage.js';
-import VideoComponent from '../components/VideoComponent.js';
-import Video from 'react-native-video';
 var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WorkoutContent from "../components/WorkoutContent.js";
@@ -21,10 +18,11 @@ const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 //var path = RNFS.ExternalDirectoryPath + "/abc.png";
 const WorkoutSelected = ({navigation, route, uid}) => {
 
-  const title = route.params[0].title;
-  const image = route.params[0].image;
+  const title = route.params[0].name;
+  const image = route.params[0].filename;
   const time = route.params[0].time;
-  const content = route.params[0].content;
+  const json_content = JSON.parse(route.params[0].json_content);
+  const content = json_content['course_content'];
 
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,6 +33,8 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [open, setOpen] = useState(false);
   const [apnDisabled, setApnDisabled] = useState(false);
   const [musicModal, setMusicModal] = useState(false);
+  const [fullWorkoutContent, setFullWorkoutContent] = useState([]);
+  const [downloadDone, setDownloadDone] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const workoutSelectedData = async () => {
@@ -68,13 +68,13 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
       // TODO: add error messages
       const data = await response.json();
-      console.log('data');
-      console.log(data);
+
       content[i]['filename'] = data[0]['filename'];
       content[i]['name'] = data[0]['name'];
       exerciseArray.push(content[i]);
     }
     setExerciseList(exerciseArray);
+    setFullWorkoutContent(content);
     return content;
   };
 
@@ -91,9 +91,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     console.log('inside rnfsDownload')
     console.log(content);
     console.log('\n\n')
-    var path = RNFS.DocumentDirectoryPath + '/hwtest.mp4';
-    console.log(RNFS.DocumentDirectoryPath)
-    console.log('content', content);
 
     for (let i = 0; i < content.length; i++)
     {
@@ -110,16 +107,43 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       else {
         console.log(`PATH ${path}  DOES NOT EXISTS`);
 
-        let filename = row['filename'].replace(/\s/, "%20");
-        console.log(row['filename']);
-        filename = row['filename'].replace(/\s/, "%20");
+        const filename = row['filename'];
 
         console.log('now downloading: ', filename);
+        console.log('to: ', path);
+
         const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path });
         if (await downloadInfo.promise) { console.log('downloaded : D') }
       }
     }
     console.log('done with all downloads!!')
+    setDownloadDone(true);
+  }
+
+  const rnfsRemove = async (content) => {
+
+    console.log('inside rnfsRemove')
+    console.log(content);
+    console.log('\n\n')
+
+    for (let i = 0; i < content.length; i++)
+    {
+      const row = content[i];
+      console.log(' remove row')
+      console.log(row)
+      const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
+      if (await RNFS.exists(path))
+      {
+          console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
+          RNFS.unlink(path)
+          continue;
+      }
+      else {
+        console.log(`PATH ${path}  DOES NOT EXISTS! skipping ----->`);
+
+      }
+    }
+    console.log('done with removing all downloads!!')
   }
 
   useEffect(() => {
@@ -154,8 +178,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     extrapolate: 'clamp',
   });
 
-  const backgroundImage = require("../media/lifting.jpeg");
-
   const notifyPress = () => {
 
     const incrementedMin = new Date(Date.now(date) + (60 * 1000))
@@ -171,23 +193,20 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   const shareApp = async () => {
 
-      try {
-        const result = await Share.share({
-          message:
-            'Check out Haute Wellness',
-        });
-        if (result.action === Share.sharedAction) {
-          if (result.activityType) {
-            // shared with activity type of result.activityType
-          } else {
-            // shared
-          }
-        } else if (result.action === Share.dismissedAction) {
-          // dismissed
+    try {
+      const result = await Share.share({ message: 'Check out Haute Wellness' });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
         }
-      } catch (error) {
-        alert(error.message);
       }
+      else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    }
+    catch (error) { console.log(error.message) }
   }
 
   const openScheduleWorkoutModal = () => {
@@ -236,7 +255,8 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                 <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Share </Text>
             </TouchableOpacity>
           </View>
-          <WorkoutContent navigation={navigation} route={route} content={content}/>
+          { downloadDone == false && <Text style={{color: "white", fontWeight: "bold"}}>L O A D I N G . . . </Text> }
+          { downloadDone == true && <WorkoutContent navigation={navigation} route={route} content={fullWorkoutContent}/> }
         </Animated.ScrollView>
         <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
           <Animated.Image style={[
@@ -245,15 +265,11 @@ const WorkoutSelected = ({navigation, route, uid}) => {
               opacity: imageOpacity,
               transform: [{ translateY: imageTranslateY }],
             },
-          ]} source={require("../media/lifting.jpeg")} />
+          ]} source={{uri: image}} />
         </Animated.View>
         <Animated.View
          style={[
-           styles.topBar,
-           {
-             transform: [{ scale: titleScale }, { translateY: titleTranslateY }],
-           },
-         ]}>
+           styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
           <Text style={styles.title}>{title}</Text>
        </Animated.View>
        <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart}  onPress={beginWorkout}  >
@@ -271,17 +287,12 @@ const WorkoutSelected = ({navigation, route, uid}) => {
            setDate(date)
            notifyPress()
          }}
-         onCancel={() => {
-           setOpen(false)
-         }}
-       />
+         onCancel={() => { setOpen(false)}}/>
        <Modal
          transparent={true}
          animationType="slide"
          visible={apnDisabled}
-         onRequestClose={() => {
-            setApnDisabled(!apnDisabled);
-          }}>
+         onRequestClose={() => { setApnDisabled(!apnDisabled) }}>
            <View style={styles.apnModalContainer}>
              <Pressable style={styles.apnModalContainer} onPress={() => {setApnDisabled(false)}} >
                 <View style={styles.apnModalView}>
@@ -305,9 +316,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           transparent={true}
           animationType="slide"
           visible={musicModal}
-          onRequestClose={() => {
-             setMusicModal(!musicModal);
-           }}>
+          onRequestClose={() => { setMusicModal(!musicModal) }}>
             <View style={styles.apnModalContainer}>
               <Pressable style={styles.apnModalContainer} onPress={() => {setMusicModal(false)}} >
                  <View style={styles.musicModalView}>
@@ -320,6 +329,9 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                    <ImageBackground style={{color: "white", height: 60, border: 10, width: 60, marginBottom: 0, top: 15, left: 10, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
                     justifyContent: 'center'}} source={require("../media/applemusic.png")} />
                      <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Apple Music</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setMusicModal(false)}} >
+                     <Text style={{fontWeight: "bold", color: "black", fontSize: 20}}>Close</Text>
                    </TouchableOpacity>
                  </View>
              </Pressable>

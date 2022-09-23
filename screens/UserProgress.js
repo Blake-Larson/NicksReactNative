@@ -42,8 +42,6 @@ const UserProgress = ({navigation}) => {
   };
   useEffect(() => {
 
-
-
     setCurrentView("Weekly");
     const now = moment();
     const dateSelected = moment();
@@ -51,7 +49,7 @@ const UserProgress = ({navigation}) => {
 
     setWrittenDate(now.format('ll'))
     setStartingDate(dateSelected);
-    onDateSelected(dateSelected);
+//    onDateSelected(dateSelected);
     //getUserProgress();
   }, []);
 
@@ -130,7 +128,7 @@ const UserProgress = ({navigation}) => {
   );
 
   return (
-    <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
+    <ScrollView style={{backgroundColor: "grey"}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 20, fontSize: 15}}>
         <Button title="Week" onPress={()=> setCurrentView("Weekly")}/>
         <Button title="Badges" onPress={() => setCurrentView("Badges")}/>

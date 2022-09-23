@@ -16,7 +16,7 @@ const ExercisePreview = ({navigation, route}) => {
   apiParams['title'] = route.params[1]['params'][0].title;
   apiParams['image'] = route.params[1]['params'][0].image;
   apiParams['time'] = route.params[1]['params'][0].time;
-  apiParams['content'] = route.params[1]['params'][0].content;
+  apiParams['json_content'] = route.params[1]['params'][0].json_content;
 
   const [exerciseid, setExerciseid] = useState([]);
   const [name, setName] = useState([]);
