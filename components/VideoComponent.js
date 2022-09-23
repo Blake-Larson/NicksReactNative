@@ -17,7 +17,7 @@ const VideoComponent = ({fileName, pausedVideo, loading}) => {
   return (
     <View style={{flexDirection: "row"}}>
       <Video
-        style={{width: ScreenWidth, height: ScreenHeight - 300}}
+        style={{width: ScreenWidth, height: 400, marginTop: 30}}
         source={{uri: fileName}}
         repeat={true}
         muted={true}

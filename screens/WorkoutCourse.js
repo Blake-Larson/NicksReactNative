@@ -22,8 +22,8 @@ const WorkoutCourse = ({navigation, route}) => {
   const [workoutCompleted, setWorkoutCompleted] = useState(false);
 
   const [upNext, setUpNext] = useState([]);
-  const [seconds, setSeconds] = useState(VideoData[currentNumber]['seconds']);
-  const [minutes, setMinutes] = useState(VideoData[currentNumber]['minutes']);
+  const [seconds, setSeconds] = useState(parseInt(VideoData[currentNumber]['seconds']));
+  const [minutes, setMinutes] = useState(parseInt(VideoData[currentNumber]['minutes']));
 
   useEffect(() => {
     setWorkoutVideo(VideoData[currentNumber]['exerciseid']);
@@ -62,7 +62,7 @@ const WorkoutCourse = ({navigation, route}) => {
     }
     if (seconds > 0) setSeconds(seconds - 1);
   }
-
+/*
   const previousVideo = () => {
 
     if (currentNumber <= 0) return;
@@ -75,7 +75,7 @@ const WorkoutCourse = ({navigation, route}) => {
     setDisplayButton(require('../media/pauseButton.png'));
     setPaused(false);
   }
-
+*/
   const nextVideo = () => {
 
     setPaused(true);
@@ -89,8 +89,8 @@ const WorkoutCourse = ({navigation, route}) => {
     setUpNext(VideoData[currentNumber + 1]['name']);
     setWorkoutVideo(VideoData[currentNumber + 1]['filename']);
     setTitleVideo(VideoData[currentNumber + 1]['title']);
-    setSeconds(VideoData[currentNumber + 1]['seconds']);
-    setMinutes(VideoData[currentNumber + 1]['minutes']);
+    setSeconds(parseInt(VideoData[currentNumber + 1]['seconds']));
+    setMinutes(parseInt(VideoData[currentNumber + 1]['minutes']));
     setCurrentNumber(currentNumber + 1);
     setDisplayButton(require('../media/pauseButton.png'));
     setPaused(false);
@@ -100,17 +100,8 @@ const WorkoutCourse = ({navigation, route}) => {
     console.log('completed workout!')
     setWorkoutCompleted(true);
 
-    // TODO: complete workout in db
-    /*
-    try {
-      const response = await fetch(`http://${url}:3000/user_progress_update?userid=${uid}&status=complete&series=${route.params[0]}`);
-      const json = await response.json();
+    // TODO: save completed workout in db
 
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-    */
   };
 
   const pauseVideo = () => {
@@ -133,61 +124,53 @@ const WorkoutCourse = ({navigation, route}) => {
       </TouchableOpacity>
     </View>
     <ScrollView>
-    {workoutCompleted == true ? <Text style={{color: "white", fontSize:30, fontWeight: "bold", alignItems: 'center', justifyContent: 'center',paddingLeft: 50, paddingTop: 100,flexDirection: 'row'}}>Workout Completed ! </Text> :
+    {
+      workoutCompleted == true ? <Text style={{color: "white", fontSize:30, fontWeight: "bold", alignItems: 'center', justifyContent: 'center', paddingLeft: 50, paddingTop: 100,flexDirection: 'row'}}>Workout Completed ! </Text> :
       <View>
         <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
         <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
-          { currentNumber < VideoData.length - 1 &&
-            <Text style={{color: "white", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
-          }
-        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused} style={{marginTop: 50}}/>
-        <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 5}}>
-            <TouchableOpacity onPress={previousVideo}>
-              <ImageBackground
-                style={{height: 100, width: 100, padding: 10, justifyContent: 'center'}}
-                source={prevButton}>
-              </ImageBackground>
-            </TouchableOpacity>
+        {
+          currentNumber < VideoData.length - 1 &&
+          <Text style={{color: "white", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
+        }
+        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused}/>
+        <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 15}}>
+          { seconds >= 10 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : {seconds}</Text> }
+          { seconds == 9 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 09 </Text> }
+          { seconds == 8 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 08 </Text> }
+          { seconds == 7 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 07 </Text> }
+          { seconds == 6 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 06 </Text> }
+          { seconds == 5 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 05 </Text> }
+          { seconds == 4 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 04 </Text> }
+          { seconds == 3 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 03 </Text> }
+          { seconds == 2 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 02 </Text> }
+          { seconds == 1 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 01 </Text> }
+          { seconds == 0 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 00 </Text> }
+        </View>
+        <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 20}}>
           <TouchableOpacity onPress={pauseVideo}>
             <ImageBackground
               style={{height: 80, width: 80, padding: 10, justifyContent: 'center'}}
               source={displayButton}>
             </ImageBackground>
           </TouchableOpacity>
-          {currentNumber < VideoData.length - 1 ?
-            <TouchableOpacity onPress={nextVideo}>
-              <ImageBackground
-                style={{height: 100, width: 100, padding: 10, justifyContent: 'center'}}
-                source={nextButton}>
-              </ImageBackground>
-            </TouchableOpacity> : null
+          {
+            currentNumber < VideoData.length - 1 &&
+            <TouchableOpacity style={{backgroundColor: "white", borderRadius: 13, marginLeft: 30, height: 70, width: 120, alignItems: 'center', justifyContent: 'center'}} onPress={nextVideo}>
+              <Text style={{fontSize: 35, fontWeight: "bold"}}> Next </Text>
+            </TouchableOpacity>
           }
-          {currentNumber == VideoData.length - 1 ?
-            <TouchableOpacity onPress={completeWorkout}>
-              <ImageBackground
-                style={{height: 100, width: 100, padding: 10, justifyContent: 'center', color: "white"}}
-                source={nextButton}>
-              </ImageBackground>
-            </TouchableOpacity> : null
+          {
+            currentNumber == VideoData.length - 1 &&
+            <TouchableOpacity style={{backgroundColor: "white", borderRadius: 13, marginLeft: 30, height: 70, width: 120, alignItems: 'center', justifyContent: 'center'}} onPress={nextVideo}>
+              <Text style={{fontSize: 35, fontWeight: "bold"}}> Next </Text>
+            </TouchableOpacity>
           }
         </View>
-        <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 35}}>
-          { seconds > 10 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : {seconds}</Text> }
-          { seconds == 9 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 09 </Text> }
-          { seconds == 8 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 08 </Text> }
-          { seconds == 7 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 07 </Text> }
-          { seconds == 6 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 06 </Text> }
-          { seconds == 5 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 05 </Text> }
-          { seconds == 4 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 04 </Text> }
-          { seconds == 3 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 03 </Text> }
-          { seconds == 2 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 02 </Text> }
-          { seconds == 1 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 01 </Text> }
-          { seconds == 0 && <Text style={{fontSize: 35, color: "white"}}>{minutes} : 00 </Text> }
-        </View>
-        </View>
-      }
+      </View>
+    }
     </ScrollView>
-    </View>
+  </View>
   )
 };
 
