@@ -13,7 +13,10 @@ import WorkoutCourse from './screens/WorkoutCourse';
 import UserProgress from './screens/UserProgress';
 import Settings from './screens/Settings';
 import ExercisePreview from './screens/ExercisePreview';
+import AccountDetails from './screens/AccountDetails';
+import Profile from './screens/Profile';
 import AppleAuth from './components/AppleAuth';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from "react-native-push-notification";
@@ -60,6 +63,7 @@ const App = () => {
       credentials: 'same-origin',
       body: JSON.stringify(userParams)
     });
+    const metadata = await userResponse.json();
     console.log('userResponse', userResponse.status);
     if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
@@ -69,6 +73,8 @@ const App = () => {
     }
     setLoadingScreen(false);
     setValidLogin(true);
+    console.log('meta data....', metadata);
+    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
   }
 
   const setupNotifications = () => {
@@ -198,7 +204,7 @@ const App = () => {
            }}/>
           <Tab.Screen
             name="Settings"
-            children={()=><Settings setValidLogin={setValidLogin}/>}
+            children={({navigation})=><Settings setValidLogin={setValidLogin} navigation={navigation}/>}
             options={{
               headerShown: false,
               tabBarOptions: { activeTintColor:'red' },
@@ -209,21 +215,27 @@ const App = () => {
   }
 
   return (
-  <NavigationContainer options={{ color: "black" }} >
-    <Stack.Navigator >
-      <Stack.Screen options={{ headerShown: false, activeTintColor: '#fff',
-      activeBackgroundColor: '#c4461c' }}  name="Home" component={HomeTabs} />
-      <Stack.Screen name="WorkoutSelected" options={{headerShown: false}}>
-        {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route}/>)}
-      </Stack.Screen>
-      <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
-        {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route}/>)}
-      </Stack.Screen>
-      <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
-        {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
-      </Stack.Screen>
-    </Stack.Navigator>
-  </NavigationContainer>
+    <NavigationContainer options={{ color: "black" }} >
+      <Stack.Navigator >
+        <Stack.Screen options={{ headerShown: false, activeTintColor: '#fff',
+        activeBackgroundColor: '#c4461c' }}  name="Home" component={HomeTabs} />
+        <Stack.Screen name="WorkoutSelected" options={{headerShown: false}}>
+          {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+        <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
+          {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+        <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
+          {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+        <Stack.Screen name="AccountDetails" options={{headerShown: false}}>
+          {({navigation, route}) => (<AccountDetails navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+        <Stack.Screen name="Profile" options={{headerShown: false}}>
+          {({navigation, route}) => (<Profile navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
   )
 };
 

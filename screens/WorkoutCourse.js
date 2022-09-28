@@ -131,7 +131,7 @@ const WorkoutCourse = ({navigation, route}) => {
         <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
         {
           currentNumber < VideoData.length - 1 &&
-          <Text style={{color: "white", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
+          <Text style={{color: "white", fontFamily: "System", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
         }
         <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused}/>
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 15}}>

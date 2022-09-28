@@ -272,9 +272,11 @@ const WorkoutSelected = ({navigation, route, uid}) => {
            styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
           <Text style={styles.title}>{title}</Text>
        </Animated.View>
-       <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart}  onPress={beginWorkout}  >
-         <Text style={{fontWeight: "bold", fontSize: 20}}>Begin Workout</Text>
-       </TouchableOpacity>
+       { downloadDone == true &&
+          <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={beginWorkout}  >
+            <Text style={{fontWeight: "bold", fontSize: 20}}>Begin Workout</Text>
+          </TouchableOpacity>
+        }
       </SafeAreaView>
        <DatePicker
          modal

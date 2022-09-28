@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image } from 'react-native';
+import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Linking, Modal, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
 //import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNIap from 'react-native-iap'; //'expo-in-app-purchases' //
 
 const productIds = ['1MONTH'];
-const Settings = ({setValidLogin}) => {
+const Settings = ({setValidLogin, navigation}) => {
 
   const [price, setPrice] = useState([]);
   const [purchase, setPurchase] = useState([]);
@@ -52,7 +52,7 @@ const Settings = ({setValidLogin}) => {
                     })*/
   }, []);
 
-  const LogOut = () => {
+  const logOut = () => {
 
     AsyncStorage.setItem("REFRESH_TOKEN", "");
     setValidLogin(false);
@@ -91,39 +91,39 @@ const Settings = ({setValidLogin}) => {
     catch (error) { console.log('error', error)}
   }
 
+  const logoutAlert = () => {
+    Alert.alert(
+      "Are you sure you want to logout?",
+      "",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Logout", onPress: () => logOut() }
+      ]
+    );
+  }
+
   return (
-    <View style={{"backgroundColor": "black", "height": 10000}}>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
-      <Text style={{"color": "white"}}>        SETTINGS</Text>
+    <View style={{"backgroundColor": "black", "height": 1000}}>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 80 }} onPress={() => navigation.navigate('Profile', [])} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Profile </Text>
+        <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
+      </Pressable>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => navigation.navigate('AccountDetails', [])} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Account Details </Text>
+        <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
+      </Pressable>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => { Linking.openURL('app-settings://notification/')}} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Notifications </Text>
+        <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
+      </Pressable>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => { logoutAlert() }} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Logout </Text>
+        <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
+      </Pressable>
       <Button onPress={() => makeSubscription(products[0]["productId"]) } title="Purchase"/>
-      <Button onPress={LogOut} title="Log Out"/>
       <Text style={{"color": "white"}}>Price: {price}</Text>
       <Text style={{"color": "white"}}>{purchase}</Text>
       <Text style={{"color": "white"}}>{JSON.stringify(products)}</Text>
-
     </View>
   )
 };
