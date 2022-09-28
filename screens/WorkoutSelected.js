@@ -6,6 +6,9 @@ import PushNotification from "react-native-push-notification";
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import DatePicker from 'react-native-date-picker';
 const moment = require('moment');
+import * as Progress from 'react-native-progress';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+import { useCountdown } from 'react-native-countdown-circle-timer'
 
 var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,6 +38,26 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [musicModal, setMusicModal] = useState(false);
   const [fullWorkoutContent, setFullWorkoutContent] = useState([]);
   const [downloadDone, setDownloadDone] = useState(false);
+  const [downloadTotal, setDownloadTotal] = useState(0);
+  const [currentDownload, setCurrentDownload] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [showRnfsDownloadButton, setShowRnfsDownloadButton] = useState(false);
+  const [workoutStartingModal, setWorkoutStartingModal] = useState(true);
+  const [startWorkout, setStartWorkout] = useState(false);
+  const [showLoadScreen, setShowLoadScreen] = useState(false);
+
+/*
+  const {
+  path,
+  pathLength,
+  stroke,
+  strokeDashoffset,
+  remainingTime,
+  elapsedTime,
+  size,
+  strokeWidth,
+} = useCountdown({ isPlaying: startWorkout, duration: 3, colors: '#abc' })
+*/
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const workoutSelectedData = async () => {
@@ -84,66 +107,59 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     apiParams['title'] = title;
     apiParams['exerciseList'] = exerciseList;
     navigation.navigate('WorkoutCourse', [apiParams]);
+    setStartWorkout(false);
   }
 
   const rnfsDownload = async (content) => {
 
-    console.log('inside rnfsDownload')
-    console.log(content);
-    console.log('\n\n')
+    setDownloadTotal(content.length);
 
     for (let i = 0; i < content.length; i++)
     {
+      setCurrentDownload(i)
       const row = content[i];
-      console.log('row')
-      console.log(row)
       const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
       if (await RNFS.exists(path))
       {
-          console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
-        //  RNFS.unlink(path)
+          const percent = (i + 1) / content.length;
+          setProgress(percent);
           continue;
       }
       else {
         console.log(`PATH ${path}  DOES NOT EXISTS`);
-
+        setShowLoadScreen(true);
         const filename = row['filename'];
-
         console.log('now downloading: ', filename);
-        console.log('to: ', path);
 
         const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path });
-        if (await downloadInfo.promise) { console.log('downloaded : D') }
+        if (await downloadInfo.promise) { console.log('downloaded!') }
+        setProgress((i + 1)/ content.length)
       }
     }
     console.log('done with all downloads!!')
     setDownloadDone(true);
+    setShowLoadScreen(false);
+    setShowRnfsDownloadButton(true);
   }
 
-  const rnfsRemove = async (content) => {
+  const rnfsRemove = async () => {
 
-    console.log('inside rnfsRemove')
-    console.log(content);
-    console.log('\n\n')
+    setShowRnfsDownloadButton(false);
 
     for (let i = 0; i < content.length; i++)
     {
       const row = content[i];
-      console.log(' remove row')
-      console.log(row)
+
       const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
       if (await RNFS.exists(path))
       {
-          console.log(`\n\n         PATH ${path} EXISTS       !!!\n\n`);
           RNFS.unlink(path)
           continue;
       }
       else {
         console.log(`PATH ${path}  DOES NOT EXISTS! skipping ----->`);
-
       }
     }
-    console.log('done with removing all downloads!!')
   }
 
   useEffect(() => {
@@ -255,7 +271,17 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                 <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Share </Text>
             </TouchableOpacity>
           </View>
-          { downloadDone == false && <Text style={{color: "white", fontWeight: "bold"}}>L O A D I N G . . . </Text> }
+          {
+            showRnfsDownloadButton == true &&
+            <Pressable style={{marginTop: 15, marginBottom: 15}} onPress={() => {rnfsRemove() }}>
+              <Text style={{color: "white"}}>DEBUG: remove cached content</Text>
+            </Pressable>
+          }
+          <View style={{ width: ScreenWidth, paddingBottom: 10, paddingTop: 0,  alignItems: 'center', justifyContent: 'center'}}>
+            { downloadDone == false && showLoadScreen == true && <View style={{paddingTop: 30}}><Progress.Circle progress={progress} size={100} showsText={true} color={"red"} allowFontScaling={true}/></View> }
+            { downloadDone == false && <Text style={{color: "white", fontWeight: "bold", paddingTop: 10}}>L O A D I N G . . . </Text> }
+            { downloadDone == false && showLoadScreen == true && <Text style={{color: "white", fontWeight: "bold", paddingTop: 20}}> DOWNLOAD PROGRESS: {currentDownload} / {downloadTotal} </Text> }
+          </View>
           { downloadDone == true && <WorkoutContent navigation={navigation} route={route} content={fullWorkoutContent}/> }
         </Animated.ScrollView>
         <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
@@ -272,8 +298,9 @@ const WorkoutSelected = ({navigation, route, uid}) => {
            styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
           <Text style={styles.title}>{title}</Text>
        </Animated.View>
-       { downloadDone == true &&
-          <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={beginWorkout}  >
+       {
+         downloadDone == true &&
+          <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={() => {setStartWorkout(true)}}  >
             <Text style={{fontWeight: "bold", fontSize: 20}}>Begin Workout</Text>
           </TouchableOpacity>
         }
@@ -338,6 +365,23 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                  </View>
              </Pressable>
            </View>
+         </Modal>
+         <Modal
+           transparent={false}
+           animationType="slide"
+           visible={startWorkout}>
+              <View style={{backgroundColor: "black", alignItems: 'center', color: "black",
+                 justifyContent: 'center', height: 1000,
+                 padding: 24}}>
+                <Text style={{color: "white", paddingBottom: 20, fontSize: 30}}> Workout Starting In...</Text>
+                 <CountdownCircleTimer
+                   isPlaying={startWorkout}
+                   duration={3}
+                   colors={['#FC3A00']}
+                   onComplete={beginWorkout}>
+                   {({ remainingTime }) => <Text style={{color: "white", fontSize: 30}}>{remainingTime}</Text>}
+                 </CountdownCircleTimer>
+                </View>
          </Modal>
     </View>
   )
