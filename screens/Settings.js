@@ -104,28 +104,33 @@ const Settings = ({setValidLogin, navigation}) => {
 
   return (
     <View style={{"backgroundColor": "black", "height": 1000}}>
-      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 80 }} onPress={() => navigation.navigate('Profile', [])} >
-        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Profile </Text>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 120, marginLeft: 10, marginRight: 10 }} onPress={() => navigation.navigate('Profile', [])} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22, marginLeft: 10, marginRight: 10}}> Profile </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
       </Pressable>
-      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => navigation.navigate('AccountDetails', [])} >
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20, marginLeft: 10, marginRight: 10}} onPress={() => navigation.navigate('AccountDetails', [])} >
         <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Account Details </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
       </Pressable>
-      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => { Linking.openURL('app-settings://notification/')}} >
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20, marginLeft: 10, marginRight: 10}} onPress={() => { Linking.openURL('app-settings://notification/')}} >
         <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Notifications </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
       </Pressable>
-      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20}} onPress={() => { logoutAlert() }} >
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20, marginLeft: 10, marginRight: 10}} onPress={() => { logoutAlert() }} >
         <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Logout </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
       </Pressable>
-      <Button onPress={() => makeSubscription(products[0]["productId"]) } title="Purchase"/>
-      <Text style={{"color": "white"}}>Price: {price}</Text>
-      <Text style={{"color": "white"}}>{purchase}</Text>
-      <Text style={{"color": "white"}}>{JSON.stringify(products)}</Text>
     </View>
   )
 };
+
+/* WORKS
+<View style={{marginTop: 200}}>
+  <Button onPress={() => makeSubscription(products[0]["productId"]) } title="Purchase"/>
+  <Text style={{"color": "white"}}>Price: {price}</Text>
+  <Text style={{"color": "white"}}>{purchase}</Text>
+  <Text style={{"color": "white"}}>{JSON.stringify(products)}</Text>
+</View>
+*/
 
 export default Settings;
