@@ -74,30 +74,32 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   const getExerciseById = async () => {
 
-    console.log('calling getExerciseById ...')
     const exerciseArray = [];
     for (let i = 0; i < content.length; i++)
     {
       const exerciseid = content[i]['exerciseid'];
-      console.log('going to get the exercises by id ')
-      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-
-      const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById?exerciseid=${exerciseid}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({"id_token": storageToken})
-        });
-
-      // TODO: add error messages
-      const data = await response.json();
-
-      content[i]['filename'] = data[0]['filename'];
-      content[i]['name'] = data[0]['name'];
-      exerciseArray.push(content[i]);
+      exerciseArray.push(exerciseid);
     }
-    setExerciseList(exerciseArray);
+    const finalArr = exerciseArray.join(',');
+
+    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById?exerciseid=${finalArr}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({"id_token": storageToken})
+      });
+
+    // TODO: add error messages
+    const data = await response.json();
+
+    for (let i = 0; i < content.length; i++)
+    {
+      content[i]['filename'] = data[i]['filename'];
+      content[i]['name'] = data[i]['name'];
+    }
     setFullWorkoutContent(content);
+    setExerciseList(data);
     return content;
   };
 
@@ -160,6 +162,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         console.log(`PATH ${path}  DOES NOT EXISTS! skipping ----->`);
       }
     }
+    console.log('done with removing all downloads!!')
   }
 
   useEffect(() => {

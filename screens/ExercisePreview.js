@@ -12,6 +12,7 @@ const ExercisePreview = ({navigation, route}) => {
   const time = route.params[1].time;
   const content = route.params[1].content;
 
+  const filename = route.params[0]['filename'];
   const apiParams = {};
   apiParams['title'] = route.params[1]['params'][0].title;
   apiParams['image'] = route.params[1]['params'][0].image;
@@ -35,7 +36,7 @@ const ExercisePreview = ({navigation, route}) => {
         </TouchableOpacity>
       </View>
       <Text style={{marginTop: 20, marginLeft: 15, fontSize: 30, fontWeight: "bold", color: "white"}}>{name}</Text>
-      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} pausedVideo={false} style={{marginTop: 80}}/>
+      <VideoComponent fileName={filename} pausedVideo={false} style={{marginTop: 80}}/>
     </View>
   )
 };

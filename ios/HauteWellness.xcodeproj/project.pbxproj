@@ -494,6 +494,7 @@
 			baseConfigurationReference = 7E9D3E1DDA230800664BE8A3 /* Pods-HauteWellness.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HauteWellness/HauteWellness.entitlements;
 				CODE_SIGN_STYLE = Manual;
@@ -527,6 +528,7 @@
 			baseConfigurationReference = C8B607389C5EDF9EE516FB58 /* Pods-HauteWellness.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HauteWellness/HauteWellness.entitlements;
 				CODE_SIGN_STYLE = Manual;

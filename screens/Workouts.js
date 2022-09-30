@@ -43,13 +43,6 @@ const Workouts = ({navigation}) => {
 
     for (let i = 0; i < scheduleData.length; i++)
     {
-      const response = await fetch(`https://hautewellnessapp.com/api/getWorkoutById?workoutid=${scheduleData[i]['workoutid']}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({"id_token": storageToken})
-      });
-      const data = await response.json();
       const newKvt = [];
       const d = new Date(scheduleData[i]['schedule_date']);
       let day = weekday[d.getDay()];
@@ -59,9 +52,9 @@ const Workouts = ({navigation}) => {
       weeklyObj['workoutid'] = scheduleData[i]['workoutid'];
       weeklyObj['schedule_date'] = scheduleData[i]['schedule_date'];
 
-      weeklyObj['name'] = data[0]['name'];
-      weeklyObj['filename'] = data[0]['filename'];
-      weeklyObj['json_content'] = data[0]['json_content'];
+      weeklyObj['name'] = scheduleData[i]['name'];
+      weeklyObj['filename'] = scheduleData[i]['filename'];
+      weeklyObj['json_content'] = scheduleData[i]['json_content'];
 
       workoutWeek.push(weeklyObj);
     }
