@@ -11,26 +11,22 @@ const VideoComponent = ({fileName, pausedVideo, loading}) => {
 
   const videoReady = () => {
     console.log('video ready');
-    setLoadingVideo(false);
+  //  setLoadingVideo(false);
   }
 
   return (
     <View style={{flexDirection: "row"}}>
-      {
-        loadingVideo == true &&
-        <Text style={{color: "white"}}>Loading ......</Text>
-      }
       <Video
         style={{width: ScreenWidth, height: 400, marginTop: 30}}
         source={{uri: fileName}}
         repeat={true}
         playInBackground={false}
         muted={true}
+        automaticallyWaitsToMinimizeStalling={false}
         audioOnly={false}
         paused={pausedVideo}
         mixWithOthers={"mix"}
-        ignoreSilentSwitch={"ignore"}
-        onReadyForDisplay={videoReady}/>
+        ignoreSilentSwitch={"ignore"}/>
   </View>
   )
 };

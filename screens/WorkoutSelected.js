@@ -99,7 +99,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       content[i]['name'] = data[i]['name'];
     }
     setFullWorkoutContent(content);
-    setExerciseList(data);
+    setExerciseList(content);
     return content;
   };
 
@@ -136,6 +136,11 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path });
         if (await downloadInfo.promise) { console.log('downloaded!') }
         setProgress((i + 1)/ content.length)
+        //if (i == 1) console.log('done!')
+
+        //if (i == 1) setDownloadDone(true);
+        //if (i == 1) setShowLoadScreen(false);
+
       }
     }
     console.log('done with all downloads!!')
@@ -373,10 +378,9 @@ const WorkoutSelected = ({navigation, route, uid}) => {
            transparent={false}
            animationType="slide"
            visible={startWorkout}>
-              <View style={{backgroundColor: "black", alignItems: 'center', color: "black",
-                 justifyContent: 'center', height: 1000,
-                 padding: 24}}>
-                <Text style={{color: "white", paddingBottom: 20, fontSize: 30}}> Workout Starting In...</Text>
+              <View style={{backgroundColor: "black", alignItems: 'center', color: "black", justifyContent: 'center', height: 700,
+                 padding: 4}}>
+                <Text style={{color: "white", paddingBottom: 60, fontSize: 30}}> Workout Starting In...</Text>
                  <CountdownCircleTimer
                    isPlaying={startWorkout}
                    duration={3}
@@ -384,6 +388,8 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                    onComplete={beginWorkout}>
                    {({ remainingTime }) => <Text style={{color: "white", fontSize: 30}}>{remainingTime}</Text>}
                  </CountdownCircleTimer>
+                </View>
+                <View style={{backgroundColor: "black", alignItems: 'center', color: "black", justifyContent: 'center', height: 400, padding: 4}}>
                 </View>
          </Modal>
     </View>

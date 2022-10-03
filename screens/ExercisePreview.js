@@ -36,7 +36,7 @@ const ExercisePreview = ({navigation, route}) => {
         </TouchableOpacity>
       </View>
       <Text style={{marginTop: 20, marginLeft: 15, fontSize: 30, fontWeight: "bold", color: "white"}}>{name}</Text>
-      <VideoComponent fileName={filename} pausedVideo={false} style={{marginTop: 80}}/>
+      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} pausedVideo={false} style={{marginTop: 80}}/>
     </View>
   )
 };
