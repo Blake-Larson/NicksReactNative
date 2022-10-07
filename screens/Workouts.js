@@ -14,7 +14,7 @@ const Workouts = ({navigation}) => {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState([]);
   const [startingDate, setStartingDate] = useState([]);
-  //onDateSelected(dateSelected);
+  const [dateIndex, setDateIndex] = useState(new Date().getDay() - 1);
 
   const getWorkouts = async () => {
 
@@ -60,6 +60,16 @@ const Workouts = ({navigation}) => {
     }
 
     setWorkouts(workoutWeek)
+/*
+    const api2 = `https://k0aldgsyka.execute-api.us-west-1.amazonaws.com/dev/customer/LOL`;
+    const response2 = await fetch(api2, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     credentials: 'same-origin',
+    });
+    const jsonTest = await response2.json();
+    console.log('output 2', jsonTest)
+*/
   };
 
   useEffect(() => {
@@ -101,7 +111,7 @@ const Workouts = ({navigation}) => {
             showsHorizontalScrollIndicator={false}
             data={workouts}
             horizontal
-            initialScrollIndex={3}
+            initialScrollIndex={dateIndex}
             getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
             renderItem={({ item }) => (
               <View style={{width: ITEM_SIZE}}>

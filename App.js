@@ -15,6 +15,7 @@ import Settings from './screens/Settings';
 import ExercisePreview from './screens/ExercisePreview';
 import AccountDetails from './screens/AccountDetails';
 import Profile from './screens/Profile';
+import SettingsHelp from './screens/SettingsHelp';
 import AppleAuth from './components/AppleAuth';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -233,6 +234,9 @@ const App = () => {
         </Stack.Screen>
         <Stack.Screen name="Profile" options={{headerShown: false}}>
           {({navigation, route}) => (<Profile navigation={navigation} route={route}/>)}
+        </Stack.Screen>
+        <Stack.Screen name="SettingsHelp" options={{headerShown: false}}>
+          {({navigation, route}) => (<SettingsHelp navigation={navigation} route={route}/>)}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

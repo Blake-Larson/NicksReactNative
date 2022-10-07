@@ -116,6 +116,10 @@ const Settings = ({setValidLogin, navigation}) => {
         <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Notifications </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
       </Pressable>
+      <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20, marginLeft: 10, marginRight: 10}} onPress={() => navigation.navigate('SettingsHelp', [])} >
+        <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Help </Text>
+        <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
+      </Pressable>
       <Pressable style={{backgroundColor: "#323232", borderRadius: 10, height: 50, marginTop: 20, marginLeft: 10, marginRight: 10}} onPress={() => { logoutAlert() }} >
         <Text style={{color: "white", paddingTop: 10, paddingLeft: 10, fontWeight: "bold", fontSize: 22}}> Logout </Text>
         <ImageBackground style={{color: "white", height: 40, width: 40, right: 0, marginTop: 5, marginRight: 20, position: "absolute"}} source={require("../media/chevronarrow.png")}></ImageBackground>
