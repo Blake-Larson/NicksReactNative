@@ -10,7 +10,7 @@ import * as Progress from 'react-native-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { useCountdown } from 'react-native-countdown-circle-timer'
 
-var RNFS = require("react-native-fs");
+const RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WorkoutContent from "../components/WorkoutContent.js";
 
@@ -83,12 +83,16 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     const finalArr = exerciseArray.join(',');
 
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById?exerciseid=${finalArr}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({"id_token": storageToken})
-      });
+    const apiParams = {};
+    apiParams['exerciseid'] = finalArr;
+    apiParams['id_token'] = storageToken;
+
+    const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(apiParams)
+    });
 
     // TODO: add error messages
     const data = await response.json();
@@ -114,6 +118,24 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   const rnfsDownload = async (content) => {
 
+    console.log('rnfs path: ')
+    console.log('rnfs path: ')
+    console.log('rnfs path: ')
+    console.log('rnfs path: ')
+    console.log('rnfs path: ')
+/*
+    RNFS.readDir(RNFS.DocumentDirectoryPath)
+      .then(result => {
+        console.log('GOT RESULT', result);
+        for (let i = 0; i < result.length; i++)
+        {
+          console.log(i)
+          console.log(result[i])
+          // TODO: update modified timestamps for all as a way to clean up cache
+          if (i == 3) RNFS.touch(result[i]['path'], new Date());
+        }
+      });
+      */
     setDownloadTotal(content.length);
 
     for (let i = 0; i < content.length; i++)
@@ -124,6 +146,8 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       if (await RNFS.exists(path))
       {
           const percent = (i + 1) / content.length;
+          console.log(percent)
+          RNFS.touch(path, new Date());
           setProgress(percent);
           continue;
       }
@@ -133,7 +157,18 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         const filename = row['filename'];
         console.log('now downloading: ', filename);
 
-        const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path });
+        const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path,
+          progress: (res) => {
+          //here you can calculate your progress for file download
+
+           console.log("Response written ===\n\n");
+           let progressPercent = (res.bytesWritten / res.contentLength)*100; // to calculate in percentage
+           console.log("\n\nprogress===",progressPercent)
+        //   this.setState({ progress: progressPercent.toString() });
+          // item.downloadProgress = progressPercent;
+           //console.log(res);
+         }
+       })
         if (await downloadInfo.promise) { console.log('downloaded!') }
         setProgress((i + 1)/ content.length)
         //if (i == 1) console.log('done!')
@@ -368,7 +403,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                      <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Apple Music</Text>
                    </TouchableOpacity>
                    <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setMusicModal(false)}} >
-                     <Text style={{fontWeight: "bold", color: "black", fontSize: 20}}>Close</Text>
+                     <Text style={{fontWeight: "bold", color: "white", fontSize: 20}}>Close</Text>
                    </TouchableOpacity>
                  </View>
              </Pressable>
@@ -508,7 +543,7 @@ const styles = StyleSheet.create({
   },
   closeApnModal: {
     alignItems: 'center',
-    backgroundColor: "#2F2D2D",
+    backgroundColor: "black",
     height: 55,
     shadowRadius: 4,
     elevation: 1,

@@ -1,22 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, Button, ScrollView, Dimensions, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Text, View, FlatList, Button, ScrollView, Dimensions, TouchableOpacity,
+  ImageBackground, StyleSheet, Pressable } from 'react-native';
 import AwsMedia from '../components/AwsMedia';
 import WorkoutSelected from './WorkoutSelected';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CalendarStrip from 'react-native-calendar-strip';
 const moment = require('moment');
+const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 const ITEM_SIZE = Dimensions.get('window').width * 0.9;
 const SPACING = 6;
+const RNFS = require("react-native-fs");
 
 const Workouts = ({navigation}) => {
 
+  const ref = useRef(null);
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState([]);
   const [startingDate, setStartingDate] = useState([]);
-  const [dateIndex, setDateIndex] = useState(new Date().getDay() - 1);
-
+  const [dateIndex, setDateIndex] = useState([]);
+  const [completedWorkouts, setCompletedWorkouts] = useState([]);
   const getWorkouts = async () => {
+
+    const initialIndex = new Date().getDay() - 1;
+    if (initialIndex >= 0) setDateIndex(initialIndex);
+    if (initialIndex < 0) setDateIndex(6);
 
     const date = new Date("9/5/2022");
     const mon = moment(date).isoWeekday(1).format('YYYY-MM-DD');
@@ -26,15 +34,24 @@ const Workouts = ({navigation}) => {
     const fri = moment(date).isoWeekday(5).format('YYYY-MM-DD');
     const sat = moment(date).isoWeekday(6).format('YYYY-MM-DD');
     const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
-
-    const api = `https://hautewellnessapp.com/api/getWorkoutsThisWeek?thursday=${thurs}&tuesday=${tues}&wednesday=${wed}&friday=${fri}&saturday=${sat}&monday=${mon}&sunday=${sun}`;
-
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+
+    const api = `https://hautewellnessapp.com/api/getWorkoutsThisWeek`;
+    const apiParams = {};
+    apiParams['monday'] = mon;
+    apiParams['tuesday'] = tues;
+    apiParams['wednesday'] = wed;
+    apiParams['thursday'] = thurs;
+    apiParams['friday'] = fri;
+    apiParams['saturday'] = sat;
+    apiParams['sunday'] = sun;
+    apiParams['id_token'] = storageToken;
+
     const response = await fetch(api, {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
      credentials: 'same-origin',
-     body: JSON.stringify({"id_token": storageToken})
+     body: JSON.stringify(apiParams)
     });
     const scheduleData = await response.json();
 
@@ -72,6 +89,7 @@ const Workouts = ({navigation}) => {
 */
   };
 
+
   useEffect(() => {
     getWorkouts();
     const now = moment();
@@ -79,7 +97,73 @@ const Workouts = ({navigation}) => {
     const newDate = dateSelected.format('MM-DD-YYYY');
 
     setStartingDate(dateSelected);
+    getCompletedWorkouts();
+    cleanUpCache();
+
   }, []);
+
+  const cleanUpCache = () => {
+
+    RNFS.readDir(RNFS.DocumentDirectoryPath)
+      .then(result => {
+        //console.log('GOT RESULT', result);
+        for (let i = 0; i < result.length; i++)
+        {
+          //console.log(i)
+          //console.log(result[i])
+          const cacheDate = result[i]['mtime'];
+          const cacheDateFormat = new Date();
+          const cacheDateStale = new Date(cacheDateFormat.setDate(cacheDateFormat.getDate() - 3));
+          if (result[i]['mtime'] < cacheDateStale) console.log('yooooooooooooooo                          OLD')
+          if (result[i]['mtime'] < cacheDateStale) RNFS.unlink(result[i]['path'])
+        }
+      });
+  }
+
+  const getCompletedWorkouts = async () => {
+    //["2022-09-05"];
+
+    const date = new Date("9/5/2022");
+    const completedWeekArray = [];
+    completedWeekArray.push(moment(date).isoWeekday(1).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(2).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(3).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(4).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(5).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(6).format('YYYY-MM-DD'));
+    completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
+    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+
+    /*
+    const api = `https://hautewellnessapp.com/api/getWorkoutsThisWeek`;
+    const apiParams = {};
+    apiParams['monday'] = mon;
+    apiParams['tuesday'] = tues;
+    apiParams['wednesday'] = wed;
+    apiParams['thursday'] = thurs;
+    apiParams['friday'] = fri;
+    apiParams['saturday'] = sat;
+    apiParams['sunday'] = sun;
+    apiParams['id_token'] = storageToken;
+
+    const response = await fetch(api, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     credentials: 'same-origin',
+     body: JSON.stringify(apiParams)
+    });
+    const scheduleData = await response.json();
+    */
+    const outputWorkoutsCompleted = [];
+    const response = [{schedule_date: "2022-09-05"}, {schedule_date: "2022-09-07"}];
+    for (let i = 0; i < response.length; i++)
+    {
+      //outputWorkoutsCompleted.push(response[i]['schedule_date']);
+      const test = moment(response[i]['schedule_date']).isoWeekday();
+      outputWorkoutsCompleted.push(test - 1);
+    }
+    setCompletedWorkouts(outputWorkoutsCompleted);
+  }
 
 
   const getItemLayout = (data, index) => {(
@@ -90,30 +174,53 @@ const Workouts = ({navigation}) => {
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
       <ScrollView>
         <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
-          <CalendarStrip
-            showMonth={false}
-            showDay={false}
-            scrollable={false}
-            showDayNumber={true}
-            calendarHeaderStyle={{color: 'white'}}
-            dateNumberStyle={{color: 'white'}}
-            dateNameStyle={{color: 'white'}}
-            highlightDateNumberStyle={{color: 'white'}}
-            highlightDateNameStyle={{color: 'white'}}
-            disabledDateNameStyle={{color: 'white'}}
-            disabledDateNumberStyle={{color: 'white'}}
-            scrollerPaging={true}
-            leftSelector={[]}
-            rightSelector={[]}
-            style={{paddingLeft: 25, paddingRight: 25, paddingTop: 15, paddingBottom: 25}}
-          />
+          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10,   alignItems: 'center',
+            justifyContent: 'center'}}>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(0); ref.current.scrollToIndex({"index": 0})}}>
+              <Text style={{ color: completedWorkouts.includes(0) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                  height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                  borderWidth: 3, borderColor: dateIndex == 0 ? "red" : "black"}}>M</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(1); ref.current.scrollToIndex({"index": 1})}}>
+            <Text style={{color: completedWorkouts.includes(1) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                borderWidth: 3, borderColor: dateIndex == 1 ? "red" : "black"}}>T</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(2); ref.current.scrollToIndex({"index": 2})}}>
+            <Text style={{color: completedWorkouts.includes(2) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                borderWidth: 3, borderColor: dateIndex == 2 ? "red" : "black"}}>W</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(3); ref.current.scrollToIndex({"index": 3})}}>
+            <Text style={{color: completedWorkouts.includes(3) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                borderWidth: 3, borderColor: dateIndex == 3 ? "red" : "black"}}>T</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(4); ref.current.scrollToIndex({"index": 4})}}>
+              <Text style={{color: completedWorkouts.includes(4) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                  height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                  borderWidth: 3, borderColor: dateIndex == 4 ? "red" : "black"}}>F</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(5); ref.current.scrollToIndex({"index": 5})}}>
+            <Text style={{color: completedWorkouts.includes(5) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                borderWidth: 3, borderColor: dateIndex == 5 ? "red" : "black"}}>S</Text>
+            </Pressable>
+            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(6); ref.current.scrollToIndex({"index": 6})}}>
+            <Text style={{color: completedWorkouts.includes(6) ? "lightgreen" : "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
+                height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
+                borderWidth: 3, borderColor: dateIndex == 6 ? "red" : "black"}}>S</Text>
+            </Pressable>
+          </View>
           <FlatList
+            ref={ref}
             showsHorizontalScrollIndicator={false}
             data={workouts}
             horizontal
             initialScrollIndex={dateIndex}
+            scrollToIndex={{"index": 2}}
             getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
-            renderItem={({ item }) => (
+            renderItem={({ item, index: dateIndex }) => (
               <View style={{width: ITEM_SIZE}}>
                 <View style={{marginHorizontal: SPACING,
                   padding: SPACING,

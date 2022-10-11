@@ -100,8 +100,30 @@ const WorkoutCourse = ({navigation, route}) => {
     console.log('completed workout!')
     setWorkoutCompleted(true);
 
-    // TODO: save completed workout in db
+  //  /api/completeWorkout
+  const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+  const userMetaData = await AsyncStorage.getItem("USER_METADATA");
 
+  console.log('userMetaData')
+  console.log(userMetaData);
+  /*
+
+  const api = `https://hautewellnessapp.com/api/completeWorkout`;
+  const apiParams = {};
+  apiParams['userid'] = userid;
+  apiParams['schedule_date'] = schedule_date;
+  apiParams['id_token'] = storageToken;
+
+  const response = await fetch(api, {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   credentials: 'same-origin',
+   body: JSON.stringify(apiParams)
+  });
+  const scheduleData = await response.json();
+  console.log('scheduleData')
+  console.log(scheduleData)
+  */
   };
 
   const pauseVideo = () => {
