@@ -56,7 +56,6 @@ const App = () => {
     userParams['apple_sub'] = sub;
     userParams['id_token'] = storageToken;
     console.log('userParams');
-    console.log(userParams);
 
     const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
       method: 'POST',
@@ -64,18 +63,16 @@ const App = () => {
       credentials: 'same-origin',
       body: JSON.stringify(userParams)
     });
-    const metadata = await userResponse.json();
-    console.log('userResponse', userResponse.status);
     if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
       console.log('login error', response.status)
       setLoadingScreen(false);
       return 'error';
     }
+    const metadata = await userResponse.json();
+    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setLoadingScreen(false);
     setValidLogin(true);
-    console.log('meta data....', metadata);
-    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
   }
 
   const setupNotifications = () => {

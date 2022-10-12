@@ -8,7 +8,6 @@ import DatePicker from 'react-native-date-picker';
 const moment = require('moment');
 import * as Progress from 'react-native-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
-import { useCountdown } from 'react-native-countdown-circle-timer'
 
 const RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,7 +17,6 @@ const HEADER_MAX_HEIGHT = 340;
 const HEADER_MIN_HEIGHT = 120;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-//var path = RNFS.ExternalDirectoryPath + "/abc.png";
 const WorkoutSelected = ({navigation, route, uid}) => {
 
   const title = route.params[0].name;
@@ -26,6 +24,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const time = route.params[0].time;
   const json_content = JSON.parse(route.params[0].json_content);
   const content = json_content['course_content'];
+  const schedule_date = route.params[0]['schedule_date'];
 
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -45,19 +44,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [workoutStartingModal, setWorkoutStartingModal] = useState(true);
   const [startWorkout, setStartWorkout] = useState(false);
   const [showLoadScreen, setShowLoadScreen] = useState(false);
-
-/*
-  const {
-  path,
-  pathLength,
-  stroke,
-  strokeDashoffset,
-  remainingTime,
-  elapsedTime,
-  size,
-  strokeWidth,
-} = useCountdown({ isPlaying: startWorkout, duration: 3, colors: '#abc' })
-*/
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const workoutSelectedData = async () => {
@@ -112,6 +98,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     const apiParams = {};
     apiParams['title'] = title;
     apiParams['exerciseList'] = exerciseList;
+    apiParams['schedule_date'] = schedule_date;
     navigation.navigate('WorkoutCourse', [apiParams]);
     setStartWorkout(false);
   }

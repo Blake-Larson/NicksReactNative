@@ -23,16 +23,11 @@ const AppleAuth = ({setValidLogin}) => {
     console.log('appleAuthRequestResponse')
     console.log(appleAuthRequestResponse)
     const { email, email_verified, is_private_email, sub } = jwt_decode(appleAuthRequestResponse.identityToken)
-    /*
-    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
-    console.log('credentialState')
-    console.log(credentialState)
-    */
+
     console.log('email', email)
     console.log('family name', appleAuthRequestResponse.fullName.familyName);
     console.log('given name', appleAuthRequestResponse.fullName.givenName);
     console.log('sub', sub);
-
 
     let lastname = null;
     if (appleAuthRequestResponse.fullName) lastname = appleAuthRequestResponse.fullName.familyName;
@@ -40,7 +35,6 @@ const AppleAuth = ({setValidLogin}) => {
     if (appleAuthRequestResponse.fullName) firstname = appleAuthRequestResponse.fullName.givenName;
 
     if (!appleAuthRequestResponse.identityToken) console.log('Apple Sign-In failed - no identify token returned');
-    //console.log(JSON.stringify({"id_token": appleAuthRequestResponse.identityToken, "username": email}))
 
     const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
       method: 'POST',
@@ -77,13 +71,16 @@ const AppleAuth = ({setValidLogin}) => {
         body: JSON.stringify(userParams)
       });
 
-    console.log('userResponse', userResponse.status)
-    if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
+    /*
+    if (userResponse.status != 200 && userResponse.status != "201") console.log('welp')
+    if (userResponse.status != 200 && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
       console.log(response.status)
       console.log('login error')
       return;
-    }
+    }*/
+    const metadata = await userResponse.json();
+    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setValidLogin(true);
   }
 

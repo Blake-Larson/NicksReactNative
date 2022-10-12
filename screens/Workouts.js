@@ -78,6 +78,7 @@ const Workouts = ({navigation}) => {
 
     setWorkouts(workoutWeek)
 /*
+  API GATEWAY -> LAMBDA EXAMPLE
     const api2 = `https://k0aldgsyka.execute-api.us-west-1.amazonaws.com/dev/customer/LOL`;
     const response2 = await fetch(api2, {
      method: 'POST',
@@ -121,7 +122,6 @@ const Workouts = ({navigation}) => {
   }
 
   const getCompletedWorkouts = async () => {
-    //["2022-09-05"];
 
     const date = new Date("9/5/2022");
     const completedWeekArray = [];
@@ -134,16 +134,15 @@ const Workouts = ({navigation}) => {
     completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
 
-    /*
-    const api = `https://hautewellnessapp.com/api/getWorkoutsThisWeek`;
+    const api = `https://hautewellnessapp.com/api/getCompletedWorkouts`;
     const apiParams = {};
-    apiParams['monday'] = mon;
-    apiParams['tuesday'] = tues;
-    apiParams['wednesday'] = wed;
-    apiParams['thursday'] = thurs;
-    apiParams['friday'] = fri;
-    apiParams['saturday'] = sat;
-    apiParams['sunday'] = sun;
+    apiParams['monday'] = moment(date).isoWeekday(1).format('YYYY-MM-DD')
+    apiParams['tuesday'] = moment(date).isoWeekday(2).format('YYYY-MM-DD')
+    apiParams['wednesday'] = moment(date).isoWeekday(3).format('YYYY-MM-DD');
+    apiParams['thursday'] = moment(date).isoWeekday(4).format('YYYY-MM-DD');
+    apiParams['friday'] = moment(date).isoWeekday(5).format('YYYY-MM-DD');
+    apiParams['saturday'] = moment(date).isoWeekday(6).format('YYYY-MM-DD');
+    apiParams['sunday'] = moment(date).isoWeekday(7).format('YYYY-MM-DD');
     apiParams['id_token'] = storageToken;
 
     const response = await fetch(api, {
@@ -153,14 +152,14 @@ const Workouts = ({navigation}) => {
      body: JSON.stringify(apiParams)
     });
     const scheduleData = await response.json();
-    */
     const outputWorkoutsCompleted = [];
-    const response = [{schedule_date: "2022-09-05"}, {schedule_date: "2022-09-07"}];
-    for (let i = 0; i < response.length; i++)
+
+    for (let i = 0; i < scheduleData.length; i++)
     {
-      //outputWorkoutsCompleted.push(response[i]['schedule_date']);
-      const test = moment(response[i]['schedule_date']).isoWeekday();
-      outputWorkoutsCompleted.push(test - 1);
+      let test = moment(scheduleData[i]['schedule_date']).isoWeekday();
+      console.log('date index', test)
+      if (test == 7) test = 0;
+      outputWorkoutsCompleted.push(test);
     }
     setCompletedWorkouts(outputWorkoutsCompleted);
   }

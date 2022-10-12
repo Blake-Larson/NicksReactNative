@@ -4,10 +4,13 @@ import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 var RNFS = require("react-native-fs");
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const moment = require('moment');
 
 const WorkoutCourse = ({navigation, route}) => {
 
   const VideoData = route.params[0]['exerciseList'];
+  const schedule_date = route.params[0]['schedule_date'];
   const pauseButton = require('../media/pauseButton.png');
   const [workoutVideo, setWorkoutVideo] = useState([]);
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");
@@ -96,34 +99,32 @@ const WorkoutCourse = ({navigation, route}) => {
     setPaused(false);
   }
 
-  const completeWorkout = async () => {
-    console.log('completed workout!')
+  const completeWorkout = async () =>
+  {
     setWorkoutCompleted(true);
 
-  //  /api/completeWorkout
-  const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-  const userMetaData = await AsyncStorage.getItem("USER_METADATA");
+    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaData = JSON.parse(userMetaDataString);
 
-  console.log('userMetaData')
-  console.log(userMetaData);
-  /*
+    const userid = userMetaData[0]['userid'];
+    const formatted_date = moment(new Date(schedule_date)).format('YYYY-MM-DD');
 
-  const api = `https://hautewellnessapp.com/api/completeWorkout`;
-  const apiParams = {};
-  apiParams['userid'] = userid;
-  apiParams['schedule_date'] = schedule_date;
-  apiParams['id_token'] = storageToken;
+    const api = `https://hautewellnessapp.com/api/completeWorkout`;
+    const apiParams = {};
+    apiParams['userid'] = userid;
+    apiParams['schedule_date'] = schedule_date;
+    apiParams['id_token'] = storageToken;
 
-  const response = await fetch(api, {
-   method: 'POST',
-   headers: { 'Content-Type': 'application/json' },
-   credentials: 'same-origin',
-   body: JSON.stringify(apiParams)
-  });
-  const scheduleData = await response.json();
-  console.log('scheduleData')
-  console.log(scheduleData)
-  */
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(apiParams)
+    });
+
+    // TODO: ADD ERROR LOGS
+    const scheduleData = await response.json();
   };
 
   const pauseVideo = () => {
