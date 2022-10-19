@@ -307,7 +307,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
                    onPress={() => setModalVisible(!modalVisible)}>
                    <Text style={styles.textStyle}>X</Text>
                  </Pressable>
-                 <Paywall subInfo={subInfo} paywallShown={paywallShown} setPaywallShown={setPaywallShown} />
+                 <Paywall subInfo={subInfo} setSubInfo={setSubInfo} paywallShown={paywallShown} setPaywallShown={setPaywallShown} />
                </View>
              </View>
            </Modal>

@@ -59,7 +59,6 @@ const App = () => {
     const userParams = {};
     userParams['apple_sub'] = sub;
     userParams['id_token'] = storageToken;
-    console.log('userParams');
 
     const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
       method: 'POST',
@@ -90,6 +89,8 @@ const App = () => {
       sound: true,
     }).then((data) => {
       console.log('PushNotificationIOS.requestPermissions', data);
+      // TODO: do I need to do anything here??
+      // do these function listeners do anything? ??
     }, (err) => {
       console.error('[NOTIFICATIONS] register error: ', err);
     });
@@ -123,13 +124,10 @@ const App = () => {
 
     try {
       const customerInfo = await Purchases.getCustomerInfo();
+      console.log('customerInfo')
+      console.log(JSON.stringify(customerInfo))
+
       setSubInfo(customerInfo);
-      console.log(';customerInfo !!!!!!', customerInfo);
-      console.log('----')
-      console.log(customerInfo.entitlements.active)
-      console.log('?')
-      console.log(customerInfo.entitlements)
-      console.log(typeof customerInfo.entitlements.active.pro)
 
       if (customerInfo.entitlements.active.pro)
       {
@@ -143,20 +141,12 @@ const App = () => {
 
   const purchaseSetup = async () => {
 
-    console.log(' purcahse set up ! ')
-
     const sub = await AsyncStorage.getItem("APPLE_SUB");
-    console.log(sub)
     Purchases.setDebugLogsEnabled(true);
-    //Purchases.setup();
     Purchases.configure({apiKey: "appl_lQHbtXbTPqowgQucoJxnfxzMeMz", appUserId: sub});
     const purchaseResult = await Purchases.logIn(sub);
-    console.log(purchaseResult)
-    console.log('purchaserInfo', purchaseResult.customerInfo)
-    console.log('created', purchaseResult.created)
 
     checkUserMembership();
-
   }
 
   useEffect(() => {
@@ -250,7 +240,8 @@ const App = () => {
                 navigation={navigation}
                 paywallShown={paywallShown}
                 setPaywallShown={setPaywallShown}
-                subInfo={subInfo}/>}
+                subInfo={subInfo}
+                setSubInfo={setSubInfo}/>}
             options={{
               headerShown: false,
               tabBarOptions: { backgroundColor: "black", activeTintColor:'red', visible: false},
@@ -290,6 +281,7 @@ const App = () => {
               paywallShown={paywallShown}
               setPaywallShown={setPaywallShown}
               subInfo={subInfo}
+              setSubInfo={setSubInfo}
             />)}
         </Stack.Screen>
         <Stack.Screen name="Profile" options={{headerShown: false}}>
