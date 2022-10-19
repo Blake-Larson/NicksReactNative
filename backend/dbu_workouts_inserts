@@ -1,11 +1,8 @@
 CREATE DATABASE IF NOT EXISTS test;
 
-CREATE TABLE USER_PROGRESS(
-  logid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+CREATE TABLE USER_COMPLETION(
   userid VARCHAR(200) NOT NULL,
-  series VARCHAR(20) NOT NULL,
-  status CHAR(10),
-  json_notes JSON,
+  schedule_date DATE NOT NULL,
   modified DATE,
   created DATE,
   deleted CHAR(1) DEFAULT 'N'
@@ -58,7 +55,7 @@ CREATE TABLE IMAGES(
   deleted CHAR(1) DEFAULT 'N'
 );
 
-// TODO: MAKE IDS PRIMARKY KEYS 
+// TODO: MAKE IDS PRIMARKY KEYS
 
 /*********************************************************
                         SEQUENCES

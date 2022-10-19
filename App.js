@@ -22,6 +22,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from "react-native-push-notification";
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+import Purchases from 'react-native-purchases';
+import { useIsFocused } from "@react-navigation/native";
 
 const App = () => {
 
@@ -29,6 +31,8 @@ const App = () => {
   const [validLogin, setValidLogin] = useState(false);
   const [loadingScreen, setLoadingScreen] = useState(true);
   const [token, setToken] = useState({});
+  const [paywallShown, setPaywallShown] = useState(true);
+  const [subInfo, setSubInfo] = useState([]);
 
   const validateSession = async () => {
 
@@ -115,33 +119,80 @@ const App = () => {
   // console.log('onLocalNotification', locaNotification)
   };
 
+  const checkUserMembership = async () => {
+
+    try {
+      const customerInfo = await Purchases.getCustomerInfo();
+      setSubInfo(customerInfo);
+      console.log(';customerInfo !!!!!!', customerInfo);
+      console.log('----')
+      console.log(customerInfo.entitlements.active)
+      console.log('?')
+      console.log(customerInfo.entitlements)
+      console.log(typeof customerInfo.entitlements.active.pro)
+
+      if (customerInfo.entitlements.active.pro)
+      {
+        setPaywallShown(false);
+      }
+    } catch (e)
+    {
+      console.log('membership error: ', e);
+    }
+  }
+
+  const purchaseSetup = async () => {
+
+    console.log(' purcahse set up ! ')
+
+    const sub = await AsyncStorage.getItem("APPLE_SUB");
+    console.log(sub)
+    Purchases.setDebugLogsEnabled(true);
+    //Purchases.setup();
+    Purchases.configure({apiKey: "appl_lQHbtXbTPqowgQucoJxnfxzMeMz", appUserId: sub});
+    const purchaseResult = await Purchases.logIn(sub);
+    console.log(purchaseResult)
+    console.log('purchaserInfo', purchaseResult.customerInfo)
+    console.log('created', purchaseResult.created)
+
+    checkUserMembership();
+
+  }
 
   useEffect(() => {
     validateSession();
     setupNotifications();
   }, []);
 
+
+  useEffect(() => {
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+    console.log('REFRESH SUB INFO')
+
+    purchaseSetup();
+  }, [paywallShown]);
+
+
   if (loadingScreen) {
     return (
-      <View>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
-        <Text> LOADING ... </Text>
+      <View style={{backgroundColor: "black", height: 1000}}>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
+        <Text style={{color: "white"}}> LOADING ... </Text>
       </View>
     )
   }
@@ -194,12 +245,17 @@ const App = () => {
             }} />
           <Tab.Screen
             name="Workouts"
-            component={Workouts}
+            children={({navigation, route}) =>
+              <Workouts
+                navigation={navigation}
+                paywallShown={paywallShown}
+                setPaywallShown={setPaywallShown}
+                subInfo={subInfo}/>}
             options={{
               headerShown: false,
               tabBarOptions: { backgroundColor: "black", activeTintColor:'red', visible: false},
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faRunning } size={25} color={color}/>)
-           }}/>
+           }} />
           <Tab.Screen
             name="Settings"
             children={({navigation})=><Settings setValidLogin={setValidLogin} navigation={navigation}/>}
@@ -227,7 +283,14 @@ const App = () => {
           {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
         </Stack.Screen>
         <Stack.Screen name="AccountDetails" options={{headerShown: false}}>
-          {({navigation, route}) => (<AccountDetails navigation={navigation} route={route}/>)}
+          {({navigation, route}) => (
+            <AccountDetails
+              navigation={navigation}
+              route={route}
+              paywallShown={paywallShown}
+              setPaywallShown={setPaywallShown}
+              subInfo={subInfo}
+            />)}
         </Stack.Screen>
         <Stack.Screen name="Profile" options={{headerShown: false}}>
           {({navigation, route}) => (<Profile navigation={navigation} route={route}/>)}

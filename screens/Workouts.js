@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, FlatList, Button, ScrollView, Dimensions, TouchableOpacity,
-  ImageBackground, StyleSheet, Pressable } from 'react-native';
+  ImageBackground, StyleSheet, Pressable, Modal, Image } from 'react-native';
 import AwsMedia from '../components/AwsMedia';
 import WorkoutSelected from './WorkoutSelected';
+import Paywall from '../components/Paywall';
+//import { useIsFocused } from "@react-navigation/native";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CalendarStrip from 'react-native-calendar-strip';
 const moment = require('moment');
@@ -12,7 +15,9 @@ const ITEM_SIZE = Dimensions.get('window').width * 0.9;
 const SPACING = 6;
 const RNFS = require("react-native-fs");
 
-const Workouts = ({navigation}) => {
+const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInfo}) => {
+
+//  const isFocused = useIsFocused();
 
   const ref = useRef(null);
   const [workouts, setWorkouts] = useState([]);
@@ -20,6 +25,9 @@ const Workouts = ({navigation}) => {
   const [startingDate, setStartingDate] = useState([]);
   const [dateIndex, setDateIndex] = useState([]);
   const [completedWorkouts, setCompletedWorkouts] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cacheDate, setCacheDate] = useState(new Date());
+
   const getWorkouts = async () => {
 
     const initialIndex = new Date().getDay() - 1;
@@ -92,6 +100,7 @@ const Workouts = ({navigation}) => {
 
 
   useEffect(() => {
+    console.log('here....')
     getWorkouts();
     const now = moment();
     const dateSelected = moment();
@@ -100,9 +109,24 @@ const Workouts = ({navigation}) => {
     setStartingDate(dateSelected);
     getCompletedWorkouts();
     cleanUpCache();
-
+    return () => {};
   }, []);
 
+/*
+  useEffect(() => {
+    if (cacheDate == []) return;
+    console.log('focused!')
+    const HOUR = 1000 * 1 * 10;
+    const timeDiff = new Date - cacheDate;
+    if ( timeDiff > HOUR )
+    {
+      console.log('need to recheck');
+      setRefreshSubInfo(true)
+      setCacheDate(new Date())
+    }
+    return () => {};
+  }, [isFocused]);
+*/
   const cleanUpCache = () => {
 
     RNFS.readDir(RNFS.DocumentDirectoryPath)
@@ -157,11 +181,18 @@ const Workouts = ({navigation}) => {
     for (let i = 0; i < scheduleData.length; i++)
     {
       let test = moment(scheduleData[i]['schedule_date']).isoWeekday();
-      console.log('date index', test)
       if (test == 7) test = 0;
       outputWorkoutsCompleted.push(test);
     }
     setCompletedWorkouts(outputWorkoutsCompleted);
+  }
+
+  const checkPaywall = async (item) => {
+
+    if (paywallShown == true) setModalVisible(true)
+    if (paywallShown == true) return;
+
+    navigation.navigate('WorkoutSelected', [item]);
   }
 
 
@@ -224,7 +255,7 @@ const Workouts = ({navigation}) => {
                 <View style={{marginHorizontal: SPACING,
                   padding: SPACING,
                   borderRadius: 34}}>
-                  <TouchableOpacity onPress={() => navigation.navigate('WorkoutSelected', [item])}>
+                  <TouchableOpacity onPress={() => {checkPaywall(item)}}>
                     <ImageBackground
                       style={styles.posterImage}
                       source={{uri: item.filename}}
@@ -246,12 +277,40 @@ const Workouts = ({navigation}) => {
                           color: "#fffdfe",
                           fontWeight: "bold",
                           fontFamily: "System" }}>{item.day}</Text>
+                        {
+                          paywallShown == true &&
+                            <Image style={{position: "absolute",
+                              top: 15,
+                              right: 30,
+                              height: 30,
+                              width: 30 }} source={require("../media/padlock.png")} />
+                        }
                     </ImageBackground>
                   </TouchableOpacity>
                 </View>
               </View>
             )}
           />
+          <Modal
+             animationType="slide"
+             transparent={true}
+             visible={modalVisible}
+             onRequestClose={() => {
+               Alert.alert("Modal has been closed.");
+               setModalVisible(!modalVisible);
+             }}
+           >
+             <View style={[styles.centeredView]}>
+               <View style={styles.modalView}>
+                 <Pressable
+                   style={[styles.button, styles.buttonClose]}
+                   onPress={() => setModalVisible(!modalVisible)}>
+                   <Text style={styles.textStyle}>X</Text>
+                 </Pressable>
+                 <Paywall subInfo={subInfo} paywallShown={paywallShown} setPaywallShown={setPaywallShown} />
+               </View>
+             </View>
+           </Modal>
       </ScrollView>
     </View>
   )
@@ -266,6 +325,58 @@ const styles = StyleSheet.create({
     margin: 0,
     marginBottom: 10,
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    height: '100%',
+    marginTop: '40%',
+    backgroundColor: "#4D504F",
+    borderRadius: 20,
+    paddingTop: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    position: "absolute",
+    top: 10,
+    right: 15,
+    opacity: 0.9,
+    color: "#fffdfe",
+    fontWeight: "bold",
+    fontFamily: "System"
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "white",
+  },
+  textStyle: {
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "bold",
+    padding: 30
+  }
 });
 
 export default Workouts;

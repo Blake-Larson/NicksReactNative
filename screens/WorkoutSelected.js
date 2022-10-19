@@ -19,6 +19,9 @@ const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const WorkoutSelected = ({navigation, route, uid}) => {
 
+  console.log('route.params[0]', route.params[0])
+  console.log('name', route.params[0]['name'])
+
   const title = route.params[0].name;
   const image = route.params[0].filename;
   const time = route.params[0].time;
@@ -194,6 +197,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   useEffect(() => {
     workoutSelectedData();
+    return () => {};
   }, []);
 
   const headerTranslateY = scrollY.interpolate({
