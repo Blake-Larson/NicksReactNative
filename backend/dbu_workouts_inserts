@@ -1,11 +1,14 @@
 CREATE DATABASE IF NOT EXISTS test;
 
 CREATE TABLE USER_COMPLETION(
+  logid INT NOT NULL AUTO_INCREMENT,
   userid VARCHAR(200) NOT NULL,
   schedule_date DATE NOT NULL,
-  modified DATE,
-  created DATE,
-  deleted CHAR(1) DEFAULT 'N'
+  workout_name VARCHAR(200),
+  modified DATE DEFAULT (CURRENT_DATE),
+  created DATE DEFAULT (CURRENT_DATE),
+  deleted CHAR(1) DEFAULT 'N',
+  PRIMARY KEY (logid)
 );
 
 CREATE TABLE USERS(

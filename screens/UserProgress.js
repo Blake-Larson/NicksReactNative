@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, Modal, StyleSheet, Pressable } from 'react-native';
-import CalendarStrip from 'react-native-calendar-strip';
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const moment = require('moment');
 
 const UserProgress = ({navigation}) => {
 
   const [progress, setProgress] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [dateSelected, setDateSelected] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [markedDates, setMarkedDates] = useState([]);
   const [deleteCardContent, setDeleteCardContent] = useState([]);
   const [selectedDate, setSelectedDate] = useState([]);
-  const [startingDate, setStartingDate] = useState([]);
-  const [writtenDate, setWrittenDate] = useState([]);
-  const [currentView, setCurrentView] = useState([]);
+
+  const [currentView, setCurrentView] = useState('Weekly');
   const [allProgress, setAllProgress] = useState([]);
+  const [monthlyDate, setMonthlyDate] = useState(new Date());
+  const [markedDates, setMarkedDates] = useState({});
 
   const onRefresh = async () => {
     try {
@@ -26,31 +27,48 @@ const UserProgress = ({navigation}) => {
     } catch (error) {
       console.error(error);
     }
-    };
-
-  const getUserProgress = () => {
-  return '';/*//fetch(`http://${url}:3000/user_progress?userid=${uid}`)
-    .then((response) => response.json())
-    .then((json) => {
-      markedDatesFn(json)
-      setAllProgress(json);
-      return json;
-    })
-    .catch((error) => {
-      console.error(error);
-    });*/
   };
+
+  const getUserProgress = async () => {
+
+    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaData = JSON.parse(userMetaDataString);
+    const userid = userMetaData[0]['userid'];
+
+    const api = `https://hautewellnessapp.com/api/getUserProgress`;
+    const apiParams = {};
+    apiParams['userid'] = userid;
+    apiParams['id_token'] = storageToken;
+
+    const response = await fetch(api, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     credentials: 'same-origin',
+     body: JSON.stringify(apiParams)
+    });
+
+    const jsonProgress = await response.json();
+    setProgress(jsonProgress)
+
+    const selectedDatesObj = {}
+    for (let i = 0; i < jsonProgress.length; i++)
+    {
+      const row = jsonProgress[i];
+//      console.log(row['schedule_date'].replace(/T.*/, ''))
+      const scheduleDateString = jsonProgress[i]['schedule_date'].replace(/T.*/, '')
+  //    console.log('res row', moment(row['schedule_date']).format())
+  //    console.log('res row', new Date(row['schedule_date']))
+
+      selectedDatesObj[scheduleDateString] = {dotColor: 'red', marked: true}
+//      initialSelected[{...markedDates, moment(]: {dotColor: 'red', marked: true );
+    }
+    setMarkedDates(selectedDatesObj)
+
+  };
+
   useEffect(() => {
-
-    setCurrentView("Weekly");
-    const now = moment();
-    const dateSelected = moment();
-    const newDate = dateSelected.format('MM-DD-YYYY');
-
-    setWrittenDate(now.format('ll'))
-    setStartingDate(dateSelected);
-//    onDateSelected(dateSelected);
-    //getUserProgress();
+    getUserProgress()
   }, []);
 
   const renderItem = ({ item }) => (
@@ -62,62 +80,40 @@ const UserProgress = ({navigation}) => {
       setModalVisible(true);
   };
 
-  const onDateSelected = async (param) => {
+  const addMonth = (addMonth) =>
+  {
+    console.log(monthlyDate)
 
-    const dateSelected = moment(param);
-    const newDate = dateSelected.format('MM-DD-YYYY');
-
-    setWrittenDate(dateSelected.format('ll'))
-    setSelectedDate(newDate);
-    try {
-      const response = ''//await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${newDate}`);
-      const json = await response.json();
-      setProgress(json);
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  const refreshDateSelected = async () => {
-
-    try {
-      const response = ''//await fetch(`http://${url}:3000/user_progress_date?userid=${uid}&created=${selectedDate}`);
-      const json = await response.json();
-      setProgress(json);
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
+    console.log('add month', addMonth)
+    setMonthlyDate(new Date('2022-11-30'));
+    console.log(monthlyDate)
   }
 
-  const deleteUserProgress = async () => {
+  const daySelected = (day) =>
+  {
+    setSelectedDate([])
 
-    setModalVisible(!modalVisible);
-    try {
-      const response = ''// await fetch(`http://${url}:3000/user_progress_delete?userid=${uid}&logid=${deleteCardContent.logid}`);
-      const json = await response.json();
-      getUserProgress();
-      refreshDateSelected();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const markedDatesFn = (json) => {
-    const markedDateArray = [];
-    for (let i = 0; i < json.length; i++)
+    for (let i = 0; i < progress.length; i++)
     {
-      markedDateArray.push({
-          date: moment(json[i]['created']),
-          dots: [{color: "red"}]
-      });
+      const schedule_date = progress[i]['schedule_date'];
+      if (moment(schedule_date).format('YYYY-MM-DD') == day.dateString) setSelectedDate([progress[i]])
     }
-    setMarkedDates(markedDateArray);
   }
 
-  const viewSelected = (param) => {
-    console.log(param);
+  const dayPressedChange = (day) =>
+  {
+    const originalMarkedDates = markedDates;
+    for (const element in originalMarkedDates)
+    {
+      originalMarkedDates[element]['selected'] = false;
+    }
+///    if (markedDates[day.dateString]) setMarkedDates({...markedDates, [day.dateString]: { marked: true }})
+    let output = originalMarkedDates[day.dateString];
+    if (!output) output = {}
+    output['selected'] = true;
+
+    setMarkedDates({...originalMarkedDates, [day.dateString]: output})
+    daySelected(day);
   }
 
   const Item = ({ series, status }) => (
@@ -128,37 +124,61 @@ const UserProgress = ({navigation}) => {
   );
 
   return (
-    <ScrollView style={{backgroundColor: "grey"}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 20, fontSize: 15}}>
+    <ScrollView style={{backgroundColor: "black"}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
+      <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 80, fontSize: 15}}>
         <Button title="Week" onPress={()=> setCurrentView("Weekly")}/>
         <Button title="Badges" onPress={() => setCurrentView("Badges")}/>
       </View>
       {
         currentView == 'Weekly' &&
         <View>
-          <CalendarStrip
-            scrollable
-            selectedDate={startingDate}
-            style={{height:100, paddingTop: 10, paddingBottom: 10}}
-            calendarHeaderStyle={{color: 'black'}}
-            dateNumberStyle={{color: 'black'}}
-            dateNameStyle={{color: 'black'}}
-            iconContainer={{flex: 0.1}}
-            daySelectionAnimation={{type: 'border', duration: 200, borderWidth: 1, borderHighlightColor: 'red'}}
-            onDateSelected={onDateSelected}
+          <Calendar
+            style={{
+              borderWidth: 1,
+              backgroundColor: "black",
+              calendarBackground: "#00adf5",
+              height: 350,
+              fontSize: 20
+            }}
+            theme={{
+              arrowColor: 'white',
+              calendarBackground: "black",
+              backgroundColor: "black",
+              textSectionTitleColor: 'white',
+              todayTextColor: 'red',
+              dayTextColor: 'white',
+              textDisabledColor: 'white',
+              selectedDayBackgroundColor: 'white',
+              selectedDayTextColor: 'red',
+              textDayFontSize: 16,
+              textMonthFontSize: 20,
+
+            }}
             markedDates={markedDates}
+            initialDate={moment(new Date()).format('YYYY-MM-DD')}
+            onDayPress={day => {
+              dayPressedChange(day);
+            }}
+            selected={'2022-10-10'}
+            monthFormat={'yyyy MM'}
+            onMonthChange={month => {
+              setMonthlyDate(month.dateString)
+            }}
+            hideExtraDays={true}
+            firstDay={1}
+            onPressArrowLeft={subtractMonth => subtractMonth(subtractMonth)}
+            onPressArrowRight={addMonth => addMonth(addMonth)}
+            renderHeader={() => {  return <Text style={{color: "white", fontWeight: "bold", fontSize: 24}}>{moment(monthlyDate).format('MMMM YYYY')}</Text> }}
           />
-          <Text style={{fontSize: 30}}>{writtenDate}</Text>
-          <Text style={{fontSize: 10}}>User Progress! {JSON.stringify(progress)}</Text>
-          {progress.map((item) => (
+          <Text style={{fontSize: 10, color: "white"}}>User Progress! {JSON.stringify(progress)}</Text>
+          {selectedDate.map((item) => (
             <View key={item.logid} style={{marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15, backgroundColor: "lightgrey"}}>
-              <TouchableOpacity onPress={() => openDeleteModal(item)} style={{alignSelf: 'flex-end', position: 'absolute', backgroundColor: "grey"}}>
+              <TouchableOpacity onPress={() => openDeleteModal(item)} style={{right: 0, position: 'absolute', backgroundColor: "grey", marginLeft: 10}}>
                 <Text style={{paddingLeft:30, paddingBottom: 30, fontSize: 30}}>X</Text>
               </TouchableOpacity>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>{item.logid}</Text>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>{item.series}</Text>
-              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15}}>{item.status}</Text>
-              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15}}>{item.created}</Text>
+              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>{JSON.stringify(item)}</Text>
+              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
+              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15}}>Total Workout Time: {item.status}</Text>
               <View style={styles.centeredView}>
                 <Modal
                   style={styles.centeredView}
@@ -195,13 +215,10 @@ const UserProgress = ({navigation}) => {
       {
         currentView == 'Badges' &&
         <View>
-          <Text style={{paddingTop: 10, paddingLeft: 10}}>Badges selected</Text>
-          <Text style={{paddingTop: 10, paddingLeft: 10}}>{JSON.stringify(allProgress)}</Text>
+          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>Badges selected</Text>
+          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>{JSON.stringify(allProgress)}</Text>
         </View>
       }
-
-
-
     </ScrollView>
   )
 }

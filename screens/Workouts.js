@@ -156,7 +156,11 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     completedWeekArray.push(moment(date).isoWeekday(5).format('YYYY-MM-DD'));
     completedWeekArray.push(moment(date).isoWeekday(6).format('YYYY-MM-DD'));
     completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
+
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaData = JSON.parse(userMetaDataString);
+    const userid = userMetaData[0]['userid'];
 
     const api = `https://hautewellnessapp.com/api/getCompletedWorkouts`;
     const apiParams = {};
@@ -167,6 +171,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     apiParams['friday'] = moment(date).isoWeekday(5).format('YYYY-MM-DD');
     apiParams['saturday'] = moment(date).isoWeekday(6).format('YYYY-MM-DD');
     apiParams['sunday'] = moment(date).isoWeekday(7).format('YYYY-MM-DD');
+    apiParams['userid'] = userid;
     apiParams['id_token'] = storageToken;
 
     const response = await fetch(api, {

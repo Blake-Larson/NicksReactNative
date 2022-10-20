@@ -19,9 +19,6 @@ const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const WorkoutSelected = ({navigation, route, uid}) => {
 
-  console.log('route.params[0]', route.params[0])
-  console.log('name', route.params[0]['name'])
-
   const title = route.params[0].name;
   const image = route.params[0].filename;
   const time = route.params[0].time;
@@ -30,7 +27,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const schedule_date = route.params[0]['schedule_date'];
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [exerciseContent, setExerciseContent] = useState([]);
   const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
@@ -49,14 +45,11 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [showLoadScreen, setShowLoadScreen] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current;
-  const workoutSelectedData = async () => {
 
-    console.log('loading');
-    setLoading(false);
+  const workoutSelectedData = async () => {
 
     const filenamecontent = await getExerciseById();
     console.log('starting to download')
-
     await rnfsDownload(filenamecontent);
     console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
   }
@@ -108,24 +101,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   const rnfsDownload = async (content) => {
 
-    console.log('rnfs path: ')
-    console.log('rnfs path: ')
-    console.log('rnfs path: ')
-    console.log('rnfs path: ')
-    console.log('rnfs path: ')
-/*
-    RNFS.readDir(RNFS.DocumentDirectoryPath)
-      .then(result => {
-        console.log('GOT RESULT', result);
-        for (let i = 0; i < result.length; i++)
-        {
-          console.log(i)
-          console.log(result[i])
-          // TODO: update modified timestamps for all as a way to clean up cache
-          if (i == 3) RNFS.touch(result[i]['path'], new Date());
-        }
-      });
-      */
     setDownloadTotal(content.length);
 
     for (let i = 0; i < content.length; i++)
@@ -147,25 +122,9 @@ const WorkoutSelected = ({navigation, route, uid}) => {
         const filename = row['filename'];
         console.log('now downloading: ', filename);
 
-        const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path,
-          progress: (res) => {
-          //here you can calculate your progress for file download
-
-           console.log("Response written ===\n\n");
-           let progressPercent = (res.bytesWritten / res.contentLength)*100; // to calculate in percentage
-           console.log("\n\nprogress===",progressPercent)
-        //   this.setState({ progress: progressPercent.toString() });
-          // item.downloadProgress = progressPercent;
-           //console.log(res);
-         }
-       })
+        const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path })
         if (await downloadInfo.promise) { console.log('downloaded!') }
-        setProgress((i + 1)/ content.length)
-        //if (i == 1) console.log('done!')
-
-        //if (i == 1) setDownloadDone(true);
-        //if (i == 1) setShowLoadScreen(false);
-
+        setProgress((i + 1)/ content.length);
       }
     }
     console.log('done with all downloads!!')
@@ -174,6 +133,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     setShowRnfsDownloadButton(true);
   }
 
+  // TODO: remove debug for final
   const rnfsRemove = async () => {
 
     setShowRnfsDownloadButton(false);
@@ -196,6 +156,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   }
 
   useEffect(() => {
+
     workoutSelectedData();
     return () => {};
   }, []);
@@ -384,8 +345,10 @@ const WorkoutSelected = ({navigation, route, uid}) => {
               <Pressable style={styles.apnModalContainer} onPress={() => {setMusicModal(false)}} >
                  <View style={styles.musicModalView}>
                    <TouchableOpacity   style={styles.musicModal} onPress={() => { Linking.openURL('spotify:')}}>
-                     <ImageBackground style={{color: "white", height: 60, width: 60, marginBottom: 0, top: 15, left: 10, flexDirection: 'row',flex: 1, position: 'absolute',
-                        }} source={require("../media/spotify.png")} />
+                     <ImageBackground
+                        style={{color: "white", height: 60, width: 60, marginBottom: 0, top: 15, left: 10, flexDirection: 'row',flex: 1, position: 'absolute'}}
+                        source={require("../media/spotify.png")}
+                     />
                       <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Spotify</Text>
                    </TouchableOpacity>
                    <TouchableOpacity   style={styles.musicModal}  onPress={() => { Linking.openURL('music:')}}>
