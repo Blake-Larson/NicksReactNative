@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, Modal, StyleSheet, Pressable } from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const moment = require('moment');
 
 const UserProgress = ({navigation}) => {
@@ -20,10 +19,10 @@ const UserProgress = ({navigation}) => {
 
   const onRefresh = async () => {
     try {
+
       setRefreshing(true);
-      const result = await getUserProgress();
+      await getUserProgress();
       setRefreshing(false);
-      return result;
     } catch (error) {
       console.error(error);
     }
@@ -49,22 +48,23 @@ const UserProgress = ({navigation}) => {
     });
 
     const jsonProgress = await response.json();
-    setProgress(jsonProgress)
 
     const selectedDatesObj = {}
     for (let i = 0; i < jsonProgress.length; i++)
     {
       const row = jsonProgress[i];
-//      console.log(row['schedule_date'].replace(/T.*/, ''))
       const scheduleDateString = jsonProgress[i]['schedule_date'].replace(/T.*/, '')
-  //    console.log('res row', moment(row['schedule_date']).format())
-  //    console.log('res row', new Date(row['schedule_date']))
-
+      console.log(scheduleDateString)
+      const date_components = scheduleDateString.split("-");
+      const year = date_components[0];
+      const month = date_components[1];
+      const day = date_components[2];
+      jsonProgress[i]['readableDate'] = `${month}-${day}-${year}`;
       selectedDatesObj[scheduleDateString] = {dotColor: 'red', marked: true}
-//      initialSelected[{...markedDates, moment(]: {dotColor: 'red', marked: true );
     }
-    setMarkedDates(selectedDatesObj)
 
+    setProgress(jsonProgress);
+    setMarkedDates(selectedDatesObj);
   };
 
   useEffect(() => {
@@ -80,34 +80,25 @@ const UserProgress = ({navigation}) => {
       setModalVisible(true);
   };
 
-  const addMonth = (addMonth) =>
-  {
-    console.log(monthlyDate)
-
-    console.log('add month', addMonth)
-    setMonthlyDate(new Date('2022-11-30'));
-    console.log(monthlyDate)
-  }
-
   const daySelected = (day) =>
   {
-    setSelectedDate([])
+    setSelectedDate([]);
 
     for (let i = 0; i < progress.length; i++)
     {
-      const schedule_date = progress[i]['schedule_date'];
-      if (moment(schedule_date).format('YYYY-MM-DD') == day.dateString) setSelectedDate([progress[i]])
+      const schedule_date = progress[i]['schedule_date'].replace(/T.*/, '')
+
+      if (schedule_date == day.dateString) setSelectedDate([progress[i]])
     }
   }
 
-  const dayPressedChange = (day) =>
-  {
+  const dayPressedChange = (day) => {
+
     const originalMarkedDates = markedDates;
     for (const element in originalMarkedDates)
     {
       originalMarkedDates[element]['selected'] = false;
     }
-///    if (markedDates[day.dateString]) setMarkedDates({...markedDates, [day.dateString]: { marked: true }})
     let output = originalMarkedDates[day.dateString];
     if (!output) output = {}
     output['selected'] = true;
@@ -152,7 +143,6 @@ const UserProgress = ({navigation}) => {
               selectedDayTextColor: 'red',
               textDayFontSize: 16,
               textMonthFontSize: 20,
-
             }}
             markedDates={markedDates}
             initialDate={moment(new Date()).format('YYYY-MM-DD')}
@@ -170,15 +160,14 @@ const UserProgress = ({navigation}) => {
             onPressArrowRight={addMonth => addMonth(addMonth)}
             renderHeader={() => {  return <Text style={{color: "white", fontWeight: "bold", fontSize: 24}}>{moment(monthlyDate).format('MMMM YYYY')}</Text> }}
           />
-          <Text style={{fontSize: 10, color: "white"}}>User Progress! {JSON.stringify(progress)}</Text>
           {selectedDate.map((item) => (
             <View key={item.logid} style={{marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15, backgroundColor: "lightgrey"}}>
               <TouchableOpacity onPress={() => openDeleteModal(item)} style={{right: 0, position: 'absolute', backgroundColor: "grey", marginLeft: 10}}>
                 <Text style={{paddingLeft:30, paddingBottom: 30, fontSize: 30}}>X</Text>
               </TouchableOpacity>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>{JSON.stringify(item)}</Text>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
-              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15}}>Total Workout Time: {item.status}</Text>
+              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontWeight: "bold", fontSize: 20}}>{item.readableDate}</Text>
+              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontSize: 18}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
+              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15, fontSize: 18}}>Total Workout Time: {item.status}</Text>
               <View style={styles.centeredView}>
                 <Modal
                   style={styles.centeredView}
@@ -187,17 +176,14 @@ const UserProgress = ({navigation}) => {
                    onRequestClose={() => {
                      Alert.alert("Modal has been closed.");
                      setModalVisible(!modalVisible);
-                   }}
-                 >
+                   }}>
                      <View style={styles.modalView}>
                        <Text style={styles.modalText}>Are you sure you want to delete? {JSON.stringify(deleteCardContent)}</Text>
-
                        <View style={{ flexDirection: 'row' }}>
                          <Pressable
                            style={[styles.button, styles.buttonClose]}
-                           onPress={() => setModalVisible(!modalVisible)}
-                         >
-                           <Text style={styles.textStyle}>Close</Text>
+                           onPress={() => setModalVisible(!modalVisible)}>
+                            <Text style={styles.textStyle}>Close</Text>
                          </Pressable>
                          <Pressable
                            style={[styles.button, styles.buttonDelete]}
