@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: 'white',
+    backgroundColor: '#D6B22E',
     marginTop: 10,
     marginBottom: 30,
     marginLeft: 40,

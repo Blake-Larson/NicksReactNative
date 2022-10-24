@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Alert, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Alert, ScrollView, StyleSheet, Image } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { useNavigation } from '@react-navigation/native';
 const moment = require('moment')
@@ -44,7 +44,7 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
       console.log('buying....')
       setIsPurchasing(true);
       const outputResult = await Purchases.purchaseProduct("HWTEST3");
-      console.log('outputResult after buy', outputResult)
+      console.log('outputResult after buy', JSON.stringify(outputResult))
       setPurchaseComplete(true);
       setPaywallShown(false);
       setIsPurchasing(false);
@@ -90,39 +90,26 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
             ) :
             (
             offer.availablePackages.map(pack => (
-              <View style={{backgroundColor: "white", borderRadius: 22, flex:1,justifyContent: "center",alignItems: "center"}} key={pack.identifier}>
+              <View style={{backgroundColor: "white", borderRadius: 22, flex:1,justifyContent: "center",alignItems: "center", paddingBottom: 15}} key={pack.identifier}>
                 <Text style={{color: "black", fontSize: 30, fontWeight: "bold", textAlign: "center", paddingTop: 15}}> Haute Wellness Pro</Text>
                 <Text style={{color: "black", fontSize: 15, fontWeight: "bold", textAlign: "center", paddingTop: 15}}> Daily workouts scheduled for you {'\n'}</Text>
                 {
-                  isPurchasing == true &&
-                  <View>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                    <Text style={{color: "white"}}>LOADING</Text>
-                  </View>
+                  isPurchasing == true ?
+                  <Image
+                    style={{height: 50, width: 50, paddingTop: 10, marginBottom: 30 }}
+                    source={require('../media/loading.gif')} />
+                  :
+                  <Pressable style={{backgroundColor: "#D6B22E", height: 65, width: 235, paddingTop: 15, borderRadius: 20, marginTop: 15}} onPress={() => buyPackage(pack)}>
+                    <Text style={{fontSize: 22, fontWeight: "bold", height: 80, textAlignVertical: "center",textAlign: "center"}}>PRO {' '}
+                      {proInfo && proInfo.isActive && <Text>Active</Text>}
+                      {!proInfo && <Text>{pack.product.priceString}/MO</Text>}
+                    </Text>
+                    <Text style={{color: "black", fontSize: 22}}></Text>
+                  </Pressable>
                 }
-                <Pressable style={{backgroundColor: "#D6B22E", height: 65, width: 235, paddingTop: 15, borderRadius: 20, marginTop: 15}} onPress={() => buyPackage(pack)}>
-                  <Text style={{fontSize: 22, fontWeight: "bold", height: 80, textAlignVertical: "center",textAlign: "center"}}>PRO {' '}
-                    {proInfo && proInfo.isActive && <Text>Active</Text>}
-                    {!proInfo && <Text>{pack.product.priceString}/MO</Text>}
-                  </Text>
-                  <Text style={{color: "black", fontSize: 22}}></Text>
-
-                </Pressable>
-                <Text style={{fontSize: 22, fontWeight: "bold", color: "white"}}>isPurchasing: {JSON.stringify(isPurchasing)}</Text>
               </View>
             ))
           )}
-          {proInfo &&
-            <View style={{backgroundColor: "black"}}>
-              <Text style={{color:"white", fontSize: 25}}>Store: {proInfo.periodType}      {proInfo.isActive == true ? "active" : "in-active"}</Text>
-              <Text style={{color:"white", fontSize: 20}}>Expiration Date: {expirationDate} and {proInfo.willRenew == true ? "will renew" : "will not renew"}</Text>
-            </View>
-          }
           <Pressable onPress={() => restorePurchases()}>
             <Text style={{padding: 15, textAlign: "center", fontSize: 25}}>Restore Purchases</Text>
           </Pressable>

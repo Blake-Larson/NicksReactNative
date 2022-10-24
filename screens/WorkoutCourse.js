@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, ScrollView, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, Linking } from 'react-native';
+import { Text, ScrollView, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, Linking, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
@@ -7,7 +7,7 @@ var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const moment = require('moment');
 
-const WorkoutCourse = ({navigation, route}) => {
+const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete}) => {
 
   const VideoData = route.params[0]['exerciseList'];
   const schedule_date = route.params[0]['schedule_date'];
@@ -129,6 +129,7 @@ const WorkoutCourse = ({navigation, route}) => {
 
     // TODO: ADD ERROR LOGS
     const scheduleData = await response.json();
+    setWorkoutComplete(!workoutComplete);
   };
 
   const pauseVideo = () => {
@@ -146,13 +147,31 @@ const WorkoutCourse = ({navigation, route}) => {
   return (
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
     <View style={{ position:'absolute',top:45, zIndex: 100}}>
+    {
+      workoutCompleted == false &&
       <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Workouts', [])}>
         <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
       </TouchableOpacity>
+    }
+
     </View>
     <ScrollView>
     {
-      workoutCompleted == true ? <Text style={{color: "white", fontSize:30, fontWeight: "bold", alignItems: 'center', justifyContent: 'center', paddingLeft: 50, paddingTop: 100,flexDirection: 'row'}}>Workout Completed ! </Text> :
+      workoutCompleted == true ?
+      <View style={{flexDirection: 'column', flex: 1, width: ScreenWidth, alignItems: 'center', justifyContent: 'center'}}>
+        <Text style={{color: "white", fontSize: 44, fontWeight: "bold", textAlign: 'center', paddingTop: 130}}>Workout Completed</Text>
+        <Image style={{
+          height: 100,
+          width: 100,
+          backgroundColor: "#D6B22E",
+          borderRadius: 50,
+          marginTop: 70}} source={require("../media/check-mark.png")} />
+          <Text style={{color: "white", fontSize: 27, fontWeight: "bold", textAlign: 'center', paddingTop: 70}}>Time: TBD</Text>
+          <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={() => {navigation.navigate('Workouts', [])}}  >
+            <Text style={{fontWeight: "bold", fontSize: 25, fontWeight: "bold"}}>Continue</Text>
+          </TouchableOpacity>
+      </View>
+      :
       <View>
         <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
         <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
@@ -200,5 +219,18 @@ const WorkoutCourse = ({navigation, route}) => {
   </View>
   )
 };
+
+const styles = StyleSheet.create({
+  buttonStart: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 85,
+    borderRadius: 25,
+    elevation: 3,
+    backgroundColor: 'white',
+    marginTop: 115,
+  }
+});
 
 export default WorkoutCourse;

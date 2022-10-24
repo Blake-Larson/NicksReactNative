@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, Modal, StyleSheet, Pressable } from 'react-native';
+import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const moment = require('moment');
@@ -8,8 +8,6 @@ const UserProgress = ({navigation}) => {
 
   const [progress, setProgress] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [deleteCardContent, setDeleteCardContent] = useState([]);
   const [selectedDate, setSelectedDate] = useState([]);
 
   const [currentView, setCurrentView] = useState('Weekly');
@@ -19,7 +17,6 @@ const UserProgress = ({navigation}) => {
 
   const onRefresh = async () => {
     try {
-
       setRefreshing(true);
       await getUserProgress();
       setRefreshing(false);
@@ -60,7 +57,7 @@ const UserProgress = ({navigation}) => {
       const month = date_components[1];
       const day = date_components[2];
       jsonProgress[i]['readableDate'] = `${month}-${day}-${year}`;
-      selectedDatesObj[scheduleDateString] = {dotColor: 'red', marked: true}
+      selectedDatesObj[scheduleDateString] = {dotColor: '#D6B22E', marked: true}
     }
 
     setProgress(jsonProgress);
@@ -74,11 +71,6 @@ const UserProgress = ({navigation}) => {
   const renderItem = ({ item }) => (
       <Item series={item.series} status={item.status} />
     );
-
-  const openDeleteModal = (item) => {
-    setDeleteCardContent(item)
-      setModalVisible(true);
-  };
 
   const daySelected = (day) =>
   {
@@ -136,11 +128,11 @@ const UserProgress = ({navigation}) => {
               calendarBackground: "black",
               backgroundColor: "black",
               textSectionTitleColor: 'white',
-              todayTextColor: 'red',
+              todayTextColor: '#D6B22E',
               dayTextColor: 'white',
               textDisabledColor: 'white',
               selectedDayBackgroundColor: 'white',
-              selectedDayTextColor: 'red',
+              selectedDayTextColor: 'black',
               textDayFontSize: 16,
               textMonthFontSize: 20,
             }}
@@ -160,48 +152,21 @@ const UserProgress = ({navigation}) => {
             onPressArrowRight={addMonth => addMonth(addMonth)}
             renderHeader={() => {  return <Text style={{color: "white", fontWeight: "bold", fontSize: 24}}>{moment(monthlyDate).format('MMMM YYYY')}</Text> }}
           />
-          {selectedDate.map((item) => (
-            <View key={item.logid} style={{marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15, backgroundColor: "lightgrey"}}>
-              <TouchableOpacity onPress={() => openDeleteModal(item)} style={{right: 0, position: 'absolute', backgroundColor: "grey", marginLeft: 10}}>
-                <Text style={{paddingLeft:30, paddingBottom: 30, fontSize: 30}}>X</Text>
-              </TouchableOpacity>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontWeight: "bold", fontSize: 20}}>{item.readableDate}</Text>
-              <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontSize: 18}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
-              <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15, fontSize: 18}}>Total Workout Time: {item.status}</Text>
-              <View style={styles.centeredView}>
-                <Modal
-                  style={styles.centeredView}
-                   transparent={true}
-                   visible={modalVisible}
-                   onRequestClose={() => {
-                     Alert.alert("Modal has been closed.");
-                     setModalVisible(!modalVisible);
-                   }}>
-                     <View style={styles.modalView}>
-                       <Text style={styles.modalText}>Are you sure you want to delete? {JSON.stringify(deleteCardContent)}</Text>
-                       <View style={{ flexDirection: 'row' }}>
-                         <Pressable
-                           style={[styles.button, styles.buttonClose]}
-                           onPress={() => setModalVisible(!modalVisible)}>
-                            <Text style={styles.textStyle}>Close</Text>
-                         </Pressable>
-                         <Pressable
-                           style={[styles.button, styles.buttonDelete]}
-                           onPress={() => deleteUserProgress()}>
-                            <Text style={styles.textStyle}>Delete</Text>
-                         </Pressable>
-                      </View>
-                   </View>
-                </Modal>
+          {
+            selectedDate.map((item) => (
+              <View key={item.logid} style={{marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15, backgroundColor: "lightgrey"}}>
+                <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontWeight: "bold", fontSize: 20}}>{item.readableDate}</Text>
+                <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontSize: 18}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
+                <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15, fontSize: 18}}>Total Workout Time: {item.status}</Text>
               </View>
-            </View>
-          ))}
+            ))
+          }
         </View>
       }
       {
         currentView == 'Badges' &&
         <View>
-          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>Badges selected</Text>
+          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>Badges selected -- TBD</Text>
           <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>{JSON.stringify(allProgress)}</Text>
         </View>
       }
@@ -215,46 +180,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22
-  },
-  modalView: {
-    margin: 60,
-    justifyContent: "center",
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  button: {
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-    margin: 10
-  },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  buttonDelete: {
-    backgroundColor: "red",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
   }
 });
 

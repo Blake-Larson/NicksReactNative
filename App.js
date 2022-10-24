@@ -24,6 +24,8 @@ import PushNotification from "react-native-push-notification";
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import Purchases from 'react-native-purchases';
 import { useIsFocused } from "@react-navigation/native";
+import * as Progress from 'react-native-progress';
+const moment = require('moment');
 
 const App = () => {
 
@@ -33,6 +35,8 @@ const App = () => {
   const [token, setToken] = useState({});
   const [paywallShown, setPaywallShown] = useState(true);
   const [subInfo, setSubInfo] = useState([]);
+  const [completedWorkouts, setCompletedWorkouts] = useState([]);
+  const [workoutComplete, setWorkoutComplete] = useState(false);
 
   const validateSession = async () => {
 
@@ -122,6 +126,7 @@ const App = () => {
 
   const checkUserMembership = async () => {
 
+    console.log('checking user membership')
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       console.log('customerInfo')
@@ -149,10 +154,64 @@ const App = () => {
     checkUserMembership();
   }
 
+
+    const getCompletedWorkouts = async () => {
+
+      const date = new Date("9/5/2022");
+      const completedWeekArray = [];
+      completedWeekArray.push(moment(date).isoWeekday(1).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(2).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(3).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(4).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(5).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(6).format('YYYY-MM-DD'));
+      completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
+
+      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+      const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+      const userMetaData = JSON.parse(userMetaDataString);
+      const userid = userMetaData[0]['userid'];
+
+      const api = `https://hautewellnessapp.com/api/getCompletedWorkouts`;
+      const apiParams = {};
+      apiParams['monday'] = moment(date).isoWeekday(1).format('YYYY-MM-DD')
+      apiParams['tuesday'] = moment(date).isoWeekday(2).format('YYYY-MM-DD')
+      apiParams['wednesday'] = moment(date).isoWeekday(3).format('YYYY-MM-DD');
+      apiParams['thursday'] = moment(date).isoWeekday(4).format('YYYY-MM-DD');
+      apiParams['friday'] = moment(date).isoWeekday(5).format('YYYY-MM-DD');
+      apiParams['saturday'] = moment(date).isoWeekday(6).format('YYYY-MM-DD');
+      apiParams['sunday'] = moment(date).isoWeekday(7).format('YYYY-MM-DD');
+      apiParams['userid'] = userid;
+      apiParams['id_token'] = storageToken;
+
+      const response = await fetch(api, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       credentials: 'same-origin',
+       body: JSON.stringify(apiParams)
+      });
+      const scheduleData = await response.json();
+      const outputWorkoutsCompleted = [];
+
+      for (let i = 0; i < scheduleData.length; i++)
+      {
+        let test = moment(scheduleData[i]['schedule_date']).isoWeekday();
+        if (test == 7) test = 0;
+        outputWorkoutsCompleted.push(test);
+      }
+      setCompletedWorkouts(outputWorkoutsCompleted);
+      console.log('completedWorkouts in use effect !', completedWorkouts)
+    }
+
   useEffect(() => {
     validateSession();
     setupNotifications();
+    checkUserMembership();
   }, []);
+
+  useEffect(() => {
+    getCompletedWorkouts();
+  }, [workoutComplete]);
 
 
   useEffect(() => {
@@ -170,19 +229,24 @@ const App = () => {
 
   if (loadingScreen) {
     return (
-      <View style={{backgroundColor: "black", height: 1000}}>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
-        <Text style={{color: "white"}}> LOADING ... </Text>
+      <View style={{backgroundColor: "black", height: 1000,flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'}}>
+        <View style={{backgroundColor: "black", marginTop: 300,flex: 1, }}>
+            <Progress.Circle
+              size={200}
+              indeterminate={true}
+              endAngle={0.8}
+              showsText={true}
+              color={"white"}>
+            </Progress.Circle>
+        </View>
+        <View style={{    position: 'absolute',
+          top: 350,
+          right: 150,
+          bottom: 0,  }}>
+          <Image source={require('./media/hwlogo.png')} style={{height: 100, width: 100,  borderRadius: 25}} />
+        </View>
       </View>
     )
   }
@@ -190,18 +254,12 @@ const App = () => {
   if (!validLogin) {
     return (
       <View style={{flex:1, alignItems: 'center', height: ScreenHeight, backgroundColor: "black"}}>
-        <Text style={{color: "white", fontSize: 45, marginTop: 100}}> Haute Wellness </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
-        <Text> LOGIN ! </Text>
+        <View style={{position:'absolute', bottom: 340}}>
+          <Image source={require('./media/hwlogo.png')} style={{height: 300, width: 300,  borderRadius: 25}} />
+        </View>
+        <View style={{position:'absolute', bottom: 190, left: 10}}>
+          <Text style={{color: "white", fontWeight: "bold", fontSize: 45, marginTop: 100}}> Haute Wellness </Text>
+        </View>
         <View style={{position:'absolute', bottom:80}}>
           <AppleAuth setValidLogin={setValidLogin} />
         </View>
@@ -223,14 +281,14 @@ const App = () => {
           borderTopWidth: 0,
           height: 70,
         },
-        tabBarActiveTintColor: 'red'}}>
+        tabBarActiveTintColor: '#D6B22E'}}>
           <Tab.Screen
             name="UserProgress"
             component={UserProgress}
             options={{
               headerShown: false,
               tabBarOptions: { activeTintColor: '#fff',
-              activeBackgroundColor: 'red' },
+              activeBackgroundColor: '#D6B22E' },
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faChartBar } size={25} color={color}/>)
             }} />
           <Tab.Screen
@@ -241,10 +299,11 @@ const App = () => {
                 paywallShown={paywallShown}
                 setPaywallShown={setPaywallShown}
                 subInfo={subInfo}
-                setSubInfo={setSubInfo}/>}
+                setSubInfo={setSubInfo}
+                completedWorkouts={completedWorkouts}/>}
             options={{
               headerShown: false,
-              tabBarOptions: { backgroundColor: "black", activeTintColor:'red', visible: false},
+              tabBarOptions: { backgroundColor: "black", activeTintColor:'#D6B22E', visible: false},
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faRunning } size={25} color={color}/>)
            }} />
           <Tab.Screen
@@ -252,7 +311,7 @@ const App = () => {
             children={({navigation})=><Settings setValidLogin={setValidLogin} navigation={navigation}/>}
             options={{
               headerShown: false,
-              tabBarOptions: { activeTintColor:'red' },
+              tabBarOptions: { activeTintColor:'#D6B22E' },
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faCog } size={25} color={color}/>)
           }}/>
       </Tab.Navigator>
@@ -268,7 +327,7 @@ const App = () => {
           {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route}/>)}
         </Stack.Screen>
         <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
-          {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route}/>)}
+          {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route} setWorkoutComplete={setWorkoutComplete} workoutComplete={workoutComplete}/>)}
         </Stack.Screen>
         <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
           {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
