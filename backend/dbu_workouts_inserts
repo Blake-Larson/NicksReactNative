@@ -5,6 +5,7 @@ CREATE TABLE USER_COMPLETION(
   userid VARCHAR(200) NOT NULL,
   schedule_date DATE NOT NULL,
   workout_name VARCHAR(200),
+  completion_time VARCHAR(200),
   modified DATE DEFAULT (CURRENT_DATE),
   created DATE DEFAULT (CURRENT_DATE),
   deleted CHAR(1) DEFAULT 'N',

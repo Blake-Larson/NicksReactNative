@@ -13,7 +13,6 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
   const schedule_date = route.params[0]['schedule_date'];
   const workout_name = route.params[0]['title'];
   console.log('route params ......................                CHECK')
-  console.log(route.params[0])
   const pauseButton = require('../media/pauseButton.png');
   const [workoutVideo, setWorkoutVideo] = useState([]);
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");
@@ -30,6 +29,10 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
   const [upNext, setUpNext] = useState([]);
   const [seconds, setSeconds] = useState(parseInt(VideoData[currentNumber]['seconds']));
   const [minutes, setMinutes] = useState(parseInt(VideoData[currentNumber]['minutes']));
+  const [totalMinutes, setTotalMinutes] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [finalTime, setFinalTime] = useState(0);
+
 
   useEffect(() => {
     setWorkoutVideo(VideoData[currentNumber]['exerciseid']);
@@ -55,6 +58,15 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
 
     if (workoutCompleted == true) return;
     if (paused == true) return;
+
+    setTotalSeconds(totalSeconds + 1);
+
+    if (totalSeconds >= 9)
+    {
+      setTotalSeconds(0)
+      setTotalMinutes(totalMinutes + 1)
+    }
+
     if (minutes == 0 && seconds == 0)
     {
       nextVideo();
@@ -113,12 +125,33 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
     const userid = userMetaData[0]['userid'];
     const formatted_date = moment(new Date(schedule_date)).format('YYYY-MM-DD');
 
+    let finalSeconds = totalSeconds;
+    if (finalSeconds == 0) finalSeconds = '00';
+    if (finalSeconds == 1) finalSeconds = '01';
+    if (finalSeconds == 2) finalSeconds = '02';
+    if (finalSeconds == 3) finalSeconds = '03';
+    if (finalSeconds == 4) finalSeconds = '04';
+    if (finalSeconds == 5) finalSeconds = '05';
+    if (finalSeconds == 6) finalSeconds = '06';
+    if (finalSeconds == 7) finalSeconds = '07';
+    if (finalSeconds == 8) finalSeconds = '08';
+    if (finalSeconds == 9) finalSeconds = '09';
+
+    const finalTimeString = `${totalMinutes}:${finalSeconds}`;
+
+
+    console.log('totalSeconds', totalSeconds);
+    console.log('totalMinutes', totalMinutes);
+    console.log(finalTimeString)
+    setFinalTime(finalTimeString)
+
     const api = `https://hautewellnessapp.com/api/completeWorkout`;
     const apiParams = {};
     apiParams['userid'] = userid;
     apiParams['schedule_date'] = schedule_date;
     apiParams['id_token'] = storageToken;
     apiParams['workout_name'] = workout_name;
+    apiParams['completion_time'] = finalTimeString;
 
     const response = await fetch(api, {
       method: 'POST',
@@ -153,7 +186,6 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
         <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
       </TouchableOpacity>
     }
-
     </View>
     <ScrollView>
     {
@@ -166,7 +198,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
           backgroundColor: "#D6B22E",
           borderRadius: 50,
           marginTop: 70}} source={require("../media/check-mark.png")} />
-          <Text style={{color: "white", fontSize: 27, fontWeight: "bold", textAlign: 'center', paddingTop: 70}}>Time: TBD</Text>
+          <Text style={{color: "white", fontSize: 27, fontWeight: "bold", textAlign: 'center', paddingTop: 70}}>Time: {finalTime}</Text>
           <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={() => {navigation.navigate('Workouts', [])}}  >
             <Text style={{fontWeight: "bold", fontSize: 25, fontWeight: "bold"}}>Continue</Text>
           </TouchableOpacity>
@@ -175,6 +207,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
       <View>
         <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 12, marginLeft: 10}}>{titleVideo}</Text>
         <Text style={{color: "white", fontSize: 25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
+        <Text style={{color: "white", fontSize: 25}}>  Total Time: {totalMinutes} : {totalSeconds}</Text>
         {
           currentNumber < VideoData.length - 1 &&
           <Text style={{color: "white", fontFamily: "System", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>

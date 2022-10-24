@@ -5,7 +5,7 @@ import AwsMedia from '../components/AwsMedia';
 import WorkoutSelected from './WorkoutSelected';
 import Paywall from '../components/Paywall';
 //import { useIsFocused } from "@react-navigation/native";
-
+import WeeklyIcon from '../components/WeeklyIcon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const moment = require('moment');
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
@@ -81,7 +81,6 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
 
       workoutWeek.push(weeklyObj);
     }
-
     setWorkouts(workoutWeek)
 /*
   API GATEWAY -> LAMBDA EXAMPLE
@@ -96,7 +95,6 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
 */
   };
 
-
   useEffect(() => {
     console.log('here....')
     getWorkouts();
@@ -109,30 +107,12 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     return () => {};
   }, []);
 
-/*
-  useEffect(() => {
-    if (cacheDate == []) return;
-    console.log('focused!')
-    const HOUR = 1000 * 1 * 10;
-    const timeDiff = new Date - cacheDate;
-    if ( timeDiff > HOUR )
-    {
-      console.log('need to recheck');
-      setRefreshSubInfo(true)
-      setCacheDate(new Date())
-    }
-    return () => {};
-  }, [isFocused]);
-*/
   const cleanUpCache = () => {
 
     RNFS.readDir(RNFS.DocumentDirectoryPath)
       .then(result => {
-        //console.log('GOT RESULT', result);
         for (let i = 0; i < result.length; i++)
         {
-          //console.log(i)
-          //console.log(result[i])
           const cacheDate = result[i]['mtime'];
           const cacheDateFormat = new Date();
           const cacheDateStale = new Date(cacheDateFormat.setDate(cacheDateFormat.getDate() - 3));
@@ -156,131 +136,22 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     {length: ITEM_SIZE, offset: ITEM_SIZE * index, index}
   )}
 
+  const scrollFlatListIndex = (index) => {
+    ref.current.scrollToIndex({"index": index})
+  }
+
   return (
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
       <ScrollView>
         <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
-          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10,   alignItems: 'center',
-            justifyContent: 'center'}}>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(0); ref.current.scrollToIndex({"index": 0})}}>
-            {
-              completedWorkouts.includes(0) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 0 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 0 ? "white" : "black"}}>M
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(1); ref.current.scrollToIndex({"index": 1})}}>
-            {
-              completedWorkouts.includes(1) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 1 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 1 ? "white" : "black"}}>T
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(2); ref.current.scrollToIndex({"index": 2})}}>
-            {
-              completedWorkouts.includes(2) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 2 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 2 ? "white" : "black"}}>W
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(3); ref.current.scrollToIndex({"index": 3})}}>
-            {
-              completedWorkouts.includes(3) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 3 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 3 ? "white" : "black"}}>T
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(4); ref.current.scrollToIndex({"index": 4})}}>
-            {
-              completedWorkouts.includes(4) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 4 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 4 ? "white" : "black"}}>F
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(5); ref.current.scrollToIndex({"index": 5})}}>
-            {
-              completedWorkouts.includes(5) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 5 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 5 ? "white" : "black"}}>S
-                </Text>
-            }
-            </Pressable>
-            <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(6); ref.current.scrollToIndex({"index": 6})}}>
-            {
-              completedWorkouts.includes(6) ?
-              <Image style={{
-                height: 33,
-                backgroundColor: "#D6B22E",
-                borderRadius: 22,
-                width: 33, borderWidth: 3,
-                borderColor: dateIndex == 6 ? "white" : "black"
-                }} source={require("../media/check-mark.png")} />
-                :
-                <Text style={{color: "white", fontSize: 23, fontWeight: "bold", textAlign: "center",
-                    height: ScreenWidth / 9,  width: ScreenWidth / 9, borderRadius: 22, lineHeight: ScreenWidth / 11,
-                    borderWidth: 3, borderColor: dateIndex == 6 ? "white" : "black"}}>S
-                </Text>
-            }
-            </Pressable>
+          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={0} weekday={"M"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={1} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={2} weekday={"W"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={3} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={4} weekday={"F"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={5} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
+            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={6} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
           </View>
           <FlatList
             ref={ref}
@@ -288,27 +159,26 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
             data={workouts}
             horizontal
             initialScrollIndex={dateIndex}
-            scrollToIndex={{"index": 2}}
             getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
             renderItem={({ item, index: dateIndex }) => (
               <View style={{width: ITEM_SIZE}}>
-                <View style={{marginHorizontal: SPACING,
-                  padding: SPACING,
-                  borderRadius: 34}}>
+                <View style={{marginHorizontal: SPACING, padding: SPACING, borderRadius: 34}}>
                   <TouchableOpacity onPress={() => {checkPaywall(item)}}>
                     <ImageBackground
                       style={styles.posterImage}
                       source={{uri: item.filename}}
                       borderRadius={8}>
                         <Text
-                        style={{fontSize: 35,
+                          style={{fontSize: 35,
                           position: "absolute",
                           bottom: 10,
                           left: 25,
                           opacity: 0.9,
                           color: "#fffdfe",
                           fontWeight: "bold",
-                          fontFamily: "System" }}>{item.name}</Text>
+                          fontFamily: "System" }}>
+                          {item.name}
+                        </Text>
                         <Text style={{fontSize: 25,
                           position: "absolute",
                           top: 10,
@@ -319,11 +189,11 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
                           fontFamily: "System" }}>{item.day}</Text>
                         {
                           paywallShown == true &&
-                            <Image style={{position: "absolute",
-                              top: 15,
-                              right: 30,
-                              height: 30,
-                              width: 30 }} source={require("../media/padlock.png")} />
+                          <Image style={{position: "absolute",
+                            top: 15,
+                            right: 30,
+                            height: 30,
+                            width: 30 }} source={require("../media/padlock.png")} />
                         }
                     </ImageBackground>
                   </TouchableOpacity>
@@ -332,14 +202,10 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
             )}
           />
           <Modal
-             animationType="slide"
-             transparent={true}
-             visible={modalVisible}
-             onRequestClose={() => {
-               Alert.alert("Modal has been closed.");
-               setModalVisible(!modalVisible);
-             }}
-           >
+           animationType="slide"
+           transparent={true}
+           visible={modalVisible}
+           onRequestClose={() => { setModalVisible(!modalVisible)}}>
              <View style={[styles.centeredView]}>
                <View style={styles.modalView}>
                  <Pressable
@@ -368,7 +234,6 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     marginTop: 22
   },
   modalView: {

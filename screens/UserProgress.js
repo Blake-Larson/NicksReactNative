@@ -10,7 +10,7 @@ const UserProgress = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState([]);
 
-  const [currentView, setCurrentView] = useState('Weekly');
+  const [currentView, setCurrentView] = useState('Monthly');
   const [allProgress, setAllProgress] = useState([]);
   const [monthlyDate, setMonthlyDate] = useState(new Date());
   const [markedDates, setMarkedDates] = useState({});
@@ -66,6 +66,7 @@ const UserProgress = ({navigation}) => {
 
   useEffect(() => {
     getUserProgress()
+    console.log('use effect....')
   }, []);
 
   const renderItem = ({ item }) => (
@@ -108,12 +109,20 @@ const UserProgress = ({navigation}) => {
 
   return (
     <ScrollView style={{backgroundColor: "black"}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 80, fontSize: 15}}>
-        <Button title="Week" onPress={()=> setCurrentView("Weekly")}/>
-        <Button title="Badges" onPress={() => setCurrentView("Badges")}/>
+      <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 60, fontSize: 15}}>
+        <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Monthly")}>
+          <View style={{borderBottomWidth: 1, borderColor: currentView == "Monthly" ? "#D6B22E" : "black"}}>
+            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Month</Text>
+          </View>
+        </Pressable>
+        <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Badges")}>
+          <View style={{borderBottomWidth: 1, borderColor: currentView == "Badges" ? "#D6B22E" : "black"}}>
+            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Badges</Text>
+          </View>
+        </Pressable>
       </View>
       {
-        currentView == 'Weekly' &&
+        currentView == 'Monthly' &&
         <View>
           <Calendar
             style={{
@@ -121,7 +130,8 @@ const UserProgress = ({navigation}) => {
               backgroundColor: "black",
               calendarBackground: "#00adf5",
               height: 350,
-              fontSize: 20
+              fontSize: 20,
+              paddingTop: 20
             }}
             theme={{
               arrowColor: 'white',
@@ -157,7 +167,7 @@ const UserProgress = ({navigation}) => {
               <View key={item.logid} style={{marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15, backgroundColor: "lightgrey"}}>
                 <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontWeight: "bold", fontSize: 20}}>{item.readableDate}</Text>
                 <Text style={{marginLeft: 15, marginRight: 15, marginTop: 15, fontSize: 18}}>Workout Name: <Text style={{fontWeight: "bold"}}>{item.workout_name}</Text></Text>
-                <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15, fontSize: 18}}>Total Workout Time: {item.status}</Text>
+                <Text style={{marginLeft: 15, marginRight: 15, fontSize: 15, marginBottom: 15, fontSize: 18}}>Total Workout Time: <Text style={{fontWeight: "bold"}}>{item.completion_time}</Text></Text>
               </View>
             ))
           }
