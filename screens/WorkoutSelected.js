@@ -269,7 +269,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           {
             showRnfsDownloadButton == true &&
             <Pressable style={{marginTop: 15, marginBottom: 15}} onPress={() => {rnfsRemove() }}>
-              <Text style={{color: "white"}}>DEBUG: remove cached content</Text>
+              <Text style={{color: "white", fontSize: 12}}>DEBUG: remove cached content</Text>
             </Pressable>
           }
           <View style={{ width: ScreenWidth, paddingBottom: 10, paddingTop: 0,  alignItems: 'center', justifyContent: 'center'}}>

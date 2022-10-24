@@ -37,10 +37,28 @@ const WorkoutContent = ({navigation, route, content}) => {
                   source={require("../media/previewbutton.png")}>
                 </ImageBackground>
               </TouchableOpacity>
+              <Text style={{color: "white", marginLeft: 13, backgroundColor: "black", textAlign: "center"}}>PREVIEW</Text>
             </View>
             <View style={{flex:1, marginRight: 10, marginLeft: 20, marginTop: 10}}>
               <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "System"}}>{item.name}</Text>
-              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>{item.minutes} : {item.seconds}</Text>
+              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>
+                {item.minutes} {': '}
+                {item.seconds == '0' && <Text style={{color: "white"}}>{'00'}</Text>}
+                {item.seconds == '1' && <Text style={{color: "white"}}>{'01'}</Text>}
+                {item.seconds == '2' && <Text style={{color: "white"}}>{'02'}</Text>}
+                {item.seconds == '3' && <Text style={{color: "white"}}>{'03'}</Text>}
+                {item.seconds == '4' && <Text style={{color: "white"}}>{'04'}</Text>}
+                {item.seconds == '5' && <Text style={{color: "white"}}>{'05'}</Text>}
+                {item.seconds == '6' && <Text style={{color: "white"}}>{'06'}</Text>}
+                {item.seconds == '7' && <Text style={{color: "white"}}>{'07'}</Text>}
+                {item.seconds == '8' && <Text style={{color: "white"}}>{'08'}</Text>}
+                {item.seconds == '9' && <Text style={{color: "white"}}>{'09'}</Text>}
+                {
+                  item.seconds != '0' && item.seconds != '1' && item.seconds != '2' && item.seconds != '3' && item.seconds != '4' && item.seconds != '5'
+                  && item.seconds != '6' && item.seconds != '7' && item.seconds != '8' && item.seconds != '9'
+                  && <Text style={{color: "white"}}>{item.seconds}</Text>
+                }
+              </Text>
             </View>
           </View>
       ))

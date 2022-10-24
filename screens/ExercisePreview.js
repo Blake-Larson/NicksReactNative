@@ -21,11 +21,27 @@ const ExercisePreview = ({navigation, route}) => {
 
   const [exerciseid, setExerciseid] = useState([]);
   const [name, setName] = useState([]);
+  const [previewTime, setPreviewTime] = useState([]);
 
   useEffect(() => {
 
+    console.log(route.params[0])
     setExerciseid(route.params[0]['exerciseid']);
     setName(route.params[0]['name']);
+
+    let seconds = route.params[0]['seconds'];
+    if (seconds == '0') seconds = '00';
+    if (seconds == '1') seconds = '01';
+    if (seconds == '2') seconds = '02';
+    if (seconds == '3') seconds = '03';
+    if (seconds == '4') seconds = '04';
+    if (seconds == '5') seconds = '05';
+    if (seconds == '6') seconds = '06';
+    if (seconds == '7') seconds = '07';
+    if (seconds == '8') seconds = '08';
+    if (seconds == '9') seconds = '09';
+
+    setPreviewTime(`${route.params[0]['minutes']} : ${seconds}`);
   }, []);
 
   return (
@@ -35,8 +51,9 @@ const ExercisePreview = ({navigation, route}) => {
           <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
         </TouchableOpacity>
       </View>
-      <Text style={{marginTop: 20, marginLeft: 15, fontSize: 30, fontWeight: "bold", color: "white"}}>{name}</Text>
-      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} pausedVideo={false} style={{marginTop: 80}}/>
+      <Text style={{marginTop: 45, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 250}}>{name}</Text>
+      <Text style={{marginTop: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
+      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} pausedVideo={false} style={{marginTop: 30}}/>
     </View>
   )
 };
