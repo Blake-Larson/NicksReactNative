@@ -42,7 +42,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
 
-    const api = `https://hautewellnessapp.com/api/getWorkoutsThisWeek`;
+    const api = `https://hfezr9j0sk.execute-api.us-west-1.amazonaws.com/default/testapi/`;
     const apiParams = {};
     apiParams['monday'] = mon;
     apiParams['tuesday'] = tues;
@@ -64,27 +64,28 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     const weekday = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"];
     const workoutWeek = [];
 
-    for (let i = 0; i < scheduleData.length; i++)
+    for (let i = 0; i < scheduleData.body.length; i++)
     {
       const newKvt = [];
-      const d = new Date(scheduleData[i]['schedule_date']);
+      const row = scheduleData.body[i];
+      const d = new Date(row['schedule_date']);
       let day = weekday[d.getDay()];
 
       const weeklyObj = {};
       weeklyObj['day'] = day;
-      weeklyObj['workoutid'] = scheduleData[i]['workoutid'];
-      weeklyObj['schedule_date'] = scheduleData[i]['schedule_date'];
-
-      weeklyObj['name'] = scheduleData[i]['name'];
-      weeklyObj['filename'] = scheduleData[i]['filename'];
-      weeklyObj['json_content'] = scheduleData[i]['json_content'];
+      weeklyObj['workoutid'] = row['workoutid'];
+      weeklyObj['schedule_date'] = row['schedule_date'];
+      weeklyObj['name'] = row['name'];
+      weeklyObj['filename'] = row['filename'];
+      weeklyObj['json_content'] = row['json_content'];
 
       workoutWeek.push(weeklyObj);
     }
     setWorkouts(workoutWeek)
+
 /*
-  API GATEWAY -> LAMBDA EXAMPLE
-    const api2 = `https://k0aldgsyka.execute-api.us-west-1.amazonaws.com/dev/customer/LOL`;
+  //API GATEWAY -> LAMBDA EXAMPLE
+    const api2 = `https://1tykl3w05h.execute-api.us-west-1.amazonaws.com/default/getWorkoutsThisWeek`;
     const response2 = await fetch(api2, {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
