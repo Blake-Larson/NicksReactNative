@@ -49,7 +49,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const workoutSelectedData = async () => {
 
     const filenamecontent = await getExerciseById();
-    console.log('starting to download')
     await rnfsDownload(filenamecontent);
     console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
   }
@@ -110,26 +109,33 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
       if (await RNFS.exists(path))
       {
-          const percent = (i + 1) / content.length;
-          console.log(percent)
+          const percent = (i + 1) / 2;
           RNFS.touch(path, new Date());
           setProgress(percent);
+          if (i + 1 >= 2 )
+          {
+            setDownloadDone(true);
+            setShowLoadScreen(false);
+          }
           continue;
       }
       else {
         console.log(`PATH ${path}  DOES NOT EXISTS`);
-        setShowLoadScreen(true);
+        if (i < 2) setShowLoadScreen(true);
         const filename = row['filename'];
         console.log('now downloading: ', filename);
 
         const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path })
         if (await downloadInfo.promise) { console.log('downloaded!') }
-        setProgress((i + 1)/ content.length);
+        setProgress((i + 1)/ 2);
+        if (i + 1 >= 2 )
+        {
+          setDownloadDone(true);
+          setShowLoadScreen(false);
+        }
       }
     }
     console.log('done with all downloads!!')
-    setDownloadDone(true);
-    setShowLoadScreen(false);
     setShowRnfsDownloadButton(true);
   }
 

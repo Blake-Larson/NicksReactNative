@@ -11,13 +11,15 @@ const connection = mysql.createConnection({
     database: "sys"
 });
 
-exports.handler = async (body) => {
+exports.handler = async (event) => {
 
- // const body = event; //await JSON.parse(event.body);
-  if (!body) return {statusCode: 401, body: body };
-	if (!body.id_token) return {statusCode: 401, body: JSON.stringify("ERROR: no body id_token")};
+  let body = event.body
+  if (typeof body == "string") body = await JSON.parse(body);
+  if (!body) return { statusCode: 401, body: (event) };
+	if (!body.id_token) return {statusCode: 401, body: body};
 
 	const jwtOutput = await getAppleUserId(body.id_token);
+
 	if (jwtOutput != 'SUCCESS') return {statusCode: 401, body: JSON.stringify('ERROR: invalid id_token')};
 
 	const apiParams = [];
@@ -30,20 +32,19 @@ exports.handler = async (body) => {
 	apiParams.push(body.sunday);
 
   const apiQuery = `
-    SELECT ws.workoutid, ws.schedule_date, w.name, w.filename, w.json_content
-    FROM WORKOUTS w, (
-    SELECT * FROM WORKOUTS_SCHEDULE WHERE
-      schedule_date = ?
-      OR schedule_date = ?
-      OR schedule_date = ?
-      OR schedule_date = ?
-      OR schedule_date = ?
-      OR schedule_date = ?
-      OR schedule_date = ?
-      ORDER BY schedule_date ASC
-      ) ws
-    WHERE ws.workoutid = w.workoutid
-    ORDER BY ws.schedule_date ASC`;
+    SELECT * FROM USER_COMPLETION WHERE
+      userid = ? AND
+      (
+        schedule_date = ?
+        OR schedule_date = ?
+        OR schedule_date = ?
+        OR schedule_date = ?
+        OR schedule_date = ?
+        OR schedule_date = ?
+        OR schedule_date = ?
+      )
+      AND deleted <> "Y"
+      ORDER BY schedule_date ASC`;
 
    try {
        const data = await new Promise((resolve, reject) => {
@@ -59,7 +60,7 @@ exports.handler = async (body) => {
 
        return {
            statusCode: 200,
-           body: data
+           body: JSON.stringify(data)
        }
    } catch (err) {
        return {

@@ -12,7 +12,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
   const VideoData = route.params[0]['exerciseList'];
   const schedule_date = route.params[0]['schedule_date'];
   const workout_name = route.params[0]['title'];
-  console.log('route params ......................                CHECK')
+//  console.log('route params ......................                CHECK')
   const pauseButton = require('../media/pauseButton.png');
   const [workoutVideo, setWorkoutVideo] = useState([]);
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");

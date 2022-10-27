@@ -42,7 +42,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
 
-    const api = `https://hfezr9j0sk.execute-api.us-west-1.amazonaws.com/default/testapi/`;
+    const api = `https://a7h5fjn6ig.execute-api.us-west-1.amazonaws.com/dev/getWorkoutsThisWeek`;
     const apiParams = {};
     apiParams['monday'] = mon;
     apiParams['tuesday'] = tues;
@@ -60,14 +60,13 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
      body: JSON.stringify(apiParams)
     });
     const scheduleData = await response.json();
-
     const weekday = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"];
     const workoutWeek = [];
 
-    for (let i = 0; i < scheduleData.body.length; i++)
+    for (let i = 0; i < scheduleData.length; i++)
     {
       const newKvt = [];
-      const row = scheduleData.body[i];
+      const row = scheduleData[i];
       const d = new Date(row['schedule_date']);
       let day = weekday[d.getDay()];
 
@@ -97,7 +96,6 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
   };
 
   useEffect(() => {
-    console.log('here....')
     getWorkouts();
     const now = moment();
     const dateSelected = moment();

@@ -12,21 +12,22 @@ const ExercisePreview = ({navigation, route}) => {
   const time = route.params[1].time;
   const content = route.params[1].content;
 
+  const exerciseid = route.params[0]['exerciseid'];
   const filename = route.params[0]['filename'];
+
   const apiParams = {};
   apiParams['title'] = route.params[1]['params'][0].title;
   apiParams['image'] = route.params[1]['params'][0].image;
   apiParams['time'] = route.params[1]['params'][0].time;
   apiParams['json_content'] = route.params[1]['params'][0].json_content;
 
-  const [exerciseid, setExerciseid] = useState([]);
+//  const [exerciseid, setExerciseid] = useState([]);
   const [name, setName] = useState([]);
   const [previewTime, setPreviewTime] = useState([]);
 
   useEffect(() => {
 
     console.log(route.params[0])
-    setExerciseid(route.params[0]['exerciseid']);
     setName(route.params[0]['name']);
 
     let seconds = route.params[0]['seconds'];
@@ -41,7 +42,7 @@ const ExercisePreview = ({navigation, route}) => {
     if (seconds == '8') seconds = '08';
     if (seconds == '9') seconds = '09';
 
-    setPreviewTime(`${route.params[0]['minutes']} : ${seconds}`);
+    setPreviewTime(`${route.params[0]['minutes']}:${seconds}`);
   }, []);
 
   return (
@@ -53,7 +54,7 @@ const ExercisePreview = ({navigation, route}) => {
       </View>
       <Text style={{marginTop: 45, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 250}}>{name}</Text>
       <Text style={{marginTop: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
-      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} pausedVideo={false} style={{marginTop: 30}}/>
+      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} awsLink={filename} pausedVideo={false} style={{marginTop: 30}}/>
     </View>
   )
 };
