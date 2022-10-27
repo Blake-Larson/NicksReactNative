@@ -14,10 +14,10 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
   const workout_name = route.params[0]['title'];
 //  console.log('route params ......................                CHECK')
   const pauseButton = require('../media/pauseButton.png');
-  const [workoutVideo, setWorkoutVideo] = useState([]);
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");
   const [titleVideo, setTitleVideo] = useState([]);
   const [currentNumber, setCurrentNumber] = useState(0);
+  const [workoutVideo, setWorkoutVideo] = useState(VideoData[currentNumber]['exerciseid']);
   const [totalNumber, setTotalNumber] = useState(0);
   const [videoPlayer, setVideoPlaying] = useState(0);
   const [displayButton, setDisplayButton] = useState([]);
@@ -212,7 +212,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
           currentNumber < VideoData.length - 1 &&
           <Text style={{color: "white", fontFamily: "System", fontSize: 16, marginTop: 12, marginLeft: 10}}>Next Video: {upNext}</Text>
         }
-        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} pausedVideo={paused}/>
+        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} awsLink={VideoData[currentNumber]['filename']} pausedVideo={paused}/>
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 15}}>
           { seconds >= 10 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : {seconds}</Text> }
           { seconds == 9 && <Text style={{fontSize: 55, color: "white"}}>{minutes} : 09 </Text> }

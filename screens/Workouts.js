@@ -139,6 +139,13 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
     ref.current.scrollToIndex({"index": index})
   }
 
+  const onViewCallBack = React.useCallback((viewableItems)=> {
+      setDateIndex(viewableItems.changed[0]['index'])
+   }, []) // any dependencies that require the function to be "redeclared"
+
+  const viewConfigRef = React.useRef({ waitForInteraction: true, viewAreaCoveragePercentThreshold: 50 });
+
+
   return (
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
       <ScrollView>
@@ -157,6 +164,8 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
             showsHorizontalScrollIndicator={false}
             data={workouts}
             horizontal
+            viewabilityConfig = {viewConfigRef.current}
+            onViewableItemsChanged={(onViewCallBack)}
             initialScrollIndex={dateIndex}
             getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
             renderItem={({ item, index: dateIndex }) => (
