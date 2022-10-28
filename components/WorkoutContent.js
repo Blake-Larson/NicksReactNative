@@ -24,20 +24,20 @@ const WorkoutContent = ({navigation, route, content}) => {
       content.map((item, index) => (
           <View key={index} style={{flexDirection:"row", paddingLeft: 28, paddingTop: 10}}>
             <View style={{flex: 1}}>
-              <TouchableOpacity style={{}} onPress={() => exercisePreview(item)}>
+              <TouchableOpacity onPress={() => exercisePreview(item)}>
                 <Video
                   style={{width: "100%", marginLeft: 13}}
                   style={styles.backgroundVideo}
-                  source={{uri: item.filename}}
+                  source={{uri: `file://${RNFS.DocumentDirectoryPath}/${item.exerciseid}.mp4`}}
                   paused={true}
                   />
-                <Text style={{color: "white", top: 0, paddingBottom: 80, zIndex: 999}}></Text>
                 <ImageBackground
-                  style={{color: "white", height: 36, width: 36, opacity: .7, position: "absolute", top: 28, marginLeft: 67}}
+                  style={{color: "white", height: 36, width: 36, opacity: .7, position: "absolute", top: 18, marginLeft: 67}}
                   source={require("../media/previewbutton.png")}>
                 </ImageBackground>
+                <Text style={{color: "white", fontWeight: "bold", top: 65, paddingBottom: 80, zIndex: 10, textAlign: "center"}}>PREVIEW</Text>
+
               </TouchableOpacity>
-              <Text style={{color: "white", marginLeft: 13, backgroundColor: "black", textAlign: "center"}}>PREVIEW</Text>
             </View>
             <View style={{flex:1, marginRight: 10, marginLeft: 20, marginTop: 10}}>
               <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "System"}}>{item.name}</Text>

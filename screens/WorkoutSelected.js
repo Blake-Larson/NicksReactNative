@@ -28,7 +28,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [exerciseContent, setExerciseContent] = useState([]);
-  const [videoFile, setVideoFile] = useState([]);
+//  const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -38,17 +38,19 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [downloadDone, setDownloadDone] = useState(false);
   const [downloadTotal, setDownloadTotal] = useState(0);
   const [currentDownload, setCurrentDownload] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0.10);
   const [showRnfsDownloadButton, setShowRnfsDownloadButton] = useState(false);
   const [workoutStartingModal, setWorkoutStartingModal] = useState(true);
   const [startWorkout, setStartWorkout] = useState(false);
   const [showLoadScreen, setShowLoadScreen] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const workoutSelectedData = async () => {
 
     const filenamecontent = await getExerciseById();
+    console.log('starting to download')
     await rnfsDownload(filenamecontent);
     console.log('finsihed to download ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
   }
@@ -109,33 +111,26 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       const path = RNFS.DocumentDirectoryPath + `/${row['exerciseid']}.mp4`;
       if (await RNFS.exists(path))
       {
-          const percent = (i + 1) / 2;
+          const percent = (i + 1) / content.length;
+          console.log(percent)
           RNFS.touch(path, new Date());
           setProgress(percent);
-          if (i + 1 >= 2 )
-          {
-            setDownloadDone(true);
-            setShowLoadScreen(false);
-          }
           continue;
       }
       else {
         console.log(`PATH ${path}  DOES NOT EXISTS`);
-        if (i < 2) setShowLoadScreen(true);
+        setShowLoadScreen(true);
         const filename = row['filename'];
         console.log('now downloading: ', filename);
 
         const downloadInfo = await RNFS.downloadFile({ fromUrl: filename, toFile: path })
         if (await downloadInfo.promise) { console.log('downloaded!') }
-        setProgress((i + 1)/ 2);
-        if (i + 1 >= 2 )
-        {
-          setDownloadDone(true);
-          setShowLoadScreen(false);
-        }
+        setProgress((i + 1)/ content.length);
       }
     }
     console.log('done with all downloads!!')
+    setDownloadDone(true);
+    setShowLoadScreen(false);
     setShowRnfsDownloadButton(true);
   }
 
@@ -234,6 +229,17 @@ const WorkoutSelected = ({navigation, route, uid}) => {
     });
   }
 
+  const confirmationModalPreview = () => {
+
+    setShowConfirmationModal(true);
+    setInterval(() => {
+      setOpen(false)
+      setDate(date)
+      notifyPress()
+      setShowConfirmationModal(false);
+    }, 1500);
+  }
+
   return (
     <View style={{flex: 1}}>
       <View style={{ position:'absolute',top:45, zIndex: 100}}>
@@ -253,11 +259,10 @@ const WorkoutSelected = ({navigation, route, uid}) => {
             justifyContent: 'center'}}>
           <TouchableOpacity style={{width: 100, height: 58, alignItems: 'center',
             justifyContent: 'center'}}  onPress={() => { setMusicModal(true)}}>
-                <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
-                  justifyContent: 'center'}} source={require("../media/musicplayer.png")} />
-                  <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}>Music</Text>
-            </TouchableOpacity>
-
+              <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                justifyContent: 'center'}} source={require("../media/musicplayer.png")} />
+                <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}>Music</Text>
+          </TouchableOpacity>
             <TouchableOpacity style={{width: 100, height: 60, alignItems: 'center',
               justifyContent: 'center',}} onPress={openScheduleWorkoutModal}>
                 <ImageBackground style={{color: "white", height: 38, width: 38, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
@@ -275,13 +280,16 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           {
             showRnfsDownloadButton == true &&
             <Pressable style={{marginTop: 15, marginBottom: 15}} onPress={() => {rnfsRemove() }}>
-              <Text style={{color: "white", fontSize: 12}}>DEBUG: remove cached content</Text>
+              <Text style={{color: "white", fontSize: 10}}>DEBUG: remove cached content</Text>
             </Pressable>
           }
           <View style={{ width: ScreenWidth, paddingBottom: 10, paddingTop: 0,  alignItems: 'center', justifyContent: 'center'}}>
-            { downloadDone == false && showLoadScreen == true && <View style={{paddingTop: 30}}><Progress.Circle progress={progress} size={100} showsText={true} color={"red"} allowFontScaling={true}/></View> }
-            { downloadDone == false && <Text style={{color: "white", fontWeight: "bold", paddingTop: 10}}>L O A D I N G . . . </Text> }
-            { downloadDone == false && showLoadScreen == true && <Text style={{color: "white", fontWeight: "bold", paddingTop: 20}}> DOWNLOAD PROGRESS: {currentDownload} / {downloadTotal} </Text> }
+            { downloadDone == false && showLoadScreen == true &&
+              <View style={{paddingTop: 30, alignItems: 'center', justifyContent: 'center'}}>
+                <Progress.Circle progress={progress} size={100} showsText={true} color={"red"} allowFontScaling={true}/>
+                <Text style={{color: "white", fontWeight: "bold", paddingTop: 30, fontSize: 20}}>Get Ready to Workout! </Text>
+              </View>
+            }
           </View>
           { downloadDone == true && <WorkoutContent navigation={navigation} route={route} content={fullWorkoutContent}/> }
         </Animated.ScrollView>
@@ -312,12 +320,20 @@ const WorkoutSelected = ({navigation, route, uid}) => {
          open={open}
          date={date}
          theme={"dark"}
-         onConfirm={(date) => {
-           setOpen(false)
-           setDate(date)
-           notifyPress()
-         }}
+         onConfirm={(date) => {confirmationModalPreview(date)}}
          onCancel={() => { setOpen(false)}}/>
+        <Modal
+          transparent={true}
+          animationType="slide"
+          visible={showConfirmationModal}>
+          <View style={styles.apnModalContainer}>
+          <View style={styles.scheduleConfirmModalView}>
+            <Text style={{color: "white", fontSize: 30, textAlign: "center", fontWeight: "bold"}}>Workout Scheduled!</Text>
+            <Image style={{height:60, width: 60, marginTop: 20, backgroundColor: "lightgreen", borderRadius: 31}} source={require('../media/check-mark.png')} />
+          </View>
+          </View>
+
+        </Modal>
        <Modal
          transparent={true}
          animationType="slide"
@@ -333,7 +349,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
                     <Text style={{fontSize: 18,  color: "white"}}> In Settings </Text>
                   </View>
                   <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setApnDisabled(false)}} >
-                    <Text style={{fontWeight: "bold", color: "black", fontSize: 18}}>Close</Text>
+                    <Text style={{fontWeight: "bold", color: "white", fontSize: 18}}>Close</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.openSettings}  onPress={() => { setApnDisabled(false), Linking.openURL('app-settings://notification/')}} >
                     <Text style={{fontWeight: "bold", fontSize: 20}}>Open Settings</Text>
@@ -592,6 +608,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5
+  },
+  scheduleConfirmModalView: {
+    margin: 20,
+    backgroundColor: "#2F2D2D",
+    borderRadius: 20,
+    padding: 20,
+    paddingTop: 50,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: ScreenWidth/1.5,
+    height: ScreenWidth/1.5
   }
 });
 

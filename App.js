@@ -37,6 +37,7 @@ const App = () => {
   const [subInfo, setSubInfo] = useState([]);
   const [completedWorkouts, setCompletedWorkouts] = useState([]);
   const [workoutComplete, setWorkoutComplete] = useState(false);
+  const [workouts, setWorkouts] = useState([]);
 
   const validateSession = async () => {
 
@@ -78,6 +79,8 @@ const App = () => {
     }
     const metadata = await userResponse.json();
     await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
+
+    await getWorkouts();
     setLoadingScreen(false);
     setValidLogin(true);
   }
@@ -154,6 +157,73 @@ const App = () => {
     checkUserMembership();
   }
 
+    const getWorkouts = async () => {
+
+      const date = new Date("9/5/2022");
+      const mon = moment(date).isoWeekday(1).format('YYYY-MM-DD');
+      const tues = moment(date).isoWeekday(2).format('YYYY-MM-DD')
+      const wed = moment(date).isoWeekday(3).format('YYYY-MM-DD');
+      const thurs = moment(date).isoWeekday(4).format('YYYY-MM-DD');
+      const fri = moment(date).isoWeekday(5).format('YYYY-MM-DD');
+      const sat = moment(date).isoWeekday(6).format('YYYY-MM-DD');
+      const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
+      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+
+      const api = `https://a7h5fjn6ig.execute-api.us-west-1.amazonaws.com/dev/getWorkoutsThisWeek`;
+      const apiParams = {};
+      apiParams['monday'] = mon;
+      apiParams['tuesday'] = tues;
+      apiParams['wednesday'] = wed;
+      apiParams['thursday'] = thurs;
+      apiParams['friday'] = fri;
+      apiParams['saturday'] = sat;
+      apiParams['sunday'] = sun;
+      apiParams['id_token'] = storageToken;
+      console.log('got workout resopnse')
+
+      const response = await fetch(api, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       credentials: 'same-origin',
+       body: JSON.stringify(apiParams)
+      });
+      const scheduleData = await response.json();
+      const weekday = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"];
+      const workoutWeek = [];
+
+      for (let i = 0; i < scheduleData.length; i++)
+      {
+        const newKvt = [];
+        const row = scheduleData[i];
+        const d = new Date(row['schedule_date']);
+        let day = weekday[d.getDay()];
+
+        const weeklyObj = {};
+        weeklyObj['day'] = day;
+        weeklyObj['workoutid'] = row['workoutid'];
+        weeklyObj['schedule_date'] = row['schedule_date'];
+        weeklyObj['name'] = row['name'];
+        weeklyObj['filename'] = row['filename'];
+        weeklyObj['json_content'] = row['json_content'];
+
+        workoutWeek.push(weeklyObj);
+      }
+      setWorkouts(workoutWeek)
+      console.log('workouts set')
+
+
+  /*
+    //API GATEWAY -> LAMBDA EXAMPLE
+      const api2 = `https://1tykl3w05h.execute-api.us-west-1.amazonaws.com/default/getWorkoutsThisWeek`;
+      const response2 = await fetch(api2, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       credentials: 'same-origin',
+      });
+      const jsonTest = await response2.json();
+      console.log('output 2', jsonTest)
+  */
+    };
 
     const getCompletedWorkouts = async () => {
 
@@ -172,7 +242,7 @@ const App = () => {
       const userMetaData = JSON.parse(userMetaDataString);
       const userid = userMetaData[0]['userid'];
 
-      const api = `https://hautewellnessapp.com/api/getCompletedWorkouts`;
+      const api = `https://3cn9i38spk.execute-api.us-west-1.amazonaws.com/dev/getCompletedWorkouts`;
       const apiParams = {};
       apiParams['monday'] = moment(date).isoWeekday(1).format('YYYY-MM-DD')
       apiParams['tuesday'] = moment(date).isoWeekday(2).format('YYYY-MM-DD')
@@ -300,7 +370,8 @@ const App = () => {
                 setPaywallShown={setPaywallShown}
                 subInfo={subInfo}
                 setSubInfo={setSubInfo}
-                completedWorkouts={completedWorkouts}/>}
+                completedWorkouts={completedWorkouts}
+                workouts={workouts}/>}
             options={{
               headerShown: false,
               tabBarOptions: { backgroundColor: "black", activeTintColor:'#D6B22E', visible: false},

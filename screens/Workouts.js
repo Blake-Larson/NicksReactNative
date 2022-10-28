@@ -14,89 +14,24 @@ const ITEM_SIZE = Dimensions.get('window').width * 0.9;
 const SPACING = 6;
 const RNFS = require("react-native-fs");
 
-const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInfo, completedWorkouts}) => {
+const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInfo, completedWorkouts, workouts}) => {
 
 //  const isFocused = useIsFocused();
+console.log('workouts', workouts);
 
   const ref = useRef(null);
-  const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState([]);
   const [startingDate, setStartingDate] = useState([]);
   const [dateIndex, setDateIndex] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [cacheDate, setCacheDate] = useState(new Date());
 
-  const getWorkouts = async () => {
 
+  useEffect(() => {
     const initialIndex = new Date().getDay() - 1;
     if (initialIndex >= 0) setDateIndex(initialIndex);
     if (initialIndex < 0) setDateIndex(6);
 
-    const date = new Date("9/5/2022");
-    const mon = moment(date).isoWeekday(1).format('YYYY-MM-DD');
-    const tues = moment(date).isoWeekday(2).format('YYYY-MM-DD')
-    const wed = moment(date).isoWeekday(3).format('YYYY-MM-DD');
-    const thurs = moment(date).isoWeekday(4).format('YYYY-MM-DD');
-    const fri = moment(date).isoWeekday(5).format('YYYY-MM-DD');
-    const sat = moment(date).isoWeekday(6).format('YYYY-MM-DD');
-    const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-
-    const api = `https://a7h5fjn6ig.execute-api.us-west-1.amazonaws.com/dev/getWorkoutsThisWeek`;
-    const apiParams = {};
-    apiParams['monday'] = mon;
-    apiParams['tuesday'] = tues;
-    apiParams['wednesday'] = wed;
-    apiParams['thursday'] = thurs;
-    apiParams['friday'] = fri;
-    apiParams['saturday'] = sat;
-    apiParams['sunday'] = sun;
-    apiParams['id_token'] = storageToken;
-
-    const response = await fetch(api, {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     credentials: 'same-origin',
-     body: JSON.stringify(apiParams)
-    });
-    const scheduleData = await response.json();
-    const weekday = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"];
-    const workoutWeek = [];
-
-    for (let i = 0; i < scheduleData.length; i++)
-    {
-      const newKvt = [];
-      const row = scheduleData[i];
-      const d = new Date(row['schedule_date']);
-      let day = weekday[d.getDay()];
-
-      const weeklyObj = {};
-      weeklyObj['day'] = day;
-      weeklyObj['workoutid'] = row['workoutid'];
-      weeklyObj['schedule_date'] = row['schedule_date'];
-      weeklyObj['name'] = row['name'];
-      weeklyObj['filename'] = row['filename'];
-      weeklyObj['json_content'] = row['json_content'];
-
-      workoutWeek.push(weeklyObj);
-    }
-    setWorkouts(workoutWeek)
-
-/*
-  //API GATEWAY -> LAMBDA EXAMPLE
-    const api2 = `https://1tykl3w05h.execute-api.us-west-1.amazonaws.com/default/getWorkoutsThisWeek`;
-    const response2 = await fetch(api2, {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     credentials: 'same-origin',
-    });
-    const jsonTest = await response2.json();
-    console.log('output 2', jsonTest)
-*/
-  };
-
-  useEffect(() => {
-    getWorkouts();
     const now = moment();
     const dateSelected = moment();
     const newDate = dateSelected.format('MM-DD-YYYY');
@@ -143,13 +78,18 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
       setDateIndex(viewableItems.changed[0]['index'])
    }, []) // any dependencies that require the function to be "redeclared"
 
-  const viewConfigRef = React.useRef({ waitForInteraction: true, viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = React.useRef({ waitForInteraction: true, viewAreaCoveragePercentThreshold: 50, minimumViewTime: 300 });
 
 
   return (
     <View style={{"backgroundColor": "black", height: 1000, paddingTop: 60}}>
+    {
+      workouts &&
       <ScrollView>
-        <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
+        <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10}}>
+          <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
+          <Image style={{height: 50, width: 50, marginLeft: 20}} source={require('../media/hwlogo.png')}/>
+        </View>
           <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
             <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={0} weekday={"M"} scrollFlatListIndex={scrollFlatListIndex}/>
             <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={1} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
@@ -226,6 +166,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
              </View>
            </Modal>
       </ScrollView>
+    }
     </View>
   )
 };

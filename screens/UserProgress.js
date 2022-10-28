@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity,
+  StyleSheet, Pressable, Dimensions, Image } from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BadgeIcon from '../components/BadgeIcon.js';
 const moment = require('moment');
+const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 const UserProgress = ({navigation}) => {
 
@@ -109,15 +112,19 @@ const UserProgress = ({navigation}) => {
 
   return (
     <ScrollView style={{backgroundColor: "black"}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <View style={{alignItems: 'center',flexDirection: 'row', paddingTop: 60, fontSize: 15}}>
+      <View style={{flexDirection: 'row', paddingTop: 60, flex: 1, width: ScreenWidth, paddingBottom: 10}}>
+        <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
+        <Image style={{height: 50, width: 50, marginLeft: 20}} source={require('../media/hwlogo.png')}/>
+      </View>
+      <View style={{alignItems: 'center',flexDirection: 'row', fontSize: 15}}>
         <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Monthly")}>
           <View style={{borderBottomWidth: 1, borderColor: currentView == "Monthly" ? "#D6B22E" : "black"}}>
-            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Month</Text>
+            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Progress</Text>
           </View>
         </Pressable>
-        <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Badges")}>
-          <View style={{borderBottomWidth: 1, borderColor: currentView == "Badges" ? "#D6B22E" : "black"}}>
-            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Badges</Text>
+        <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Awards")}>
+          <View style={{borderBottomWidth: 1, borderColor: currentView == "Awards" ? "#D6B22E" : "black"}}>
+            <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Awards</Text>
           </View>
         </Pressable>
       </View>
@@ -174,15 +181,39 @@ const UserProgress = ({navigation}) => {
         </View>
       }
       {
-        currentView == 'Badges' &&
+        currentView == 'Awards' &&
         <View>
-          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>Badges selected -- TBD</Text>
-          <Text style={{paddingTop: 10, paddingLeft: 10, color: "white"}}>{JSON.stringify(allProgress)}</Text>
+          <View style={{flexDirection: 'row',
+              marginHorizontal: 10,
+              paddingTop: 25,
+              paddingBottom: 7,
+              width: ScreenWidth * 0.9,
+              flexWrap: 'wrap'}}>
+              {
+                progress.length >= 2 &&
+                <BadgeIcon title={"Completed 2 Workouts"}/>
+              }
+              {
+                progress.length >= 3 &&
+                <BadgeIcon title={"Completed 3 Workouts"}/>
+              }
+              {
+                progress.length >= 4 &&
+                <BadgeIcon title={"Completed 4 Workouts"}/>
+              }
+              {
+                progress.length >= 5 &&
+                <BadgeIcon title={"Completed 5 Workouts"}/>
+              }
+          </View>
         </View>
       }
     </ScrollView>
   )
 }
+
+//<View style={{ flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
+
 
 const styles = StyleSheet.create({
   centeredView: {
