@@ -17,8 +17,6 @@ const RNFS = require("react-native-fs");
 const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInfo, completedWorkouts, workouts}) => {
 
 //  const isFocused = useIsFocused();
-console.log('workouts', workouts);
-
   const ref = useRef(null);
   const [loading, setLoading] = useState([]);
   const [startingDate, setStartingDate] = useState([]);

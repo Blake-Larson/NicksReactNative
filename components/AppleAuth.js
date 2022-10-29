@@ -19,40 +19,44 @@ const AppleAuth = ({setValidLogin}) => {
       requestedOperation: appleAuth.Operation.LOGIN,
       requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
     });
+    console.log('appleAuthRequestResponse', appleAuthRequestResponse)
+    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+    console.log('credentialState', credentialState)
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+    // user is authenticated
+    console.log('USER IS AUTHENTICATED')
+    console.log('USER IS AUTHENTICATED')
+    console.log('USER IS AUTHENTICATED')
+    console.log('USER IS AUTHENTICATED')
+    console.log('USER IS AUTHENTICATED')
 
-    console.log('appleAuthRequestResponse')
-    console.log(appleAuthRequestResponse)
+  }
+
+    const output = jwt_decode(appleAuthRequestResponse.identityToken)
+    console.log('output', output)
     const { email, email_verified, is_private_email, sub } = jwt_decode(appleAuthRequestResponse.identityToken)
-
-    console.log('email', email)
-    console.log('family name', appleAuthRequestResponse.fullName.familyName);
-    console.log('given name', appleAuthRequestResponse.fullName.givenName);
-    console.log('sub', sub);
-
     let lastname = null;
     if (appleAuthRequestResponse.fullName) lastname = appleAuthRequestResponse.fullName.familyName;
     let firstname = null;
     if (appleAuthRequestResponse.fullName) firstname = appleAuthRequestResponse.fullName.givenName;
-
     if (!appleAuthRequestResponse.identityToken) console.log('Apple Sign-In failed - no identify token returned');
 
+    /**/
     const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
       body: JSON.stringify({"id_token": appleAuthRequestResponse.identityToken })
     })
-    console.log('response ***** -------');
-    console.log(response.status)
+    console.log('response', response)
+
     if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
     {
-      console.log('login error')
       setLoginError(true);
       setLoginLoading(false);
       return;
     }
 
-    console.log('token', appleAuthRequestResponse.identityToken)
     await AsyncStorage.setItem("REFRESH_TOKEN", appleAuthRequestResponse.identityToken);
     await AsyncStorage.setItem("APPLE_SUB", sub);
 
@@ -63,26 +67,45 @@ const AppleAuth = ({setValidLogin}) => {
     userParams['apple_sub'] = sub;
     userParams['id_token'] = appleAuthRequestResponse.identityToken;
 
-    console.log('userParams', userParams);
     const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(userParams)
-      });
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(userParams)
+    });
 
-    /*
-    if (userResponse.status != 200 && userResponse.status != "201") console.log('welp')
-    if (userResponse.status != 200 && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
-    {
-      console.log(response.status)
-      console.log('login error')
-      return;
-    }*/
     const metadata = await userResponse.json();
     await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setValidLogin(true);
   }
+
+  // responding to a user revoking access
+  let authCredentialListener = null;
+  useEffect(() => {
+    authCredentialListener = appleAuth.onCredentialRevoked(async () => {
+      //user credentials have been revoked. Sign out of account
+        console.log('revoked!!!!!')
+        console.log('revoked!!!!!')
+        console.log('revoked!!!!!')
+        console.log('revoked!!!!!')
+        console.log('revoked!!!!!')
+        console.log('revoked!!!!!')
+    });
+    return (() => {
+     if (authCredentialListener.remove !== undefined) {
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        console.log('removed........')
+        authCredentialListener.remove();
+      }
+    })
+  }, []);
+
 
   return (
     <View>
@@ -92,6 +115,7 @@ const AppleAuth = ({setValidLogin}) => {
         style={styles.appleButton}
         onPress={() => onAppleButtonPress()}
       />
+
     </View>
   );
 }
