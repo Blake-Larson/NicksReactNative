@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, TextInput, Pressable } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import appleAuth, {
+  AppleButton,
+  AppleAuthError,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation,
+} from '@invertase/react-native-apple-authentication';
 
 const Profile = ({navigation}) => {
 
@@ -68,6 +73,70 @@ const Profile = ({navigation}) => {
     setOriginalFirstName(firstName);
   }
 
+  //
+  const revokeAccount = async () => {
+
+    const appleClientSecret = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjlXUFNON1k3SDgifQ.eyJpc3MiOiJaWkNIQjU5RDI3IiwiaWF0IjoxNjY3MDk2Njk1LCJleHAiOjE2NjcxMDg2OTUsImF1ZCI6Imh0dHBzOi8vYXBwbGVpZC5hcHBsZS5jb20iLCJzdWIiOiJvcmcucmVhY3Rqcy5uYXRpdmUuZXhhbXBsZS5IYXV0ZVdlbGxuZXNzIn0.X4c4_ki0ndI7yj4GenWvswCUofhr73Q87pXMY06RnoVKTTi6Q7YCSP36tKOCl0lYLgg2DEPfGTm524P8pjiOww'
+    try {
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+    console.log('res', appleAuthRequestResponse)
+    const {authorizationCode} = appleAuthRequestResponse;
+    if (!authorizationCode) {
+      console.log('Authorization code not found after signin');
+    }
+    const config = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
+    try {
+      const authTokenBody = new URLSearchParams({
+        client_id: 'com.example.app',
+        client_secret: appleClientSecret,
+        code: authorizationCode,
+        grant_type: 'authorization_code',
+      });
+      const generateAuthTokenUrl = 'https://appleid.apple.com/auth/token';
+      /*
+
+      const authTokenResponse = await axios.post(
+        generateAuthTokenUrl,
+        authTokenBody,
+        config,
+      );
+      */
+      const output = await fetch(generateAuthTokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
+        body: authTokenBody
+      });
+      const authTokenResponse = await output.json();
+      console.log('authTokenResponse', authTokenResponse.data)
+/*
+      if (!authTokenResponse.data.refresh_token) {
+        console.log('No refresh token data');
+      }
+      const revokeTokenBody = new URLSearchParams({
+        client_id: 'com.example.app',
+        client_secret: appleClientSecret,
+        token: authTokenResponse.data.refresh_token,
+        token_type_hint: 'refresh_token',
+      });
+      const revokeAuthTokenUrl = 'https://appleid.apple.com/auth/revoke';
+      await axios.post(revokeAuthTokenUrl, revokeTokenBody, config);
+      */
+    } catch (e) {
+      console.error(e);
+    }
+  } catch (e) {
+    console.error("e", e);
+  }
+  }
+
   const Save = () => {
 
     if (originalLastName != lastName) return (
@@ -106,6 +175,7 @@ const Profile = ({navigation}) => {
         <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>Last Name</Text>
         <TextInput style={{"color": "white", marginTop: 50,fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
       </View>
+      <Button title="REMOVE" onPress={() => {revokeAccount()}} />
     </View>
   )
 };

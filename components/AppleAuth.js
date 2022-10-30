@@ -20,6 +20,9 @@ const AppleAuth = ({setValidLogin}) => {
       requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
     });
     console.log('appleAuthRequestResponse', appleAuthRequestResponse)
+    console.log('code', appleAuthRequestResponse.authorizationCode)
+    console.log('id_token', appleAuthRequestResponse.identityToken)
+
     const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
     console.log('credentialState', credentialState)
     if (credentialState === appleAuth.State.AUTHORIZED) {
@@ -30,6 +33,15 @@ const AppleAuth = ({setValidLogin}) => {
     console.log('USER IS AUTHENTICATED')
     console.log('USER IS AUTHENTICATED')
 
+  }
+  if (credentialState !== appleAuth.State.AUTHORIZED) {
+    // user is authenticated
+    console.log('USER IS not authorized')
+    console.log('USER IS not authorized')
+    console.log('USER IS not authorized')
+    console.log('USER IS not authorized')
+    console.log('USER IS not authorized')
+    console.log('USER IS not authorized')
   }
 
     const output = jwt_decode(appleAuthRequestResponse.identityToken)
