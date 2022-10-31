@@ -125,15 +125,4 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
   );
 };
 
-
-const styles = StyleSheet.create({
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontSize: 28,
-    fontWeight: "bold",
-    padding: 30
-  }
-});
-
 export default Paywall;

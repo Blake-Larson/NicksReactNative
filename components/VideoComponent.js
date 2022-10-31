@@ -39,15 +39,15 @@ const VideoComponent = ({fileName, pausedVideo, loading, awsLink}) => {
       awsVideo == false &&
       <View>
         <Video
-          style={{width: ScreenWidth, height: 350}}
+          style={{width: ScreenWidth, height: 320}}
           source={{uri: fileName}}
           repeat={true}
           playInBackground={false}
           muted={true}
   //        automaticallyWaitsToMinimizeStalling={false}
-  //        audioOnly={false}
+          audioOnly={false}
           paused={pausedVideo}
-    //      mixWithOthers={"mix"}
+          mixWithOthers={"mix"}
           ignoreSilentSwitch={"ignore"}/>
       </View>
     }

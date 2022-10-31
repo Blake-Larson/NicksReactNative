@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, TextInput, Pressable } from 'react-native';
+import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, StyleSheet, TextInput, Modal, Pressable } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import appleAuth, {
@@ -9,15 +9,14 @@ import appleAuth, {
   AppleAuthRequestOperation,
 } from '@invertase/react-native-apple-authentication';
 
-const Profile = ({navigation}) => {
-
-
+const Profile = ({setValidLogin, navigation}) => {
 
   const [price, setPrice] = useState([]);
   const [purchase, setPurchase] = useState([]);
   const [productId, setProductId] = useState([]);
   const [products, setProducts] = useState([]);
   const [email, setEmail] = useState([]);
+  const [deleteModal, setDeleteModal] = useState(false);
 
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
@@ -73,70 +72,54 @@ const Profile = ({navigation}) => {
     setOriginalFirstName(firstName);
   }
 
-  //
   const revokeAccount = async () => {
 
-    const appleClientSecret = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjlXUFNON1k3SDgifQ.eyJpc3MiOiJaWkNIQjU5RDI3IiwiaWF0IjoxNjY3MDk2Njk1LCJleHAiOjE2NjcxMDg2OTUsImF1ZCI6Imh0dHBzOi8vYXBwbGVpZC5hcHBsZS5jb20iLCJzdWIiOiJvcmcucmVhY3Rqcy5uYXRpdmUuZXhhbXBsZS5IYXV0ZVdlbGxuZXNzIn0.X4c4_ki0ndI7yj4GenWvswCUofhr73Q87pXMY06RnoVKTTi6Q7YCSP36tKOCl0lYLgg2DEPfGTm524P8pjiOww'
-    try {
     const appleAuthRequestResponse = await appleAuth.performRequest({
       requestedOperation: appleAuth.Operation.LOGIN,
       requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
     });
-    console.log('res', appleAuthRequestResponse)
-    const {authorizationCode} = appleAuthRequestResponse;
-    if (!authorizationCode) {
-      console.log('Authorization code not found after signin');
-    }
-    const config = {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    };
-    try {
-      const authTokenBody = new URLSearchParams({
-        client_id: 'com.example.app',
-        client_secret: appleClientSecret,
-        code: authorizationCode,
-        grant_type: 'authorization_code',
-      });
-      const generateAuthTokenUrl = 'https://appleid.apple.com/auth/token';
-      /*
+    console.log('appleAuthRequestResponse:', appleAuthRequestResponse);
+    const {authorizationCode, identityToken, nonce, user} = appleAuthRequestResponse;
+    if (!authorizationCode) console.log('Authorization code not found after signin');
+    console.log(authorizationCode)
+    console.log(identityToken)
+    console.log(nonce)
+    console.log(user)
 
-      const authTokenResponse = await axios.post(
-        generateAuthTokenUrl,
-        authTokenBody,
-        config,
-      );
-      */
-      const output = await fetch(generateAuthTokenUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        credentials: 'same-origin',
-        body: authTokenBody
-      });
-      const authTokenResponse = await output.json();
-      console.log('authTokenResponse', authTokenResponse.data)
+    const userParams = {};
+    userParams['apple_sub'] = user;
+    userParams['id_token'] = identityToken;
+    userParams['nonce'] = nonce;
+    userParams['authorization_code'] = authorizationCode;
+    console.log(userParams);
+
+    AsyncStorage.setItem("REFRESH_TOKEN", "");
+    setValidLogin(false);
 /*
-      if (!authTokenResponse.data.refresh_token) {
-        console.log('No refresh token data');
-      }
-      const revokeTokenBody = new URLSearchParams({
-        client_id: 'com.example.app',
-        client_secret: appleClientSecret,
-        token: authTokenResponse.data.refresh_token,
-        token_type_hint: 'refresh_token',
-      });
-      const revokeAuthTokenUrl = 'https://appleid.apple.com/auth/revoke';
-      await axios.post(revokeAuthTokenUrl, revokeTokenBody, config);
-      */
-    } catch (e) {
-      console.error(e);
-    }
-  } catch (e) {
-    console.error("e", e);
-  }
-  }
+    const userResponse = await fetch(`https://hautewellnessapp.com/api/revokeAppleToken`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(userParams)
+    });
 
+    const ouptut = await userResponse.json();
+*/
+  //  console.log('userResponse', ouptut);
+
+  }
+/*
+  const deleteAlert = () => {
+    Alert.alert(
+      "Are you sure?",
+      "Account deletion cannot be undone",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: () => revokeAccount() }
+      ]
+    );
+  }
+*/
   const Save = () => {
 
     if (originalLastName != lastName) return (
@@ -165,19 +148,89 @@ const Profile = ({navigation}) => {
       </View>
       <View style={{flexDirection: "row", paddingTop: 30}}>
         <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 30,fontWeight: "bold", fontSize: 18}}>Email</Text>
-        <Text style={{"color": "white", marginTop: 30,fontWeight: "bold", fontSize: 15}}>{email}</Text>
+        <Text style={{"color": "white", marginTop: 30, fontWeight: "bold", fontSize: 15}}>{email}</Text>
       </View>
       <View style={{flexDirection: "row", paddingTop: 10}}>
         <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>First Name</Text>
-        <TextInput style={{"color": "white", marginTop: 50,fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
+        <TextInput style={{"color": "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
       </View>
       <View style={{flexDirection: "row", paddingTop: 10}}>
         <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>Last Name</Text>
-        <TextInput style={{"color": "white", marginTop: 50,fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
+        <TextInput style={{"color": "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
       </View>
-      <Button title="REMOVE" onPress={() => {revokeAccount()}} />
+      <Pressable style={{marginLeft: 20, marginTop: 200}} onPress={() => {setDeleteModal(true)}}>
+        <Text style={{fontSize: 18, color: "white", padding: 5}}>Delete Account</Text>
+      </Pressable>
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={deleteModal}
+        onRequestClose={() => { setDeleteModal(!deleteModal) }}>
+          <View style={styles.apnModalContainer} onPress={() => {setDeleteModal(false)}}>
+            <Pressable style={styles.apnModalContainer} onPress={() => {setDeleteModal(false);}}>
+               <View style={styles.deleteModalView}>
+               <Text style={{color: "white", fontSize: 28, fontWeight: "bold", textAlign: "center"}}>Are you sure?</Text>
+               <Text style={{color: "white", fontSize: 18, textAlign: "center", paddingTop: 10}}>Account deletion cannot be undone</Text>
+               <Text style={{color: "white", fontSize: 15, textAlign: "center", marginTop: 20, padding: 15}}>Warning: if you have auto-renewable subscriptions, your billling will continue through Apple. Please cancel your subscription before continuing with deleting your account</Text>
+                <View style={{flexDirection: "row"}}>
+                 <TouchableOpacity style={styles.deleteModal} onPress={() => {setDeleteModal(false)}}>
+                    <Text style={{color: "white", fontSize: 18, fontWeight: "bold"}}>Cancel</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity style={styles.deleteModal} onPress={() => {revokeAccount(); setDeleteModal(false)}}>
+                    <Text style={{color: "red", fontSize: 18, fontWeight: "bold"}}>Delete</Text>
+                 </TouchableOpacity>
+               </View>
+              </View>
+            </Pressable>
+         </View>
+       </Modal>
     </View>
   )
 };
+
+const styles = StyleSheet.create({
+  apnModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    shadowOpacity: 0.25,
+  },
+  deleteModalView: {
+    margin: 20,
+    backgroundColor: "#2F2D2D",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  deleteModal: {
+    alignItems: 'center',
+    backgroundColor: "black",
+    height: 50,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 1,
+    width: 135,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+    marginBottom: 4,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 15,
+    marginTop: 30,
+  },
+});
 
 export default Profile;

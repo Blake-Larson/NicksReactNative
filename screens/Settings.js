@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Linking, Modal,
+import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Linking,
   ScreenWidth, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
 //import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';

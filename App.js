@@ -41,9 +41,11 @@ const App = () => {
 
   const validateSession = async () => {
 
+    await getWorkouts();
+
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
     const sub = await AsyncStorage.getItem("APPLE_SUB");
-
+    console.log('storageToken', storageToken)
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
     myHeaders.append('Authorization', storageToken);
@@ -54,7 +56,8 @@ const App = () => {
       credentials: 'same-origin',
       body: JSON.stringify({"id_token": storageToken})
     });
-    if (response.status != "200" && response.status != "201" && response.status != "203" && response.status != "204" )
+    console.log('response1', response)
+    if (response.status != 200 && response.status != 201 && response.status != 203 && response.status != 204 )
     {
       console.log('login error', response.status);
       setLoadingScreen(false);
@@ -71,7 +74,9 @@ const App = () => {
       credentials: 'same-origin',
       body: JSON.stringify(userParams)
     });
-    if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
+    console.log('userResponse', userResponse)
+
+    if (userResponse.status != 200 && userResponse.status != 201 && userResponse.status != 203 && userResponse.status != 204 )
     {
       console.log('login error', response.status)
       setLoadingScreen(false);
@@ -80,7 +85,6 @@ const App = () => {
     const metadata = await userResponse.json();
     await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
 
-    await getWorkouts();
     setLoadingScreen(false);
     setValidLogin(true);
   }
@@ -209,9 +213,6 @@ const App = () => {
         workoutWeek.push(weeklyObj);
       }
       setWorkouts(workoutWeek)
-      console.log('workouts set')
-
-
   /*
     //API GATEWAY -> LAMBDA EXAMPLE
       const api2 = `https://1tykl3w05h.execute-api.us-west-1.amazonaws.com/default/getWorkoutsThisWeek`;
@@ -287,12 +288,6 @@ const App = () => {
   useEffect(() => {
     console.log('REFRESH SUB INFO')
     console.log('REFRESH SUB INFO')
-    console.log('REFRESH SUB INFO')
-    console.log('REFRESH SUB INFO')
-    console.log('REFRESH SUB INFO')
-    console.log('REFRESH SUB INFO')
-    console.log('REFRESH SUB INFO')
-
     purchaseSetup();
   }, [paywallShown]);
 
@@ -300,8 +295,8 @@ const App = () => {
   if (loadingScreen) {
     return (
       <View style={{backgroundColor: "black", height: 1000,flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'}}>
+        justifyContent: 'center',
+        alignItems: 'center'}}>
         <View style={{backgroundColor: "black", marginTop: 300,flex: 1, }}>
             <Progress.Circle
               size={200}
@@ -415,7 +410,7 @@ const App = () => {
             />)}
         </Stack.Screen>
         <Stack.Screen name="Profile" options={{headerShown: false}}>
-          {({navigation, route}) => (<Profile navigation={navigation} route={route}/>)}
+          {({navigation, route}) => (<Profile navigation={navigation} setValidLogin={setValidLogin} route={route}/>)}
         </Stack.Screen>
         <Stack.Screen name="SettingsHelp" options={{headerShown: false}}>
           {({navigation, route}) => (<SettingsHelp navigation={navigation} route={route}/>)}
