@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, StyleSheet, TextInput, Modal, Pressable } from 'react-native';
+import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, StyleSheet, TextInput, Modal, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import appleAuth, {
@@ -108,18 +108,7 @@ const Profile = ({setValidLogin, navigation}) => {
   //  console.log('userResponse', ouptut);
 
   }
-/*
-  const deleteAlert = () => {
-    Alert.alert(
-      "Are you sure?",
-      "Account deletion cannot be undone",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: () => revokeAccount() }
-      ]
-    );
-  }
-*/
+
   const Save = () => {
 
     if (originalLastName != lastName) return (
@@ -136,55 +125,58 @@ const Profile = ({setValidLogin, navigation}) => {
   }
 
   return (
-    <View style={{"backgroundColor": "black", "height": 1000}}>
-      <View style={{flexDirection: "row", paddingTop: 50}}>
-          <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Settings', [])}>
-            <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
-          </TouchableOpacity>
-      </View>
-      <View style={{flexDirection: "row", paddingTop: 50}}>
-        <Text style={{color: "white", marginLeft: 20, fontWeight: "bold", fontSize: 38, position: "absolute", left: 0}}>Profile</Text>
-        <Save />
-      </View>
-      <View style={{flexDirection: "row", paddingTop: 30}}>
-        <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 30,fontWeight: "bold", fontSize: 18}}>Email</Text>
-        <Text style={{"color": "white", marginTop: 30, fontWeight: "bold", fontSize: 15}}>{email}</Text>
-      </View>
-      <View style={{flexDirection: "row", paddingTop: 10}}>
-        <Text style={{"color": "white", width: 120, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>First Name</Text>
-        <TextInput style={{color: "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
-      </View>
-      <View style={{flexDirection: "row", paddingTop: 10}}>
-        <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>Last Name</Text>
-        <TextInput style={{"color": "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
-      </View>
-      <Pressable style={{marginLeft: 20, marginTop: 200}} onPress={() => {setDeleteModal(true)}}>
-        <Text style={{fontSize: 18, color: "white", padding: 5}}>Delete Account</Text>
-      </Pressable>
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={deleteModal}
-        onRequestClose={() => { setDeleteModal(!deleteModal) }}>
-          <View style={styles.apnModalContainer} onPress={() => {setDeleteModal(false)}}>
-            <Pressable style={styles.apnModalContainer} onPress={() => {setDeleteModal(false);}}>
-               <View style={styles.deleteModalView}>
-               <Text style={{color: "white", fontSize: 28, fontWeight: "bold", textAlign: "center"}}>Are you sure?</Text>
-               <Text style={{color: "white", fontSize: 18, textAlign: "center", paddingTop: 10}}>Account deletion cannot be undone</Text>
-               <Text style={{color: "white", fontSize: 15, textAlign: "center", marginTop: 20, padding: 15}}>Warning: if you have auto-renewable subscriptions, your billling will continue through Apple. Please cancel your subscription before continuing with deleting your account</Text>
-                <View style={{flexDirection: "row"}}>
-                 <TouchableOpacity style={styles.deleteModal} onPress={() => {setDeleteModal(false)}}>
-                    <Text style={{color: "white", fontSize: 18, fontWeight: "bold"}}>Cancel</Text>
-                 </TouchableOpacity>
-                 <TouchableOpacity style={styles.deleteModal} onPress={() => {revokeAccount(); setDeleteModal(false)}}>
-                    <Text style={{color: "red", fontSize: 18, fontWeight: "bold"}}>Delete</Text>
-                 </TouchableOpacity>
-               </View>
-              </View>
-            </Pressable>
-         </View>
-       </Modal>
-    </View>
+    <SafeAreaView style={{flex: 1,
+      justifyContent: 'center',
+      backgroundColor: '#ECF0F1',
+      backgroundColor: "black"
+      }}>
+      <StatusBar backgroundColor="black" barStyle={"light-content"} hidden={false} />
+        <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Settings', [])}>
+          <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
+        </TouchableOpacity>
+        <ScrollView style={{ marginTop: 0, flex: 1, width: ScreenWidth, paddingBottom: 10, backgroundColor: "black"}}>
+          <Text style={{color: "white", marginLeft: 20, fontWeight: "bold", fontSize: 38, position: "absolute", left: 0}}>Profile</Text>
+          <Save />
+        <View style={{flexDirection: "row", paddingTop: 30}}>
+          <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 30,fontWeight: "bold", fontSize: 18}}>Email</Text>
+          <Text style={{"color": "white", marginTop: 30, fontWeight: "bold", fontSize: 15}}>{email}</Text>
+        </View>
+        <View style={{flexDirection: "row", paddingTop: 10}}>
+          <Text style={{"color": "white", width: 120, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>First Name</Text>
+          <TextInput style={{color: "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
+        </View>
+        <View style={{flexDirection: "row", paddingTop: 10}}>
+          <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>Last Name</Text>
+          <TextInput style={{"color": "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
+        </View>
+        <Pressable style={{marginLeft: 20, marginTop: 200}} onPress={() => {setDeleteModal(true)}}>
+          <Text style={{fontSize: 18, color: "white", padding: 5}}>Delete Account</Text>
+        </Pressable>
+        <Modal
+          transparent={true}
+          animationType="slide"
+          visible={deleteModal}
+          onRequestClose={() => { setDeleteModal(!deleteModal) }}>
+            <View style={styles.apnModalContainer} onPress={() => {setDeleteModal(false)}}>
+              <Pressable style={styles.apnModalContainer} onPress={() => {setDeleteModal(false);}}>
+                 <View style={styles.deleteModalView}>
+                 <Text style={{color: "white", fontSize: 28, fontWeight: "bold", textAlign: "center"}}>Are you sure?</Text>
+                 <Text style={{color: "white", fontSize: 18, textAlign: "center", paddingTop: 10}}>Account deletion cannot be undone</Text>
+                 <Text style={{color: "white", fontSize: 15, textAlign: "center", marginTop: 20, padding: 15}}>Warning: if you have auto-renewable subscriptions, your billling will continue through Apple. Please cancel your subscription before continuing with deleting your account</Text>
+                  <View style={{flexDirection: "row"}}>
+                   <TouchableOpacity style={styles.deleteModal} onPress={() => {setDeleteModal(false)}}>
+                      <Text style={{color: "white", fontSize: 18, fontWeight: "bold"}}>Cancel</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity style={styles.deleteModal} onPress={() => {revokeAccount(); setDeleteModal(false)}}>
+                      <Text style={{color: "red", fontSize: 18, fontWeight: "bold"}}>Delete</Text>
+                   </TouchableOpacity>
+                 </View>
+                </View>
+              </Pressable>
+           </View>
+         </Modal>
+    </ScrollView>
+    </SafeAreaView>
   )
 };
 

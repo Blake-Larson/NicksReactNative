@@ -130,7 +130,7 @@ const UserProgress = ({navigation}) => {
               <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Progress</Text>
             </View>
           </Pressable>
-          <Pressable style={{ padding: 10, marginLeft: 15, }} onPress={()=> setCurrentView("Awards")}>
+          <Pressable style={{ padding: 10, marginLeft: 15}} onPress={()=> setCurrentView("Awards")}>
             <View style={{borderBottomWidth: 1, borderColor: currentView == "Awards" ? "#D6B22E" : "black"}}>
               <Text style={{color: "white", fontSize: 22, paddingBottom: 3}}>Awards</Text>
             </View>

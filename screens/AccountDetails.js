@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, Alert, FlatList, Pressable, ScrollView } from 'react-native';
+import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import Paywall from '../components/Paywall.js';
 
@@ -12,18 +12,21 @@ const AccountDetails = ({navigation, subInfo, setSubInfo, paywallShown, setPaywa
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   return (
-    <View style={{"backgroundColor": "black", "height": 1000}}>
-      <View style={{flexDirection: "row", position:'absolute',top:45}}>
-          <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Settings', [])}>
-            <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
-          </TouchableOpacity>
-      </View>
-      <ScrollView style={{top:85, "height": 1000}}>
+    <SafeAreaView style={{flex: 1,
+      justifyContent: 'center',
+      backgroundColor: '#ECF0F1',
+      backgroundColor: "black"
+      }}>
+      <StatusBar backgroundColor="black" barStyle={"light-content"} hidden={false} />
+      <ScrollView style={{ marginTop: 0, flex: 1, width: ScreenWidth, paddingBottom: 10, backgroundColor: "black"}}>
+        <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('Settings', [])}>
+          <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
+        </TouchableOpacity>
         <View style={{backgroundColor: "grey", borderRadius: 22}}>
           <Paywall subInfo={subInfo} setSubInfo={setSubInfo} setPaywallShown={setPaywallShown} />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 };
 

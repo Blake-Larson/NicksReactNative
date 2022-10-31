@@ -296,7 +296,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
                  <Text style={{fontSize: 15, fontWeight: "bold", color: "white", marginLeft: 30, right: 10, position: "absolute"}}>Open Apple Music</Text>
                </TouchableOpacity>
                <TouchableOpacity  style={styles.closeApnModal} onPress={() => { setMusicModal(false); setPaused(false)}} >
-                 <Text style={{fontWeight: "bold", color: "white", fontSize: 20}}>Close</Text>
+                 <Text style={{fontWeight: "bold", color: "white", fontSize: 20, paddingTop: 0}}>Close</Text>
                </TouchableOpacity>
              </View>
          </Pressable>
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: "#2F2D2D",
     borderRadius: 20,
-    height: 200,
+    height: 430,
     padding: 20,
     alignItems: "center",
     shadowColor: "black",
@@ -402,6 +402,25 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 15,
     marginTop: 30,
+  },
+  closeApnModal: {
+    alignItems: 'center',
+    backgroundColor: "black",
+    height: 55,
+    shadowRadius: 4,
+    elevation: 1,
+    width: 200,
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    borderWidth: 2,
+    marginTop: 10,
+    marginBottom: 4,
+    marginLeft: 40,
+    marginRight: 40,
+    borderRadius: 22,
+    marginTop: 35,
   },
 });
 

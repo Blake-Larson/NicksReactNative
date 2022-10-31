@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 import VideoComponent from '../components/VideoComponent.js';
@@ -46,16 +46,20 @@ const ExercisePreview = ({navigation, route}) => {
   }, []);
 
   return (
-    <View style={{"backgroundColor": "black", height: ScreenHeight, paddingTop: 60}}>
-      <View style={{ position:'absolute',top:45, zIndex: 100}}>
+    <SafeAreaView style={{flex: 1,
+      justifyContent: 'center',
+      backgroundColor: "black"
+      }}>
+      <StatusBar backgroundColor="black" barStyle={"light-content"} hidden={false} />
+      <ScrollView style={{ marginTop: 0, flex: 1, width: ScreenWidth, paddingBottom: 10, backgroundColor: "black"}}>
         <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('WorkoutSelected', [apiParams])}>
           <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
         </TouchableOpacity>
-      </View>
-      <Text style={{marginTop: 45, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 250}}>{name}</Text>
-      <Text style={{marginTop: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
-      <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} awsLink={filename} pausedVideo={false} style={{marginTop: 30}}/>
-    </View>
+        <Text style={{marginTop: 0, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 250}}>{name}</Text>
+        <Text style={{marginTop: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
+        <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} awsLink={filename} pausedVideo={false} style={{marginTop: 30}}/>
+      </ScrollView>
+    </SafeAreaView>
   )
 };
 

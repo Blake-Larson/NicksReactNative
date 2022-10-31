@@ -127,7 +127,6 @@ const AppleAuth = ({setValidLogin}) => {
         style={styles.appleButton}
         onPress={() => onAppleButtonPress()}
       />
-
     </View>
   );
 }
