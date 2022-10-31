@@ -151,8 +151,8 @@ const Profile = ({setValidLogin, navigation}) => {
         <Text style={{"color": "white", marginTop: 30, fontWeight: "bold", fontSize: 15}}>{email}</Text>
       </View>
       <View style={{flexDirection: "row", paddingTop: 10}}>
-        <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>First Name</Text>
-        <TextInput style={{"color": "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
+        <Text style={{"color": "white", width: 120, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>First Name</Text>
+        <TextInput style={{color: "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 230}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
       </View>
       <View style={{flexDirection: "row", paddingTop: 10}}>
         <Text style={{"color": "white", width: ScreenWidth / 3, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 18}}>Last Name</Text>
