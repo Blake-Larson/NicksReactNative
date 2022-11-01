@@ -8,9 +8,7 @@ const ENTITLEMENT_ID = "pro";
 const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
 
   const [offer, setOffer] = useState(null);
-  const [customerInfo, setCustomerInfo] = useState([]);
   const [proInfo, setProInfo] = useState([]);
-  const [expirationDate, setExpirationDate] = useState([]);
   const [purchaseComplete, setPurchaseComplete] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
@@ -20,12 +18,6 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
     if (!subInfo || !subInfo.entitlements || !subInfo.entitlements.active) return;
     setProInfo(subInfo.entitlements.active.pro)
   }
-
-  useEffect(() => {
-    defineProInfo()
-    fetchOfferings();
-    return () => {};
-  }, [subInfo]);
 
   const fetchOfferings = async () => {
 
@@ -37,6 +29,12 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
       console.log(e)
     }
   }
+
+    useEffect(() => {
+      defineProInfo()
+      fetchOfferings();
+      return () => {};
+    }, [subInfo]);
 
   const buyPackage = async (pack) => {
 
@@ -60,7 +58,6 @@ const Paywall = ({subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
   const restorePurchases = async () => {
     try {
       const restore = await Purchases.restorePurchases();
-      console.log('restore', JSON.stringify(restore))
       setSubInfo(restore);
       if (restore && restore.entitlements.active && restore.entitlements.active.pro && restore.entitlements.active.pro.isActive) setPaywallShown(false);
 

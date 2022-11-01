@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Text, ScrollView, View, ImageBackground, Button, TouchableOpacity, Dimensions, Modal,
+import { Text, ScrollView, View, ImageBackground, TouchableOpacity, Dimensions, Modal,
   Image, Linking, StyleSheet, Pressable } from 'react-native';
+
 import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
-const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
-var RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+
 const moment = require('moment');
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+const RNFS = require("react-native-fs");
 
 const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete}) => {
 
   const VideoData = route.params[0]['exerciseList'];
   const schedule_date = route.params[0]['schedule_date'];
   const workout_name = route.params[0]['title'];
-//  console.log('route params ......................                CHECK')
   const pauseButton = require('../media/pauseButton.png');
+
   const [workoutImage, setWorkoutImage] = useState("https://d3c4ht1ghv1me9.cloudfront.net/Workout.png");
   const [titleVideo, setTitleVideo] = useState([]);
   const [currentNumber, setCurrentNumber] = useState(0);
   const [workoutVideo, setWorkoutVideo] = useState(VideoData[currentNumber]['exerciseid']);
   const [totalNumber, setTotalNumber] = useState(0);
-  const [videoPlayer, setVideoPlaying] = useState(0);
   const [displayButton, setDisplayButton] = useState([]);
   const [nextButton, setNextButton] = useState([]);
   const [paused, setPaused] = useState(false);
@@ -130,11 +131,6 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
     if (finalSeconds == 9) finalSeconds = '09';
 
     const finalTimeString = `${totalMinutes}:${finalSeconds}`;
-
-
-    console.log('totalSeconds', totalSeconds);
-    console.log('totalMinutes', totalMinutes);
-    console.log(finalTimeString)
     setFinalTime(finalTimeString)
 
     const api = `https://hautewellnessapp.com/api/completeWorkout`;
@@ -152,7 +148,6 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
       body: JSON.stringify(apiParams)
     });
 
-    // TODO: ADD ERROR LOGS
     const scheduleData = await response.json();
     setWorkoutComplete(!workoutComplete);
   };
@@ -309,7 +304,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
        onRequestClose={() => { setEndWorkoutModal(false); setPaused(false) }}>
          <View style={styles.apnModalContainer} onPress={() => {setEndWorkoutModal(false); setPaused(false)}}>
            <Pressable style={styles.apnModalContainer} onPress={() => {setEndWorkoutModal(false); setPaused(false)}}>
-              <View style={styles.musicModalView}>
+              <View style={styles.endModalView}>
                 <Text style={{fontSize: 28, textAlign: "center", color: "white", fontWeight: "bold", padding: 10}}>Are you sure you want to end the workout?</Text>
                 <View style={{flexDirection: "row"}}>
                   <TouchableOpacity style={styles.deleteModal} onPress={() => {setEndWorkoutModal(false); setPaused(false)}}>
@@ -351,6 +346,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#2F2D2D",
     borderRadius: 20,
     height: 430,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  endModalView: {
+    margin: 20,
+    backgroundColor: "#2F2D2D",
+    borderRadius: 20,
+    height: 220,
     padding: 20,
     alignItems: "center",
     shadowColor: "black",

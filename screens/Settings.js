@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Linking, SafeAreaView, StatusBar, ScrollView,
   ScreenWidth, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
-//import auth from '@react-native-firebase/auth';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -60,14 +60,5 @@ const Settings = ({setValidLogin, navigation}) => {
     </SafeAreaView>
   )
 };
-
-/* WORKS
-<View style={{marginTop: 200}}>
-  <Button onPress={() => makeSubscription(products[0]["productId"]) } title="Purchase"/>
-  <Text style={{"color": "white"}}>Price: {price}</Text>
-  <Text style={{"color": "white"}}>{purchase}</Text>
-  <Text style={{"color": "white"}}>{JSON.stringify(products)}</Text>
-</View>
-*/
 
 export default Settings;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Modal } from 'react-native';
 import Video from 'react-native-video';
+
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const RNFS = require("react-native-fs");
 
@@ -11,14 +12,8 @@ const VideoComponent = ({fileName, pausedVideo, loading, awsLink}) => {
   const [loadingVideo, setLoadingVideo] = useState(false);
   const [awsVideo, setAwsVideo] = useState(false);
 
-  const videoReady = () => {
-    console.log('video ready');
-  //  setLoadingVideo(false);
-  }
-
   const checkFileDownload = async () => {
-    console.log('checkFileDownload')
-    console.log(fileName)
+
     if (await RNFS.exists(fileName))
     {
       setAwsVideo(false);
@@ -44,7 +39,6 @@ const VideoComponent = ({fileName, pausedVideo, loading, awsLink}) => {
           repeat={true}
           playInBackground={false}
           muted={true}
-  //        automaticallyWaitsToMinimizeStalling={false}
           audioOnly={false}
           paused={pausedVideo}
           mixWithOthers={"mix"}
@@ -60,10 +54,9 @@ const VideoComponent = ({fileName, pausedVideo, loading, awsLink}) => {
           repeat={true}
           playInBackground={false}
           muted={true}
-  //        automaticallyWaitsToMinimizeStalling={false}
-  //        audioOnly={false}
+          audioOnly={false}
           paused={pausedVideo}
-    //      mixWithOthers={"mix"}
+          mixWithOthers={"mix"}
           ignoreSilentSwitch={"ignore"}/>
       </View>
     }

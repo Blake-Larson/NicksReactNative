@@ -26,9 +26,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const content = json_content['course_content'];
   const schedule_date = route.params[0]['schedule_date'];
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [exerciseContent, setExerciseContent] = useState([]);
-//  const [videoFile, setVideoFile] = useState([]);
   const [exerciseList, setExerciseList] = useState([]);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -40,7 +37,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
   const [currentDownload, setCurrentDownload] = useState(0);
   const [progress, setProgress] = useState(0.10);
   const [showRnfsDownloadButton, setShowRnfsDownloadButton] = useState(false);
-  const [workoutStartingModal, setWorkoutStartingModal] = useState(true);
   const [startWorkout, setStartWorkout] = useState(false);
   const [showLoadScreen, setShowLoadScreen] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -76,7 +72,6 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       credentials: 'same-origin',
       body: JSON.stringify(apiParams)
     });
-
     // TODO: add error messages
     const data = await response.json();
 
@@ -257,19 +252,18 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           )}>
           <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10,   alignItems: 'center',
             justifyContent: 'center'}}>
-          <TouchableOpacity style={{width: 100, height: 58, alignItems: 'center',
-            justifyContent: 'center'}}  onPress={() => { setMusicModal(true)}}>
-              <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
-                justifyContent: 'center'}} source={require("../media/musicplayer.png")} />
-                <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}>Music</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={{width: 100, height: 58, alignItems: 'center',
+              justifyContent: 'center'}}  onPress={() => { setMusicModal(true)}}>
+                <ImageBackground style={{color: "white", height: 35, width: 35, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
+                  justifyContent: 'center'}} source={require("../media/musicplayer.png")} />
+                  <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}>Music</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={{width: 100, height: 60, alignItems: 'center',
               justifyContent: 'center',}} onPress={openScheduleWorkoutModal}>
                 <ImageBackground style={{color: "white", height: 38, width: 38, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
                   justifyContent: 'center'}} source={require("../media/clock.png")} />
                 <Text style={{position: "absolute", bottom: 0, marginTop: 10, "color": "white"}}> Schedule </Text>
             </TouchableOpacity>
-
             <TouchableOpacity style={{width: 95, height: 60, alignItems: 'center',
               justifyContent: 'center',}} onPress={shareApp}>
                 <ImageBackground style={{color: "white", height: 38, width: 38, marginBottom: 15, top: 0, flexDirection: 'row',flex: 1, position: 'absolute',alignItems: 'center',
@@ -303,8 +297,7 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           ]} source={{uri: image}} />
         </Animated.View>
         <Animated.View
-         style={[
-           styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
+         style={[styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
           <Text style={styles.title}>{title}</Text>
        </Animated.View>
        {
@@ -327,12 +320,11 @@ const WorkoutSelected = ({navigation, route, uid}) => {
           animationType="slide"
           visible={showConfirmationModal}>
           <View style={styles.apnModalContainer}>
-          <View style={styles.scheduleConfirmModalView}>
-            <Text style={{color: "white", fontSize: 30, textAlign: "center", fontWeight: "bold"}}>Workout Scheduled!</Text>
-            <Image style={{height:60, width: 60, marginTop: 20, backgroundColor: "lightgreen", borderRadius: 31}} source={require('../media/check-mark.png')} />
+            <View style={styles.scheduleConfirmModalView}>
+              <Text style={{color: "white", fontSize: 30, textAlign: "center", fontWeight: "bold"}}>Workout Scheduled!</Text>
+              <Image style={{height:60, width: 60, marginTop: 20, backgroundColor: "lightgreen", borderRadius: 31}} source={require('../media/check-mark.png')} />
+            </View>
           </View>
-          </View>
-
         </Modal>
        <Modal
          transparent={true}

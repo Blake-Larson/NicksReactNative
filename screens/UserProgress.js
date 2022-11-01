@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, Button, ScrollView, SectionList, RefreshControl, TouchableOpacity, SafeAreaView,
+import { Text, View, FlatList, ScrollView, SectionList, RefreshControl, TouchableOpacity, SafeAreaView,
   StyleSheet, Pressable, Dimensions, Image, StatusBar } from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -68,21 +68,16 @@ const UserProgress = ({navigation}) => {
 
   useEffect(() => {
     getUserProgress()
-    console.log('use effect....')
   }, []);
 
-  const renderItem = ({ item }) => (
-      <Item series={item.series} status={item.status} />
-    );
 
-  const daySelected = (day) =>
-  {
+  const daySelected = (day) => {
+
     setSelectedDate([]);
 
     for (let i = 0; i < progress.length; i++)
     {
       const schedule_date = progress[i]['schedule_date'].replace(/T.*/, '')
-
       if (schedule_date == day.dateString) setSelectedDate([progress[i]])
     }
   }
@@ -222,9 +217,6 @@ const UserProgress = ({navigation}) => {
     </SafeAreaView>
   )
 }
-
-//<View style={{ flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
-
 
 const styles = StyleSheet.create({
   centeredView: {

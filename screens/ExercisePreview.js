@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ImageBackground, Button, TouchableOpacity, Dimensions, Image, SafeAreaView, StatusBar, ScrollView } from 'react-native';
+import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
 import VideoComponent from '../components/VideoComponent.js';
@@ -21,13 +21,11 @@ const ExercisePreview = ({navigation, route}) => {
   apiParams['time'] = route.params[1]['params'][0].time;
   apiParams['json_content'] = route.params[1]['params'][0].json_content;
 
-//  const [exerciseid, setExerciseid] = useState([]);
   const [name, setName] = useState([]);
   const [previewTime, setPreviewTime] = useState([]);
 
   useEffect(() => {
 
-    console.log(route.params[0])
     setName(route.params[0]['name']);
 
     let seconds = route.params[0]['seconds'];

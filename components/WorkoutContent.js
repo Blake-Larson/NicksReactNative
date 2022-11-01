@@ -17,50 +17,55 @@ const WorkoutContent = ({navigation, route, content}) => {
     navigation.navigate('ExercisePreview', [item, route])
   }
 
-  const loading = false;
   return (
     <View>
     {
       content.map((item, index) => (
-          <View key={index} style={{flexDirection:"row", paddingLeft: 28, paddingTop: 10}}>
-            <View style={{flex: 1}}>
-              <TouchableOpacity onPress={() => exercisePreview(item)}>
-                <Video
-                  style={{width: "100%", marginLeft: 13}}
-                  style={styles.backgroundVideo}
-                  source={{uri: `file://${RNFS.DocumentDirectoryPath}/${item.exerciseid}.mp4`}}
-                  paused={true}
-                  />
-                <ImageBackground
-                  style={{color: "white", height: 36, width: 36, opacity: .7, position: "absolute", top: 18, marginLeft: 67}}
-                  source={require("../media/previewbutton.png")}>
-                </ImageBackground>
-                <Text style={{color: "white", fontWeight: "bold", top: 65, paddingBottom: 80, zIndex: 10, textAlign: "center"}}>PREVIEW</Text>
-
-              </TouchableOpacity>
-            </View>
-            <View style={{flex:1, marginRight: 10, marginLeft: 20, marginTop: 10}}>
-              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "System"}}>{item.name}</Text>
-              <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>
-                {item.minutes} {': '}
-                {item.seconds == '0' && <Text style={{color: "white"}}>{'00'}</Text>}
-                {item.seconds == '1' && <Text style={{color: "white"}}>{'01'}</Text>}
-                {item.seconds == '2' && <Text style={{color: "white"}}>{'02'}</Text>}
-                {item.seconds == '3' && <Text style={{color: "white"}}>{'03'}</Text>}
-                {item.seconds == '4' && <Text style={{color: "white"}}>{'04'}</Text>}
-                {item.seconds == '5' && <Text style={{color: "white"}}>{'05'}</Text>}
-                {item.seconds == '6' && <Text style={{color: "white"}}>{'06'}</Text>}
-                {item.seconds == '7' && <Text style={{color: "white"}}>{'07'}</Text>}
-                {item.seconds == '8' && <Text style={{color: "white"}}>{'08'}</Text>}
-                {item.seconds == '9' && <Text style={{color: "white"}}>{'09'}</Text>}
-                {
-                  item.seconds != '0' && item.seconds != '1' && item.seconds != '2' && item.seconds != '3' && item.seconds != '4' && item.seconds != '5'
-                  && item.seconds != '6' && item.seconds != '7' && item.seconds != '8' && item.seconds != '9'
-                  && <Text style={{color: "white"}}>{item.seconds}</Text>
-                }
-              </Text>
-            </View>
+        <View key={index} style={{flexDirection:"row", paddingLeft: 28, paddingTop: 10}}>
+          <View style={{flex: 1}}>
+            <TouchableOpacity onPress={() => exercisePreview(item)}>
+              <Video
+                style={{width: "100%", marginLeft: 13}}
+                style={styles.backgroundVideo}
+                source={{uri: `file://${RNFS.DocumentDirectoryPath}/${item.exerciseid}.mp4`}}
+                paused={true}
+                />
+              <ImageBackground
+                style={{color: "white", height: 36, width: 36, opacity: .7, position: "absolute", top: 18, marginLeft: 67}}
+                source={require("../media/previewbutton.png")}>
+              </ImageBackground>
+              <Text style={{color: "white", top: 65, paddingBottom: 80, zIndex: 10, textAlign: "center"}}>PREVIEW</Text>
+            </TouchableOpacity>
           </View>
+          <View style={{flex:1, marginRight: 10, marginLeft: 20, marginTop: 10}}>
+            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "System"}}>{item.name}</Text>
+            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>
+              {item.minutes} {': '}
+              {item.seconds == '0' && <Text style={{color: "white"}}>{'00'}</Text>}
+              {item.seconds == '1' && <Text style={{color: "white"}}>{'01'}</Text>}
+              {item.seconds == '2' && <Text style={{color: "white"}}>{'02'}</Text>}
+              {item.seconds == '3' && <Text style={{color: "white"}}>{'03'}</Text>}
+              {item.seconds == '4' && <Text style={{color: "white"}}>{'04'}</Text>}
+              {item.seconds == '5' && <Text style={{color: "white"}}>{'05'}</Text>}
+              {item.seconds == '6' && <Text style={{color: "white"}}>{'06'}</Text>}
+              {item.seconds == '7' && <Text style={{color: "white"}}>{'07'}</Text>}
+              {item.seconds == '8' && <Text style={{color: "white"}}>{'08'}</Text>}
+              {item.seconds == '9' && <Text style={{color: "white"}}>{'09'}</Text>}
+              {
+                item.seconds != '0' &&
+                item.seconds != '1' &&
+                item.seconds != '2' &&
+                item.seconds != '3' &&
+                item.seconds != '4' &&
+                item.seconds != '5' &&
+                item.seconds != '6' &&
+                item.seconds != '7' &&
+                item.seconds != '8' &&
+                item.seconds != '9' && <Text style={{color: "white"}}>{item.seconds}</Text>
+              }
+            </Text>
+          </View>
+        </View>
       ))
     }
     </View>

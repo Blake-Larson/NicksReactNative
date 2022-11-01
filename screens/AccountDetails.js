@@ -5,12 +5,6 @@ import Paywall from '../components/Paywall.js';
 
 const AccountDetails = ({navigation, subInfo, setSubInfo, paywallShown, setPaywallShown}) => {
 
-  const [offer, setOffer] = useState(null);
-  const [store, setStore] = useState([]);
-  const [proInfo, setProInfo] = useState([]);
-  const [expirationDate, setExpirationDate] = useState([]);
-  const [isPurchasing, setIsPurchasing] = useState(false);
-
   return (
     <SafeAreaView style={{flex: 1,
       justifyContent: 'center',
