@@ -11,10 +11,6 @@ import appleAuth, {
 
 const Profile = ({setValidLogin, navigation}) => {
 
-  const [price, setPrice] = useState([]);
-  const [purchase, setPurchase] = useState([]);
-  const [productId, setProductId] = useState([]);
-  const [products, setProducts] = useState([]);
   const [email, setEmail] = useState([]);
   const [deleteModal, setDeleteModal] = useState(false);
 
