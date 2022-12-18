@@ -9,7 +9,8 @@ const Settings = ({setValidLogin, navigation}) => {
 
   const logOut = () => {
 
-    AsyncStorage.setItem("REFRESH_TOKEN", "");
+    AsyncStorage.setItem("HW_ACCESS_TOKEN", "");
+    AsyncStorage.setItem("HW_REFRESH_TOKEN", "");
     setValidLogin(false);
   };
 

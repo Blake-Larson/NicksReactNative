@@ -5,7 +5,7 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const WeeklyIcon = ({completedWorkouts, setDateIndex, dateIndex, componentIndex, weekday, scrollFlatListIndex}) => {
 
   return (
-    <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => {setDateIndex(componentIndex);  scrollFlatListIndex(componentIndex)}}>
+    <Pressable style={{ width: ScreenWidth / 7, alignItems: 'center'}} onPress={() => { scrollFlatListIndex(componentIndex); setDateIndex(componentIndex); }}>
     {
       completedWorkouts.includes(componentIndex) ?
       <Image style={{

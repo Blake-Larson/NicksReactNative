@@ -59,7 +59,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
         }
       });
   }
-  
+
   const checkPaywall = async (item) => {
 
     if (paywallShown == true) setModalVisible(true)
@@ -80,7 +80,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
       setDateIndex(viewableItems.changed[0]['index'])
    }, []);
 
-  const viewConfigRef = React.useRef({ waitForInteraction: true, viewAreaCoveragePercentThreshold: 50, minimumViewTime: 300 });
+  const viewConfigRef = React.useRef({ waitForInteraction: true, minimumViewTime: 1000, itemVisiblePercentThreshold: 800 });
 
   return (
     <SafeAreaView style={{flex: 1,
@@ -88,94 +88,96 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
       backgroundColor: '#ECF0F1',
       backgroundColor: "black"
       }}>
+      {
+        !workouts || !completedWorkouts &&
+        <View style={{color: "red", height: 800, width: 800}}>
+          <Text>TODO: TEST</Text>
+        </View>
+      }
       <StatusBar backgroundColor="black" barStyle={"light-content"} hidden={false} />
       <ScrollView style={{ marginTop: 0, flex: 1, width: ScreenWidth, paddingBottom: 10, backgroundColor: "black"}} refreshControl={<RefreshControl tintColor={"white"} refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <View style={{"backgroundColor": "black", paddingTop: 25}}>
-      {
-        workouts &&
-        <ScrollView>
-          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10}}>
-            <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
-            <Image style={{height: 50, width: 50, marginLeft: 20}} source={require('../media/hwlogo.png')}/>
-          </View>
-          <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={0} weekday={"M"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={1} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={2} weekday={"W"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={3} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={4} weekday={"F"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={5} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
-            <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={6} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
-          </View>
-          <FlatList
-            ref={ref}
-            showsHorizontalScrollIndicator={false}
-            data={workouts}
-            horizontal
-            viewabilityConfig={viewConfigRef.current}
-            onViewableItemsChanged={(onViewCallBack)}
-            initialScrollIndex={dateIndex}
-            getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
-            renderItem={({ item, index: dateIndex }) => (
-              <View style={{width: ITEM_SIZE}}>
-                <View style={{marginHorizontal: SPACING, padding: SPACING, borderRadius: 34}}>
-                  <TouchableOpacity onPress={() => {checkPaywall(item)}}>
-                    <ImageBackground
-                      style={styles.posterImage}
-                      source={{uri: item.filename}}
-                      borderRadius={8}>
-                        <Text
-                          style={{fontSize: 35,
-                          position: "absolute",
-                          bottom: 10,
-                          left: 25,
-                          opacity: 0.9,
-                          color: "#fffdfe",
-                          fontWeight: "bold",
-                          fontFamily: "System" }}>
-                          {item.name}
-                        </Text>
-                        <Text style={{fontSize: 25,
-                          position: "absolute",
-                          top: 10,
-                          left: 15,
-                          opacity: 0.9,
-                          color: "#fffdfe",
-                          fontWeight: "bold",
-                          fontFamily: "System" }}>{item.day}</Text>
-                        {
-                          paywallShown == true &&
-                          <Image style={{position: "absolute",
-                            top: 15,
-                            right: 30,
-                            height: 30,
-                            width: 30 }} source={require("../media/padlock.png")} />
-                        }
-                    </ImageBackground>
-                  </TouchableOpacity>
+        <View style={{"backgroundColor": "black", paddingTop: 25}}>
+          <View>
+            <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10}}>
+              <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
+            </View>
+            <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={0} weekday={"M"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={1} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={2} weekday={"W"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={3} weekday={"T"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={4} weekday={"F"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={5} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
+              <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={6} weekday={"S"} scrollFlatListIndex={scrollFlatListIndex}/>
+            </View>
+            <FlatList
+              ref={ref}
+              showsHorizontalScrollIndicator={false}
+              data={workouts}
+              horizontal
+              viewabilityConfig={viewConfigRef.current}
+              onViewableItemsChanged={(onViewCallBack)}
+              initialScrollIndex={dateIndex}
+              getItemLayout={(data, index) => { return {length: ITEM_SIZE, offset: ITEM_SIZE * index, index} }}
+              renderItem={({ item, index: dateIndex }) => (
+                <View style={{width: ITEM_SIZE}}>
+                  <View style={{marginHorizontal: SPACING, padding: SPACING, borderRadius: 34}}>
+                    <TouchableOpacity onPress={() => {checkPaywall(item)}}>
+                      <ImageBackground
+                        style={styles.posterImage}
+                        source={{uri: item.filename}}
+                        borderRadius={8}>
+                          <Text
+                            style={{fontSize: 35,
+                            position: "absolute",
+                            bottom: 10,
+                            left: 25,
+                            opacity: 0.9,
+                            color: "#fffdfe",
+                            fontWeight: "bold",
+                            fontFamily: "System" }}>
+                            {item.name}
+                          </Text>
+                          <Text style={{fontSize: 25,
+                            position: "absolute",
+                            top: 10,
+                            left: 15,
+                            opacity: 0.9,
+                            color: "#fffdfe",
+                            fontWeight: "bold",
+                            fontFamily: "System" }}>{item.day}</Text>
+                          {
+                            paywallShown == true &&
+                            <Image style={{position: "absolute",
+                              top: 15,
+                              right: 30,
+                              height: 30,
+                              width: 30 }} source={require("../media/padlock.png")} />
+                          }
+                      </ImageBackground>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            )}
-          />
-          <Modal
-           animationType="slide"
-           transparent={true}
-           visible={modalVisible}
-           onRequestClose={() => { setModalVisible(!modalVisible)}}>
-             <View style={[styles.centeredView]}>
-               <View style={styles.modalView}>
-                 <Pressable
-                   style={[styles.button, styles.buttonClose]}
-                   onPress={() => setModalVisible(!modalVisible)}>
-                   <Text style={styles.textStyle}>X</Text>
-                 </Pressable>
-                 <Paywall subInfo={subInfo} setSubInfo={setSubInfo} paywallShown={paywallShown} setPaywallShown={setPaywallShown} />
+              )}
+            />
+            <Modal
+             animationType="slide"
+             transparent={true}
+             visible={modalVisible}
+             onRequestClose={() => { setModalVisible(!modalVisible)}}>
+               <View style={[styles.centeredView]}>
+                 <View style={styles.modalView}>
+                   <Pressable
+                     style={[styles.button, styles.buttonClose]}
+                     onPress={() => setModalVisible(!modalVisible)}>
+                     <Text style={styles.textStyle}>X</Text>
+                   </Pressable>
+                   <Paywall subInfo={subInfo} setSubInfo={setSubInfo} paywallShown={paywallShown} setPaywallShown={setPaywallShown} />
+                 </View>
                </View>
-             </View>
-           </Modal>
-        </ScrollView>
-      }
-      </View>
+             </Modal>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

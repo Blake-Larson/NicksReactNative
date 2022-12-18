@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ScrollView, StatusBar, StyleSheet, Text, Button, View, Image, Stack, Dimensions } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, Button, View, Image, Stack, Dimensions, TextInput, SafeAreaView,
+  RefreshControl, TouchableOpacity } from 'react-native';
 import { BrowserRouter } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faRunning, faCog, faChartBar } from '@fortawesome/free-solid-svg-icons';
@@ -16,6 +17,10 @@ import ExercisePreview from './screens/ExercisePreview';
 import AccountDetails from './screens/AccountDetails';
 import Profile from './screens/Profile';
 import SettingsHelp from './screens/SettingsHelp';
+import Login from './screens/Login';
+import SignIn from './screens/SignIn';
+import SignUp from './screens/SignUp';
+import VerifyEmail from './screens/VerifyEmail';
 import AppleAuth from './components/AppleAuth';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,6 +31,9 @@ import Purchases from 'react-native-purchases';
 import { useIsFocused } from "@react-navigation/native";
 import * as Progress from 'react-native-progress';
 const moment = require('moment');
+import apiMiddleware from './backend/apiMiddleware.js';
+
+// import EncryptedStorage from 'react-native-encrypted-storage';
 
 const App = () => {
 
@@ -33,7 +41,7 @@ const App = () => {
   const [validLogin, setValidLogin] = useState(false);
   const [loadingScreen, setLoadingScreen] = useState(true);
   const [token, setToken] = useState({});
-  const [paywallShown, setPaywallShown] = useState(true);
+  const [paywallShown, setPaywallShown] = useState(false);
   const [subInfo, setSubInfo] = useState([]);
   const [completedWorkouts, setCompletedWorkouts] = useState([]);
   const [workoutComplete, setWorkoutComplete] = useState(false);
@@ -41,51 +49,29 @@ const App = () => {
 
   const validateSession = async () => {
 
-    await getWorkouts();
-
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    const sub = await AsyncStorage.getItem("APPLE_SUB");
-    console.log('storageToken', storageToken)
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-    myHeaders.append('Authorization', storageToken);
-
-    const response = await fetch(`https://hautewellnessapp.com/apple/callback`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({"id_token": storageToken})
-    });
-    console.log('response1', response)
-    if (response.status != 200 && response.status != 201 && response.status != 203 && response.status != 204 )
+    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaData = JSON.parse(userMetaDataString);
+    if (!userMetaData[0])
     {
-      console.log('login error', response.status);
-      setLoadingScreen(false);
-      return 'error';
+       setLoadingScreen(false);
+       setValidLogin(false);
     }
 
+    const userid = userMetaData[0]['userid'];
     const userParams = {};
-    userParams['apple_sub'] = sub;
-    userParams['id_token'] = storageToken;
+    userParams['userid'] = userid;
+    const api = `https://9llcmc2sab.execute-api.us-west-1.amazonaws.com/dev/userValidation`;
 
-    const userResponse = await fetch(`https://hautewellnessapp.com/api/user_metadata`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(userParams)
-    });
-    console.log('userResponse', userResponse)
-
-    if (userResponse.status != 200 && userResponse.status != 201 && userResponse.status != 203 && userResponse.status != 204 )
+    const userResponse = await apiMiddleware(api, userParams, setValidLogin)
+    if (!userResponse) return setLoadingScreen(false);
+    if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
-      console.log('login error', response.status)
+      console.log('login error', userResponse.status)
       setLoadingScreen(false);
       return 'error';
     }
     const metadata = await userResponse.json();
     await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
-
-    setLoadingScreen(false);
     setValidLogin(true);
   }
 
@@ -99,17 +85,17 @@ const App = () => {
       badge: true,
       sound: true,
     }).then((data) => {
-      console.log('PushNotificationIOS.requestPermissions', data);
+    //  console.log('PushNotificationIOS.requestPermissions', data);
       // TODO: do I need to do anything here??
       // do these function listeners do anything? ??
     }, (err) => {
-      console.error('[NOTIFICATIONS] register error: ', err);
+    //  console.error('[NOTIFICATIONS] register error: ', err);
     });
   }
 
   const onRegistered = (deviceToken) => {
     setToken(deviceToken)
-    console.log('Registered For Remote Push', `Device Token: ${deviceToken}`)
+  //  console.log('Registered For Remote Push', `Device Token: ${deviceToken}`)
   };
 
   const onRemoteNotification = (notification) => {
@@ -136,8 +122,8 @@ const App = () => {
     console.log('checking user membership')
     try {
       const customerInfo = await Purchases.getCustomerInfo();
-      console.log('customerInfo')
-      console.log(JSON.stringify(customerInfo))
+    //  console.log('customerInfo')
+    //  console.log(JSON.stringify(customerInfo))
 
       setSubInfo(customerInfo);
 
@@ -171,7 +157,7 @@ const App = () => {
       const fri = moment(date).isoWeekday(5).format('YYYY-MM-DD');
       const sat = moment(date).isoWeekday(6).format('YYYY-MM-DD');
       const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
-      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+      const access_token = await AsyncStorage.getItem("HW_ACCESS_TOKEN");
 
       const api = `https://a7h5fjn6ig.execute-api.us-west-1.amazonaws.com/dev/getWorkoutsThisWeek`;
       const apiParams = {};
@@ -182,16 +168,10 @@ const App = () => {
       apiParams['friday'] = fri;
       apiParams['saturday'] = sat;
       apiParams['sunday'] = sun;
-      apiParams['id_token'] = storageToken;
-      console.log('got workout resopnse')
 
-      const response = await fetch(api, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       credentials: 'same-origin',
-       body: JSON.stringify(apiParams)
-      });
+      const response = await apiMiddleware(api, apiParams, setValidLogin)
       const scheduleData = await response.json();
+
       const weekday = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"];
       const workoutWeek = [];
 
@@ -213,17 +193,7 @@ const App = () => {
         workoutWeek.push(weeklyObj);
       }
       setWorkouts(workoutWeek)
-  /*
-    //API GATEWAY -> LAMBDA EXAMPLE
-      const api2 = `https://1tykl3w05h.execute-api.us-west-1.amazonaws.com/default/getWorkoutsThisWeek`;
-      const response2 = await fetch(api2, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       credentials: 'same-origin',
-      });
-      const jsonTest = await response2.json();
-      console.log('output 2', jsonTest)
-  */
+      setLoadingScreen(false);
     };
 
     const getCompletedWorkouts = async () => {
@@ -238,7 +208,6 @@ const App = () => {
       completedWeekArray.push(moment(date).isoWeekday(6).format('YYYY-MM-DD'));
       completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
 
-      const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
       const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
       const userMetaData = JSON.parse(userMetaDataString);
       const userid = userMetaData[0]['userid'];
@@ -253,14 +222,8 @@ const App = () => {
       apiParams['saturday'] = moment(date).isoWeekday(6).format('YYYY-MM-DD');
       apiParams['sunday'] = moment(date).isoWeekday(7).format('YYYY-MM-DD');
       apiParams['userid'] = userid;
-      apiParams['id_token'] = storageToken;
 
-      const response = await fetch(api, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       credentials: 'same-origin',
-       body: JSON.stringify(apiParams)
-      });
+      const response = await apiMiddleware(api, apiParams, setValidLogin);
       const scheduleData = await response.json();
       const outputWorkoutsCompleted = [];
 
@@ -271,7 +234,6 @@ const App = () => {
         outputWorkoutsCompleted.push(test);
       }
       setCompletedWorkouts(outputWorkoutsCompleted);
-      console.log('completedWorkouts in use effect !', completedWorkouts)
     }
 
   useEffect(() => {
@@ -281,8 +243,21 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    getCompletedWorkouts();
+
+    if (workoutComplete == true)
+    {
+      getCompletedWorkouts();
+      setWorkoutComplete(false);
+    }
   }, [workoutComplete]);
+
+  useEffect(() => {
+    if (validLogin == true)
+    {
+      getWorkouts();
+      getCompletedWorkouts();
+    }
+  }, [validLogin]);
 
 
   useEffect(() => {
@@ -316,27 +291,9 @@ const App = () => {
     )
   }
 
-  if (!validLogin) {
-    return (
-      <View style={{flex:1, alignItems: 'center', height: ScreenHeight, backgroundColor: "black"}}>
-        <View style={{position:'absolute', bottom: 340}}>
-          <Image source={require('./media/hwlogo.png')} style={{height: 300, width: 300,  borderRadius: 25}} />
-        </View>
-        <View style={{position:'absolute', bottom: 190, left: 10}}>
-          <Text style={{color: "white", fontWeight: "bold", fontSize: 45, marginTop: 100}}> Haute Wellness </Text>
-        </View>
-        <View style={{position:'absolute', bottom:80}}>
-          <AppleAuth setValidLogin={setValidLogin} />
-        </View>
-      </View>
-    );
-  }
-
-
   const Tab = createBottomTabNavigator();
   const Stack = createNativeStackNavigator();
-
-  function HomeTabs() {
+  function Home() {
     return (
       <Tab.Navigator initialRouteName="Workouts" screenOptions={{
         tabBarShowLabel: false,
@@ -349,7 +306,7 @@ const App = () => {
         tabBarActiveTintColor: '#D6B22E'}}>
           <Tab.Screen
             name="UserProgress"
-            component={UserProgress}
+            children={({navigation})=><UserProgress setValidLogin={setValidLogin} navigation={navigation}/>}
             options={{
               headerShown: false,
               tabBarOptions: { activeTintColor: '#fff',
@@ -385,39 +342,59 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer options={{ color: "black" }} >
+    <NavigationContainer options={{ color: "black" }}>
       <Stack.Navigator >
-        <Stack.Screen options={{ headerShown: false, activeTintColor: '#fff',
-        activeBackgroundColor: '#c4461c' }}  name="Home" component={HomeTabs} />
-        <Stack.Screen name="WorkoutSelected" options={{headerShown: false}}>
-          {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route}/>)}
-        </Stack.Screen>
-        <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
-          {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route} setWorkoutComplete={setWorkoutComplete} workoutComplete={workoutComplete}/>)}
-        </Stack.Screen>
-        <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
-          {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
-        </Stack.Screen>
-        <Stack.Screen name="AccountDetails" options={{headerShown: false}}>
-          {({navigation, route}) => (
-            <AccountDetails
-              navigation={navigation}
-              route={route}
-              paywallShown={paywallShown}
-              setPaywallShown={setPaywallShown}
-              subInfo={subInfo}
-              setSubInfo={setSubInfo}
-            />)}
-        </Stack.Screen>
-        <Stack.Screen name="Profile" options={{headerShown: false}}>
-          {({navigation, route}) => (<Profile navigation={navigation} setValidLogin={setValidLogin} route={route}/>)}
-        </Stack.Screen>
-        <Stack.Screen name="SettingsHelp" options={{headerShown: false}}>
-          {({navigation, route}) => (<SettingsHelp navigation={navigation} route={route}/>)}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
-  )
+      {
+        validLogin == false ? (
+        <Stack.Group>
+          <Stack.Screen name="Login" options={{headerShown: false}}>
+            {({navigation, route}) => (<Login navigation={navigation} route={route} setValidLogin={setValidLogin} />)}
+          </Stack.Screen>
+          <Stack.Screen name="SignIn" options={{headerShown: false}}>
+            {({navigation, route}) => (<SignIn navigation={navigation} route={route} setValidLogin={setValidLogin}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="SignUp" options={{headerShown: false}}>
+            {({navigation, route}) => (<SignUp navigation={navigation} route={route} setValidLogin={setValidLogin}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="VerifyEmail" options={{headerShown: false}}>
+            {({navigation, route}) => (<VerifyEmail navigation={navigation} route={route} setValidLogin={setValidLogin}/>)}
+          </Stack.Screen>
+        </Stack.Group>
+      ) : (
+        <Stack.Group>
+          <Stack.Screen options={{ headerShown: false, activeTintColor: '#fff',
+            activeBackgroundColor: '#c4461c' }}  name="Home" component={Home} />
+          <Stack.Screen name="WorkoutSelected" options={{headerShown: false}}>
+            {({navigation, route}) => (<WorkoutSelected navigation={navigation} route={route} setValidLogin={setValidLogin} />)}
+          </Stack.Screen>
+          <Stack.Screen name="WorkoutCourse" options={{headerShown: false}} >
+            {({navigation, route}) => (<WorkoutCourse navigation={navigation} route={route} setWorkoutComplete={setWorkoutComplete} workoutComplete={workoutComplete} setValidLogin={setValidLogin}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="ExercisePreview" options={{headerShown: false}}>
+            {({navigation, route}) => (<ExercisePreview navigation={navigation} route={route}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="AccountDetails" options={{headerShown: false}}>
+            {({navigation, route}) => (
+              <AccountDetails
+                navigation={navigation}
+                route={route}
+                paywallShown={paywallShown}
+                setPaywallShown={setPaywallShown}
+                subInfo={subInfo}
+                setSubInfo={setSubInfo}
+              />)}
+          </Stack.Screen>
+          <Stack.Screen name="Profile" options={{headerShown: false}}>
+            {({navigation, route}) => (<Profile navigation={navigation} setValidLogin={setValidLogin} route={route}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="SettingsHelp" options={{headerShown: false}}>
+            {({navigation, route}) => (<SettingsHelp navigation={navigation} route={route}/>)}
+          </Stack.Screen>
+        </Stack.Group>
+      )}
+      </Stack.Navigator >
+    </NavigationContainer >
+  );
 };
 
 const styles = StyleSheet.create({

@@ -8,6 +8,7 @@ import DatePicker from 'react-native-date-picker';
 const moment = require('moment');
 import * as Progress from 'react-native-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+import apiMiddleware from '../backend/apiMiddleware.js';
 
 const RNFS = require("react-native-fs");
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,7 +18,7 @@ const HEADER_MAX_HEIGHT = 340;
 const HEADER_MIN_HEIGHT = 120;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-const WorkoutSelected = ({navigation, route, uid}) => {
+const WorkoutSelected = ({navigation, route, uid, setValidLogin}) => {
 
   const title = route.params[0].name;
   const image = route.params[0].filename;
@@ -60,21 +61,15 @@ const WorkoutSelected = ({navigation, route, uid}) => {
       exerciseArray.push(exerciseid);
     }
     const finalArr = exerciseArray.join(',');
-
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+
+    const api = `https://hb2ah52aqf.execute-api.us-west-1.amazonaws.com/dev/getExerciseById`;
     const apiParams = {};
     apiParams['exerciseid'] = finalArr;
-    apiParams['id_token'] = storageToken;
 
-    const response = await fetch(`https://hautewellnessapp.com/api/getExerciseById`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(apiParams)
-    });
+    const response = await apiMiddleware(api, apiParams, setValidLogin);
     // TODO: add error messages
     const data = await response.json();
-
     for (let i = 0; i < content.length; i++)
     {
       content[i]['filename'] = data[i]['filename'];

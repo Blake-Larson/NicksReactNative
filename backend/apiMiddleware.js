@@ -22,50 +22,41 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     const access_token = output.access_token;
 
     await AsyncStorage.setItem("HW_ACCESS_TOKEN", access_token);
-    console.log(`^^^^^^^^^^^^^^^^^^^`)
     return access_token;
   }
 
 const apiMiddleware = async (apiName, params, setValidLogin) => {
 
-//  setValidLogin(false)
-
   const access_token = await AsyncStorage.getItem("HW_ACCESS_TOKEN");
   const refresh_token = await AsyncStorage.getItem("HW_REFRESH_TOKEN");
 
+  if (!access_token && !refresh_token && apiName != "https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn") return;
   const userResponse = await fetch(apiName, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${access_token}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `${access_token}` },
     credentials: 'same-origin',
     body: JSON.stringify(params)
   });
 
   if (userResponse.status == 401)
   {
-    console.log('RETRY!!!!!!!!!')
-    console.log(apiName)
     const new_access_token = await newRefreshTokens();
-    //const access_token = await AsyncStorage.getItem("HW_ACCESS_TOKEN");
-
-    console.log('OLD', access_token)
     console.log('NEW', new_access_token)
 
     const retryResponse = await fetch(apiName, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${new_access_token}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `${new_access_token}` },
       credentials: 'same-origin',
       body: JSON.stringify(params)
     });
-    console.log('retryResponse.status')
 
-    console.log(retryResponse.status)
+    console.log('retryResponse.status', retryResponse.status)
     if (retryResponse.status != "200" && retryResponse.status != "201" && retryResponse.status != "203" && retryResponse.status != "204" )
     {
       console.log('invalid refresh token')
-//      console.log(setValidLogin)
       setValidLogin(false)
     }
-    return retryResponse;r
+    return retryResponse;
   }
   return userResponse;
 }

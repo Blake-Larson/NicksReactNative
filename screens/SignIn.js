@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, ScrollView,
   TextInput, SafeAreaView, StatusBar } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiMiddleware from '../backend/apiMiddleware.js';
 
 const SignIn = ({navigation, route, setValidLogin}) => {
 
@@ -11,38 +13,27 @@ const SignIn = ({navigation, route, setValidLogin}) => {
 
   const login = async () => {
 
-    console.log(email)
-    console.log(password)
+    const api = `https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn`;
+    const apiParams = {};
+    apiParams['password'] = password;
+    apiParams['username'] = email;
 
-    const bodyParams = {}
-    bodyParams['password'] = password;
-    bodyParams['username'] = email;
-
-    const response = await fetch(`https://optwbuaeyfdihk75f7ynlrmfkm0rqzjz.lambda-url.us-west-1.on.aws/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(bodyParams)
-    });
-    console.log('response', response)
-    console.log('response', response.status);
-    console.log(typeof response.status)
+    const response = await apiMiddleware(api, apiParams, setValidLogin);
     const output = await response.json();
-    console.log(output)
 
-  //  if (response.status == 200) navigation.navigate('Home', [])
-    if (response.status == 200) setValidLogin(true);
+    await AsyncStorage.setItem("HW_ACCESS_TOKEN", output.accessToken.jwtToken);
+    await AsyncStorage.setItem("HW_REFRESH_TOKEN", output.refreshToken.token);
 
-    if (response.status == '200') navigation.navigate('Home', [])
+    const metadataApi = `https://cizuaaja9g.execute-api.us-west-1.amazonaws.com/dev/hw_getUserMetaData`;
+    const metadataApiParams = {};
+    metadataApiParams['email'] = email;
+
+    const metadataResponse = await apiMiddleware(metadataApi, metadataApiParams, setValidLogin);
+    const metadata = await metadataResponse.json();
+
+    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
+    setValidLogin(true);
     if (response.status == '200') setValidLogin(true);
-
-/*
-    const params = {};
-    params['name'] = name;
-    params['email'] = email;
-
-    navigation.navigate('VerifyEmail', [params]);
-*/
   }
 
   return (

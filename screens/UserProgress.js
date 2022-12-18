@@ -4,10 +4,12 @@ import { Text, View, FlatList, ScrollView, SectionList, RefreshControl, Touchabl
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BadgeIcon from '../components/BadgeIcon.js';
+import apiMiddleware from '../backend/apiMiddleware.js';
+
 const moment = require('moment');
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 
-const UserProgress = ({navigation}) => {
+const UserProgress = ({navigation, setValidLogin}) => {
 
   const [progress, setProgress] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -32,20 +34,15 @@ const UserProgress = ({navigation}) => {
     const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
     const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
     const userMetaData = JSON.parse(userMetaDataString);
+
+    //TODO: add error/invalid login screen if user missing
     const userid = userMetaData[0]['userid'];
 
-    const api = `https://hautewellnessapp.com/api/getUserProgress`;
+    const api = `https://c5ib3p9oed.execute-api.us-west-1.amazonaws.com/dev/getUserProgress`;
     const apiParams = {};
     apiParams['userid'] = userid;
-    apiParams['id_token'] = storageToken;
 
-    const response = await fetch(api, {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     credentials: 'same-origin',
-     body: JSON.stringify(apiParams)
-    });
-
+    const response = await apiMiddleware(api, apiParams, setValidLogin);
     const jsonProgress = await response.json();
 
     const selectedDatesObj = {}

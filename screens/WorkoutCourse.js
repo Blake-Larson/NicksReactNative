@@ -6,12 +6,13 @@ import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import apiMiddleware from '../backend/apiMiddleware.js';
 
 const moment = require('moment');
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const RNFS = require("react-native-fs");
 
-const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete}) => {
+const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, setValidLogin}) => {
 
   const VideoData = route.params[0]['exerciseList'];
   const schedule_date = route.params[0]['schedule_date'];
@@ -133,22 +134,16 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete})
     const finalTimeString = `${totalMinutes}:${finalSeconds}`;
     setFinalTime(finalTimeString)
 
-    const api = `https://hautewellnessapp.com/api/completeWorkout`;
+    const api = `https://m9ozvicu7b.execute-api.us-west-1.amazonaws.com/dev/completeWorkout`;
     const apiParams = {};
     apiParams['userid'] = userid;
     apiParams['schedule_date'] = schedule_date;
-    apiParams['id_token'] = storageToken;
     apiParams['workout_name'] = workout_name;
     apiParams['completion_time'] = finalTimeString;
 
-    const response = await fetch(api, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(apiParams)
-    });
-
+    const response = await apiMiddleware(api, apiParams, setValidLogin);
     const scheduleData = await response.json();
+
     setWorkoutComplete(!workoutComplete);
   };
 
