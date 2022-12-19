@@ -39,6 +39,7 @@ CREATE TABLE WORKOUTS(
   workoutid VARCHAR(200) NOT NULL,
   name VARCHAR(200),
   filename VARCHAR(200),
+  description VARCHAR(200),
   json_content JSON,
   modified DATE,
   created DATE,
@@ -48,6 +49,7 @@ CREATE TABLE WORKOUTS(
 CREATE TABLE EXERCISES(
   exerciseid VARCHAR(120),
   name VARCHAR(120),
+  description VARCHAR(200),
   filename VARCHAR(120),
   json_content JSON,
   deleted CHAR(1) DEFAULT 'N'

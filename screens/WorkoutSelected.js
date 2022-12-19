@@ -18,7 +18,7 @@ const HEADER_MAX_HEIGHT = 340;
 const HEADER_MIN_HEIGHT = 120;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-const WorkoutSelected = ({navigation, route, uid, setValidLogin}) => {
+const WorkoutSelected = ({navigation, route, setValidLogin}) => {
 
   const title = route.params[0].name;
   const image = route.params[0].filename;
@@ -26,6 +26,7 @@ const WorkoutSelected = ({navigation, route, uid, setValidLogin}) => {
   const json_content = JSON.parse(route.params[0].json_content);
   const content = json_content['course_content'];
   const schedule_date = route.params[0]['schedule_date'];
+  const description = route.params[0].description;
 
   const [exerciseList, setExerciseList] = useState([]);
   const [date, setDate] = useState(new Date());
@@ -74,6 +75,7 @@ const WorkoutSelected = ({navigation, route, uid, setValidLogin}) => {
     {
       content[i]['filename'] = data[i]['filename'];
       content[i]['name'] = data[i]['name'];
+      content[i]['description'] = data[i]['description'];
     }
     setFullWorkoutContent(content);
     setExerciseList(content);
@@ -294,6 +296,7 @@ const WorkoutSelected = ({navigation, route, uid, setValidLogin}) => {
         <Animated.View
          style={[styles.topBar, { transform: [{ scale: titleScale }, { translateY: titleTranslateY }] },]}>
           <Text style={styles.title}>{title}</Text>
+          <Text style={styles.description}>{description}</Text>
        </Animated.View>
        {
          downloadDone == true &&
@@ -437,9 +440,9 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   topBar: {
-    marginTop: 40,
+    marginTop: 20,
+    marginLeft: 20,
     height: 50,
-    alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     top: 0,
@@ -449,6 +452,14 @@ const styles = StyleSheet.create({
   title: {
     color: 'white',
     fontSize: 35,
+    fontWeight: "bold",
+    fontFamily: "System",
+  },
+  description: {
+    color: 'white',
+    marginTop: 10,
+    marginLeft: 15,
+    fontSize: 15,
     fontWeight: "bold",
     fontFamily: "System",
   },

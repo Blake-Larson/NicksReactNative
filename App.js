@@ -189,6 +189,7 @@ const App = () => {
         weeklyObj['name'] = row['name'];
         weeklyObj['filename'] = row['filename'];
         weeklyObj['json_content'] = row['json_content'];
+        weeklyObj['description'] = row['description'];
 
         workoutWeek.push(weeklyObj);
       }

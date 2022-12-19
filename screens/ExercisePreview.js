@@ -14,12 +14,14 @@ const ExercisePreview = ({navigation, route}) => {
 
   const exerciseid = route.params[0]['exerciseid'];
   const filename = route.params[0]['filename'];
+  const exercise_description = route.params[0]['description'];
 
   const apiParams = {};
-  apiParams['title'] = route.params[1]['params'][0].title;
+  apiParams['name'] = route.params[1]['params'][0].name;
   apiParams['image'] = route.params[1]['params'][0].image;
   apiParams['time'] = route.params[1]['params'][0].time;
   apiParams['json_content'] = route.params[1]['params'][0].json_content;
+  apiParams['description'] = route.params[1]['params'][0].description;
 
   const [name, setName] = useState([]);
   const [previewTime, setPreviewTime] = useState([]);
@@ -53,8 +55,9 @@ const ExercisePreview = ({navigation, route}) => {
         <TouchableOpacity style={{height: 35, marginLeft: 10, width: 30}} onPress={() => navigation.navigate('WorkoutSelected', [apiParams])}>
           <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/backarrow.png")}></ImageBackground>
         </TouchableOpacity>
-        <Text style={{marginTop: 0, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 250}}>{name}</Text>
-        <Text style={{marginTop: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
+        <Text style={{marginTop: 0, marginLeft: 15, fontSize: 38, fontWeight: "bold", color: "white", width: 350}}>{name}</Text>
+        <Text style={{marginTop: 10, marginLeft: 20, fontSize: 25, color: "white", width: 350}}>{exercise_description}</Text>
+        <Text style={{marginTop: 25, marginBottom: 25, marginLeft: 15, fontSize: 28, fontWeight: "bold", color: "white", width: 250}}>{previewTime}</Text>
         <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${exerciseid}.mp4`} awsLink={filename} pausedVideo={false} style={{marginTop: 30}}/>
       </ScrollView>
     </SafeAreaView>
