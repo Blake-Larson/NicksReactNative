@@ -6,7 +6,7 @@ import { ScrollView, StatusBar, StyleSheet, Text, Button, View, Image, Stack, Di
   RefreshControl, TouchableOpacity } from 'react-native';
 import { BrowserRouter } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faRunning, faCog, faChartBar } from '@fortawesome/free-solid-svg-icons';
+import { faRunning, faCog, faChartBar,faFileText } from '@fortawesome/free-solid-svg-icons';
 
 import Workouts from './screens/Workouts';
 import WorkoutSelected from './screens/WorkoutSelected';
@@ -21,9 +21,12 @@ import Login from './screens/Login';
 import SignIn from './screens/SignIn';
 import SignUp from './screens/SignUp';
 import VerifyEmail from './screens/VerifyEmail';
-import AppleAuth from './components/AppleAuth';
+import ForgotPassword from './screens/ForgotPassword';
+import PdfList from './screens/PdfList';
+import PdfViewer from './screens/PdfViewer';
+//import AppleAuth from './components/AppleAuth';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from "react-native-push-notification";
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
@@ -49,12 +52,13 @@ const App = () => {
 
   const validateSession = async () => {
 
-    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
     const userMetaData = JSON.parse(userMetaDataString);
-    if (!userMetaData[0])
+    if (!userMetaData || !userMetaData[0])
     {
        setLoadingScreen(false);
        setValidLogin(false);
+       return;
     }
 
     const userid = userMetaData[0]['userid'];
@@ -63,6 +67,7 @@ const App = () => {
     const api = `https://9llcmc2sab.execute-api.us-west-1.amazonaws.com/dev/userValidation`;
 
     const userResponse = await apiMiddleware(api, userParams, setValidLogin)
+    console.log(userResponse)
     if (!userResponse) return setLoadingScreen(false);
     if (userResponse.status != "200" && userResponse.status != "201" && userResponse.status != "203" && userResponse.status != "204" )
     {
@@ -71,7 +76,7 @@ const App = () => {
       return 'error';
     }
     const metadata = await userResponse.json();
-    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
+    await EncryptedStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setValidLogin(true);
   }
 
@@ -139,7 +144,8 @@ const App = () => {
 
   const purchaseSetup = async () => {
 
-    const sub = await AsyncStorage.getItem("APPLE_SUB");
+    const sub = await EncryptedStorage.getItem("APPLE_SUB");
+    if (!sub) return;
     Purchases.setDebugLogsEnabled(true);
     Purchases.configure({apiKey: "appl_lQHbtXbTPqowgQucoJxnfxzMeMz", appUserId: sub});
     const purchaseResult = await Purchases.logIn(sub);
@@ -157,7 +163,7 @@ const App = () => {
       const fri = moment(date).isoWeekday(5).format('YYYY-MM-DD');
       const sat = moment(date).isoWeekday(6).format('YYYY-MM-DD');
       const sun = moment(date).isoWeekday(7).format('YYYY-MM-DD');
-      const access_token = await AsyncStorage.getItem("HW_ACCESS_TOKEN");
+      const access_token = await EncryptedStorage.getItem("HW_ACCESS_TOKEN");
 
       const api = `https://a7h5fjn6ig.execute-api.us-west-1.amazonaws.com/dev/getWorkoutsThisWeek`;
       const apiParams = {};
@@ -209,7 +215,7 @@ const App = () => {
       completedWeekArray.push(moment(date).isoWeekday(6).format('YYYY-MM-DD'));
       completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
 
-      const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+      const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
       const userMetaData = JSON.parse(userMetaDataString);
       const userid = userMetaData[0]['userid'];
 
@@ -255,6 +261,7 @@ const App = () => {
   useEffect(() => {
     if (validLogin == true)
     {
+      console.log('validLogin', validLogin)
       getWorkouts();
       getCompletedWorkouts();
     }
@@ -330,6 +337,14 @@ const App = () => {
               tabBarOptions: { backgroundColor: "black", activeTintColor:'#D6B22E', visible: false},
               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faRunning } size={25} color={color}/>)
            }} />
+           <Tab.Screen
+             name="PdfList"
+             children={({navigation})=><PdfList setValidLogin={setValidLogin} navigation={navigation}/>}
+             options={{
+               headerShown: false,
+               tabBarOptions: { activeTintColor:'#D6B22E' },
+               tabBarIcon: ({color}) => (<FontAwesomeIcon icon={ faFileText } size={25} color={color}/>)
+           }}/>
           <Tab.Screen
             name="Settings"
             children={({navigation})=><Settings setValidLogin={setValidLogin} navigation={navigation}/>}
@@ -359,6 +374,9 @@ const App = () => {
           </Stack.Screen>
           <Stack.Screen name="VerifyEmail" options={{headerShown: false}}>
             {({navigation, route}) => (<VerifyEmail navigation={navigation} route={route} setValidLogin={setValidLogin}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="ForgotPassword" options={{headerShown: false}}>
+            {({navigation, route}) => (<ForgotPassword navigation={navigation} route={route} setValidLogin={setValidLogin}/>)}
           </Stack.Screen>
         </Stack.Group>
       ) : (
@@ -390,6 +408,9 @@ const App = () => {
           </Stack.Screen>
           <Stack.Screen name="SettingsHelp" options={{headerShown: false}}>
             {({navigation, route}) => (<SettingsHelp navigation={navigation} route={route}/>)}
+          </Stack.Screen>
+          <Stack.Screen name="PdfViewer" options={{headerShown: false}}>
+            {({navigation, route}) => (<PdfViewer navigation={navigation} route={route}/>)}
           </Stack.Screen>
         </Stack.Group>
       )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, ScrollView, SectionList, RefreshControl, TouchableOpacity, SafeAreaView,
   StyleSheet, Pressable, Dimensions, Image, StatusBar } from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import BadgeIcon from '../components/BadgeIcon.js';
 import apiMiddleware from '../backend/apiMiddleware.js';
 
@@ -31,8 +31,8 @@ const UserProgress = ({navigation, setValidLogin}) => {
 
   const getUserProgress = async () => {
 
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const storageToken = await EncryptedStorage.getItem("REFRESH_TOKEN");
+    const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
     const userMetaData = JSON.parse(userMetaDataString);
 
     //TODO: add error/invalid login screen if user missing

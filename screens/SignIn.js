@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, ScrollView,
   TextInput, SafeAreaView, StatusBar } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import apiMiddleware from '../backend/apiMiddleware.js';
 
 const SignIn = ({navigation, route, setValidLogin}) => {
@@ -10,29 +10,41 @@ const SignIn = ({navigation, route, setValidLogin}) => {
   const [hidePassword, setHidePassword] = useState(true);
   const [email, setEmail] = useState([]);
   const [password, setPassword] = useState([]);
+  const [loadingGif, setLoadingGif] = useState(false);
 
   const login = async () => {
 
+    setLoadingGif(true);
     const api = `https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn`;
     const apiParams = {};
     apiParams['password'] = password;
     apiParams['username'] = email;
+    const bypass = true;
 
-    const response = await apiMiddleware(api, apiParams, setValidLogin);
+    const response = await apiMiddleware(api, apiParams, setValidLogin, bypass);
+    console.log('response.status')
+
+    console.log(response.status)
+    if (response.status == 500) return setLoadingGif(false);
     const output = await response.json();
 
-    await AsyncStorage.setItem("HW_ACCESS_TOKEN", output.accessToken.jwtToken);
-    await AsyncStorage.setItem("HW_REFRESH_TOKEN", output.refreshToken.token);
+    console.log('output', output)
+    console.log(response)
+
+    await EncryptedStorage.setItem("HW_ACCESS_TOKEN", output.accessToken.jwtToken);
+    await EncryptedStorage.setItem("HW_REFRESH_TOKEN", output.refreshToken.token);
 
     const metadataApi = `https://cizuaaja9g.execute-api.us-west-1.amazonaws.com/dev/hw_getUserMetaData`;
     const metadataApiParams = {};
     metadataApiParams['email'] = email;
 
     const metadataResponse = await apiMiddleware(metadataApi, metadataApiParams, setValidLogin);
+    console.log(metadataResponse)
     const metadata = await metadataResponse.json();
 
-    await AsyncStorage.setItem("USER_METADATA", JSON.stringify(metadata));
+    await EncryptedStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setValidLogin(true);
+    setLoadingGif(false);
     if (response.status == '200') setValidLogin(true);
   }
 
@@ -61,12 +73,19 @@ const SignIn = ({navigation, route, setValidLogin}) => {
               }
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{backgroundColor: "black", width: "90%",height: 40, fontSize: 24, marginTop: 90, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword', [])} style={{backgroundColor: "black", width: "90%",height: 40, fontSize: 24, marginTop: 90, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
             <Text style={{color: "white"}}>Forgot Password</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => login()} style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
-            <Text style={{fontSize: 25, fontWeight: "bold"}}>Login</Text>
-          </TouchableOpacity>
+          {
+            loadingGif == false ?
+            <TouchableOpacity onPress={() => login()} style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
+              <Text style={{fontSize: 25, fontWeight: "bold"}}>Login</Text>
+            </TouchableOpacity>
+            :
+            <TouchableOpacity style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
+              <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/loading.gif")}></ImageBackground>
+            </TouchableOpacity>
+          }
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import Video from 'react-native-video';
 var RNFS = require("react-native-fs");
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View, FlatList, Button, Image, Dimensions, ScrollView,
   StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 

@@ -11,7 +11,6 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import apiMiddleware from '../backend/apiMiddleware.js';
 
 const RNFS = require("react-native-fs");
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import WorkoutContent from "../components/WorkoutContent.js";
 
 const HEADER_MAX_HEIGHT = 340;
@@ -62,7 +61,7 @@ const WorkoutSelected = ({navigation, route, setValidLogin}) => {
       exerciseArray.push(exerciseid);
     }
     const finalArr = exerciseArray.join(',');
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
+    const storageToken = await EncryptedStorage.getItem("REFRESH_TOKEN");
 
     const api = `https://hb2ah52aqf.execute-api.us-west-1.amazonaws.com/dev/getExerciseById`;
     const apiParams = {};

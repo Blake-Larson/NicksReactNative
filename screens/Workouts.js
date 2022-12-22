@@ -5,7 +5,7 @@ import AwsMedia from '../components/AwsMedia';
 import WorkoutSelected from './WorkoutSelected';
 import Paywall from '../components/Paywall';
 import WeeklyIcon from '../components/WeeklyIcon';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const moment = require('moment');

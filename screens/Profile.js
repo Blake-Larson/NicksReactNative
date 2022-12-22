@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, StyleSheet, TextInput, Modal, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import appleAuth, {
   AppleButton,
   AppleAuthError,
   AppleAuthRequestScope,
   AppleAuthRequestOperation,
 } from '@invertase/react-native-apple-authentication';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const Profile = ({setValidLogin, navigation}) => {
 
@@ -25,7 +25,7 @@ const Profile = ({setValidLogin, navigation}) => {
 
   const getUserMetaData = async () => {
 
-    const user_metadata = await AsyncStorage.getItem("USER_METADATA");
+    const user_metadata = await EncryptedStorage.getItem("USER_METADATA");
     const jsonOutput = JSON.parse(user_metadata);
 
     setEmail(jsonOutput[0]['email']);
@@ -37,8 +37,8 @@ const Profile = ({setValidLogin, navigation}) => {
 
   const saveUserMetaData = async () => {
 
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    const sub = await AsyncStorage.getItem("APPLE_SUB");
+    const storageToken = await EncryptedStorage.getItem("REFRESH_TOKEN");
+    const sub = await EncryptedStorage.getItem("APPLE_SUB");
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
@@ -57,12 +57,12 @@ const Profile = ({setValidLogin, navigation}) => {
       body: JSON.stringify(userParams)
     });
 
-    const userMetaData = await AsyncStorage.getItem("USER_METADATA");
+    const userMetaData = await EncryptedStorage.getItem("USER_METADATA");
     const json_userMetaData = JSON.parse(userMetaData);
 
     json_userMetaData[0]['firstname'] = firstName;
     json_userMetaData[0]['lastname'] = lastName;
-    AsyncStorage.setItem("USER_METADATA", JSON.stringify(json_userMetaData));
+    EncryptedStorage.setItem("USER_METADATA", JSON.stringify(json_userMetaData));
 
     setOriginalLastName(lastName);
     setOriginalFirstName(firstName);
@@ -89,7 +89,7 @@ const Profile = ({setValidLogin, navigation}) => {
     userParams['authorization_code'] = authorizationCode;
     console.log(userParams);
 
-    AsyncStorage.setItem("REFRESH_TOKEN", "");
+    EncryptedStorage.setItem("REFRESH_TOKEN", "");
     setValidLogin(false);
 /*
     const userResponse = await fetch(`https://hautewellnessapp.com/api/revokeAppleToken`, {

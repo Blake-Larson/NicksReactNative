@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
   const newRefreshTokens = async () => {
 
@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     newRefreshTokens
     `)
 
-    const refresh_token = await AsyncStorage.getItem("HW_REFRESH_TOKEN");
+    const refresh_token = await EncryptedStorage.getItem("HW_REFRESH_TOKEN");
     if (refresh_token == []) return;
     const api = `https://hautewellness.auth.us-west-1.amazoncognito.com/oauth2/token?refresh_token=${refresh_token}&&client_id=7mshr0490dpqjr78vb4bkt4sa5&grant_type=refresh_token`;
 
@@ -21,22 +21,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     const output = await userResponse.json();
     const access_token = output.access_token;
 
-    await AsyncStorage.setItem("HW_ACCESS_TOKEN", access_token);
+    await EncryptedStorage.setItem("HW_ACCESS_TOKEN", access_token);
     return access_token;
   }
 
-const apiMiddleware = async (apiName, params, setValidLogin) => {
+const apiMiddleware = async (apiName, params, setValidLogin, bypass) => {
 
-  const access_token = await AsyncStorage.getItem("HW_ACCESS_TOKEN");
-  const refresh_token = await AsyncStorage.getItem("HW_REFRESH_TOKEN");
+  const access_token = await EncryptedStorage.getItem("HW_ACCESS_TOKEN");
+  const refresh_token = await EncryptedStorage.getItem("HW_REFRESH_TOKEN");
 
-  if (!access_token && !refresh_token && apiName != "https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn") return;
+  console.log('bypass', bypass)
+  if (!access_token && !refresh_token && (!bypass || bypass == false)) return;
+//  if (!access_token && !refresh_token && apiName != "https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn") return;
+
   const userResponse = await fetch(apiName, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `${access_token}` },
     credentials: 'same-origin',
     body: JSON.stringify(params)
   });
+  if (userResponse.status == 500)
+  {
+    return {"status": 500, "message": "ERROR"};
+  }
 
   if (userResponse.status == 401)
   {

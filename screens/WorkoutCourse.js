@@ -4,9 +4,9 @@ import { Text, ScrollView, View, ImageBackground, TouchableOpacity, Dimensions, 
 
 import Video from 'react-native-video';
 import VideoComponent from '../components/VideoComponent.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import apiMiddleware from '../backend/apiMiddleware.js';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const moment = require('moment');
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
@@ -112,8 +112,8 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
   {
     setWorkoutCompleted(true);
 
-    const storageToken = await AsyncStorage.getItem("REFRESH_TOKEN");
-    const userMetaDataString = await AsyncStorage.getItem("USER_METADATA");
+    const storageToken = await EncryptedStorage.getItem("REFRESH_TOKEN");
+    const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
     const userMetaData = JSON.parse(userMetaDataString);
 
     const userid = userMetaData[0]['userid'];

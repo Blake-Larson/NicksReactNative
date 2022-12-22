@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, Button, TouchableHighlight, Dimensions, Image, Linking, SafeAreaView, StatusBar, ScrollView,
   ScreenWidth, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const Settings = ({setValidLogin, navigation}) => {
 
   const logOut = () => {
 
-    AsyncStorage.setItem("HW_ACCESS_TOKEN", "");
-    AsyncStorage.setItem("HW_REFRESH_TOKEN", "");
+    EncryptedStorage.setItem("HW_ACCESS_TOKEN", "");
+    EncryptedStorage.setItem("HW_REFRESH_TOKEN", "");
     setValidLogin(false);
   };
 
