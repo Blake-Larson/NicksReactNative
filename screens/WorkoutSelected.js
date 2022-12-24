@@ -9,6 +9,7 @@ const moment = require('moment');
 import * as Progress from 'react-native-progress';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import apiMiddleware from '../backend/apiMiddleware.js';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const RNFS = require("react-native-fs");
 import WorkoutContent from "../components/WorkoutContent.js";

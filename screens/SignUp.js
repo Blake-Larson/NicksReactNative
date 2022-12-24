@@ -6,19 +6,16 @@ const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const SignUp = ({navigation, route}) => {
 
   const [hidePassword, setHidePassword] = useState(true);
-  const [name, setName] = useState([]);
+  const [firstName, setFirstName] = useState([]);
+  const [lastName, setLastName] = useState([]);
   const [email, setEmail] = useState([]);
   const [password, setPassword] = useState([]);
 
-
   const registerUser = async () => {
 
-    console.log(name)
-    console.log(email)
-    console.log(password)
-
     const bodyParams = {}
-    bodyParams['name'] = name;
+    bodyParams['first_name'] = firstName;
+    bodyParams['last_name'] = lastName;
     bodyParams['password'] = password;
     bodyParams['email'] = email;
 
@@ -28,22 +25,22 @@ const SignUp = ({navigation, route}) => {
       credentials: 'same-origin',
       body: JSON.stringify(bodyParams)
     });
-    console.log('response', response)
-    console.log('response', response.status);
-    console.log(typeof response.status)
 
+    console.log('response', response.status);
+    const output = await response.json();
+    console.log(output)
     if (response.status == 200) navigation.navigate('VerifyEmail', [navigation, route])
     if (response.status == '200') navigation.navigate('VerifyEmail', [navigation, route])
 
     const params = {};
-    params['name'] = name;
+    params['first_name'] = firstName;
+    params['last_name'] = lastName;
     params['email'] = email;
+    params['password'] = password;
 
     navigation.navigate('VerifyEmail', [params]);
-
   }
 
-//https://ormrcait2fgxnc5bnwwn6j5kyu0vidjb.lambda-url.us-west-1.on.aws/
   return (
     <SafeAreaView style={{flex: 1,
       justifyContent: 'center',
@@ -57,8 +54,10 @@ const SignUp = ({navigation, route}) => {
         </TouchableOpacity>
         <View style={{"backgroundColor": "black", paddingTop: 25}}>
           <Text style={{color: "white", fontSize: 35, marginLeft: 20, fontWeight: "bold"}}>Create an Account</Text>
-          <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Name</Text>
-          <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setName(e)}} value={name} keyboardType="default" />
+          <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>First Name</Text>
+          <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setFirstName(e)}} value={firstName} keyboardType="default" />
+          <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Last Name</Text>
+          <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
           <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Email</Text>
           <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setEmail(e)}} value={email} keyboardType="default" />
           <Text style={{color: "white", marginTop: 50, marginLeft: 20, fontSize: 25}}>Password</Text>
@@ -82,7 +81,8 @@ const SignUp = ({navigation, route}) => {
             <Text style={{fontSize: 25, fontWeight: "bold"}}>Sign Up</Text>
           </TouchableOpacity>
         </View>
-        <Text style={{color: "white"}}>{name}</Text>
+        <Text style={{color: "white"}}>{firstName}</Text>
+        <Text style={{color: "white"}}>{lastName}</Text>
         <Text style={{color: "white"}}>{email}</Text>
         <Text style={{color: "white"}}>{password}</Text>
       </ScrollView>

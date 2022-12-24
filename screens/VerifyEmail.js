@@ -8,15 +8,11 @@ const VerifyEmail = ({navigation, route}) => {
   console.log('navigation', navigation)
   console.log('route', route.params);
 
-  const name = route.params[0]['name'];
   const email = route.params[0]['email'];
+  const password = route.params[0]['password'];
   const [confirmationCode, setConfirmationCode] = useState([]);
 
-
   const confirmUser = async () => {
-
-    console.log(name)
-    console.log('email', email)
 
     const bodyParams = {}
     bodyParams['confirmationCode'] = confirmationCode;
@@ -30,9 +26,29 @@ const VerifyEmail = ({navigation, route}) => {
       credentials: 'same-origin',
       body: JSON.stringify(bodyParams)
     });
-    console.log('response', response)
     console.log('response', response.status)
+    const output = await response.json();
+    console.log(output)
 
+    if (response.status != '200') return;
+    navigation.navigate('SignIn', []);
+  }
+
+  const resendVerification = async () => {
+
+    const bodyParams = {}
+    bodyParams['password'] = password;
+    bodyParams['email'] = email;
+
+    const response = await fetch(`https://kx363cbbjsedcxmoltty6jxarq0eptng.lambda-url.us-west-1.on.aws/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(bodyParams)
+    });
+    console.log('response', response.status)
+    const output = await response.json();
+    console.log(output)
   }
 
   return (
@@ -48,14 +64,13 @@ const VerifyEmail = ({navigation, route}) => {
         </TouchableOpacity>
         <View style={{"backgroundColor": "black", paddingTop: 25}}>
           <Text style={{color: "white", fontSize: 35, marginLeft: 20, fontWeight: "bold"}}>Verify Email</Text>
-          <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Name : {name}</Text>
           <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Email : {email}</Text>
           <Text style={{color: "white", marginTop: 50, marginLeft: 20, fontSize: 25}}>Confirmation Code</Text>
           <View style={{flexDirection: "row",  marginTop: 10, marginLeft: 20, height: 45, }}>
             <TextInput style={{backgroundColor: "white",fontWeight: "bold", fontSize: 18, width: "80%"}} onChangeText={(e) => {setConfirmationCode(e)}} value={confirmationCode} keyboardType="default" />
           </View>
           <TouchableOpacity
-            onPress={() => navigation.navigate('SignIn', [])}
+            onPress={() => resendVerification()}
             style={{backgroundColor: "black", width: "90%",height: 40, fontSize: 24, marginTop: 90, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
             <Text style={{color: "white"}}>Resend Verification</Text>
           </TouchableOpacity>
@@ -65,9 +80,6 @@ const VerifyEmail = ({navigation, route}) => {
             <Text style={{fontSize: 25, fontWeight: "bold"}}>Verify</Text>
           </TouchableOpacity>
         </View>
-        <Text style={{color: "white"}}>{name}</Text>
-        <Text style={{color: "white"}}>{email}</Text>
-        <Text style={{color: "white"}}>{confirmationCode}</Text>
       </ScrollView>
     </SafeAreaView>
   )

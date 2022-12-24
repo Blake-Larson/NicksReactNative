@@ -30,9 +30,7 @@ const apiMiddleware = async (apiName, params, setValidLogin, bypass) => {
   const access_token = await EncryptedStorage.getItem("HW_ACCESS_TOKEN");
   const refresh_token = await EncryptedStorage.getItem("HW_REFRESH_TOKEN");
 
-  console.log('bypass', bypass)
   if (!access_token && !refresh_token && (!bypass || bypass == false)) return;
-//  if (!access_token && !refresh_token && apiName != "https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn") return;
 
   const userResponse = await fetch(apiName, {
     method: 'POST',
@@ -40,9 +38,11 @@ const apiMiddleware = async (apiName, params, setValidLogin, bypass) => {
     credentials: 'same-origin',
     body: JSON.stringify(params)
   });
-  if (userResponse.status == 500)
+
+  if (userResponse.status == '500')
   {
-    return {"status": 500, "message": "ERROR"};
+    console.log(userResponse)
+    return userResponse
   }
 
   if (userResponse.status == 401)

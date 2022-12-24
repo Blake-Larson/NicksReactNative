@@ -5,7 +5,6 @@ import AwsMedia from '../components/AwsMedia';
 import WorkoutSelected from './WorkoutSelected';
 import Paywall from '../components/Paywall';
 import WeeklyIcon from '../components/WeeklyIcon';
-import EncryptedStorage from 'react-native-encrypted-storage';
 
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 const moment = require('moment');
@@ -99,7 +98,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
         <View style={{"backgroundColor": "black", paddingTop: 25}}>
           <View>
             <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10}}>
-              <Text style={{fontWeight: "bold", fontFamily: "System", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
+              <Text style={{fontWeight: "bold", fontFamily: "Didot-Bold", fontSize: 35, paddingLeft: 25, color: "white", paddingBottom: 15}}>Haute Wellness</Text>
             </View>
             <View style={{flexDirection: 'row', flex: 1, width: ScreenWidth, paddingBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
               <WeeklyIcon completedWorkouts={completedWorkouts} setDateIndex={setDateIndex} dateIndex={dateIndex} componentIndex={0} weekday={"M"} scrollFlatListIndex={scrollFlatListIndex}/>
@@ -135,7 +134,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
                             opacity: 0.9,
                             color: "#fffdfe",
                             fontWeight: "bold",
-                            fontFamily: "System" }}>
+                            fontFamily: "Didot-Bold" }}>
                             {item.name}
                           </Text>
                           <Text style={{fontSize: 25,
@@ -145,7 +144,7 @@ const Workouts = ({navigation, paywallShown, setPaywallShown, subInfo, setSubInf
                             opacity: 0.9,
                             color: "#fffdfe",
                             fontWeight: "bold",
-                            fontFamily: "System" }}>{item.day}</Text>
+                            fontFamily: "Didot-Bold" }}>{item.day}</Text>
                           {
                             paywallShown == true &&
                             <Image style={{position: "absolute",

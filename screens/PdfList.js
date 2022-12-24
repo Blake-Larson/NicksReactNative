@@ -7,17 +7,15 @@ import apiMiddleware from '../backend/apiMiddleware.js';
 
 const PdfList = ({navigation, setValidLogin}) => {
 
-  const source = {uri: `https://fitappmedia1.s3.us-west-1.amazonaws.com/SLEEP_HYGIENE.pdf`, cache: true};
-    //https://b8u7ie8np5.execute-api.us-west-1.amazonaws.com/dev/hw_getPdfResources
   const [pdfList, setPdfList] = useState([]);
   const [loadingGif, setLoadingGif] = useState(true);
 
-
   const fetchPdfs = async () => {
-    const userParams = {};
+
+    const apiParams = {};
     const api = `https://b8u7ie8np5.execute-api.us-west-1.amazonaws.com/dev/hw_getPdfResources`;
 
-    const userResponse = await apiMiddleware(api, userParams, setValidLogin)
+    const userResponse = await apiMiddleware(api, apiParams, setValidLogin)
     const output = await userResponse.json();
     setPdfList(output)
     setLoadingGif(false)
@@ -27,8 +25,6 @@ const PdfList = ({navigation, setValidLogin}) => {
 
     fetchPdfs();
   }, []);
-
-
 
   return (
     <SafeAreaView style={{flex: 1,
