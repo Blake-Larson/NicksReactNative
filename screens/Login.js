@@ -14,7 +14,7 @@ const Login = ({navigation}) => {
       <StatusBar backgroundColor="black" barStyle={"light-content"} hidden={false} />
       <View style={{ marginTop: 0, flex: 1, width: ScreenWidth, paddingBottom: 10, backgroundColor: "black"}}>
         <View style={{"backgroundColor": "black", paddingTop: 25}}>
-          <Text style={{color: "white", fontSize: 35, marginLeft: 20, fontWeight: "bold"}}>Haute Wellness</Text>
+          <Text style={{color: "white", fontSize: 45, marginLeft: 20, fontWeight: "bold", fontFamily: "Didot-Bold"}}>Haute Wellness</Text>
         </View>
         <View style={{bottom: 60, flex: 1,width: ScreenWidth, position: "absolute"}}>
           <TouchableOpacity
