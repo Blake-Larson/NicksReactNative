@@ -3,6 +3,7 @@ import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, Scrol
   TextInput, SafeAreaView, StatusBar } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
 import apiMiddleware from '../backend/apiMiddleware.js';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const ForgotPassword = ({navigation, route, setValidLogin}) => {
 
@@ -12,21 +13,129 @@ const ForgotPassword = ({navigation, route, setValidLogin}) => {
   const [password, setPassword] = useState([]);
   const [hidePassword, setHidePassword] = useState(true);
   const [loadingResetGif, setLoadingResetGif] = useState(false);
+  const [errorFlag, setErrorFlag] = useState(false);
+  const [errorLabel, setErrorLabel] = useState([]);
 
   const forgotPassword = async () => {
 
     setCodeSent(true);
-    //https://xlqfuk5e36krreqqmxi4funmym0bxrql.lambda-url.us-west-1.on.aws/
-    const api = `https://xlqfuk5e36krreqqmxi4funmym0bxrql.lambda-url.us-west-1.on.aws/`;
+    const apiName = `https://xlqfuk5e36krreqqmxi4funmym0bxrql.lambda-url.us-west-1.on.aws/`;
     const apiParams = {};
     apiParams['username'] = email;
 
-    const response = await apiMiddleware(api, apiParams, setValidLogin, true);
+    const response = await fetch(apiName, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      credentials: 'same-origin',
+      body: JSON.stringify(apiParams)
+    });
     const output = await response.json();
     console.log('output');
     console.log(output);
 
+    // TODO : ERROR HANDLING
   }
+
+  const resetPassword = async () => {
+
+    setLoadingResetGif(true);
+    setErrorFlag(false)
+    setErrorLabel([])
+    const apiName = `https://njhx4lpntvufhrtsmt3lnu2iw40sfneb.lambda-url.us-west-1.on.aws/`;
+    const apiParams = {};
+    apiParams['newPassword'] = password;
+    apiParams['username'] = email;
+    apiParams['verificationCode'] = code;
+
+    const response = await fetch(apiName, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      credentials: 'same-origin',
+      body: JSON.stringify(apiParams)
+    });
+
+    const output = await response.json();
+    console.log(output);
+
+    if (output && output.err && output.err.code == "CodeMismatchException")
+    {
+      setLoadingResetGif(false);
+      setErrorFlag(true)
+      setErrorLabel("Error code invalid")
+      return;
+    }
+    if (output && output.err && output.err.code == "LimitExceededException")
+    {
+      setLoadingResetGif(false);
+      setErrorFlag(true)
+      setErrorLabel("Error: Attempt limit reached.\nTry again later")
+      return;
+    }
+    if (output && output.err && output.err.code == "ExpiredCodeException")
+    {
+      setLoadingResetGif(false);
+      setErrorFlag(true)
+      setErrorLabel("Error code expired")
+      return;
+    }
+    setLoadingResetGif(false);
+  }
+
+  const login = async () => {
+
+    setLoadingResetGif(true);
+    const apiName = `https://go4d787t6h.execute-api.us-west-1.amazonaws.com/dev/hw_signIn`;
+    const apiParams = {};
+    apiParams['password'] = password;
+    apiParams['username'] = email;
+
+    console.log('apiParams', apiParams);
+
+    const response = await fetch(apiName, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      credentials: 'same-origin',
+      body: JSON.stringify(apiParams)
+    });
+
+    const output = await response.json();
+    console.log(output)
+
+    if (output && output.err && output.err.code == "NotAuthorizedException")
+    {
+      setErrorFlag(true);
+      setErrorLabel("Username or password incorrect");
+      setLoadingResetGif(false)
+      return;
+    }
+    if (output && output.err && output.err.code && output.err.code == 'UserNotConfirmedException')
+    {
+      console.log('error ???????')
+    //  resendVerification();
+      const params = {};
+      params['email'] = email;
+      params['password'] = password;
+
+    //  navigation.navigate('VerifyEmail', [params]);
+    }
+
+    if (response.status == 500) return setLoadingResetGif(false);
+
+    await EncryptedStorage.setItem("HW_ACCESS_TOKEN", output.result.accessToken.jwtToken);
+    await EncryptedStorage.setItem("HW_REFRESH_TOKEN", output.result.refreshToken.token);
+
+    const metadataApi = `https://cizuaaja9g.execute-api.us-west-1.amazonaws.com/dev/hw_getUserMetaData`;
+    const metadataApiParams = {};
+    metadataApiParams['email'] = email;
+
+    const metadataResponse = await apiMiddleware(metadataApi, metadataApiParams, setValidLogin);
+    const metadata = await metadataResponse.json();
+
+    await EncryptedStorage.setItem("USER_METADATA", JSON.stringify(metadata));
+    setLoadingResetGif(false);
+    if (response.status == '200') setValidLogin(true);
+  }
+
   return (
     <SafeAreaView style={{flex: 1,
       justifyContent: 'center',
@@ -64,13 +173,17 @@ const ForgotPassword = ({navigation, route, setValidLogin}) => {
                 </View>
                 {
                   loadingResetGif == false ?
-                  <TouchableOpacity onPress={() => login()} style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
+                  <TouchableOpacity onPress={() => resetPassword()} style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
                     <Text style={{fontSize: 25, fontWeight: "bold"}}>Reset Password</Text>
                   </TouchableOpacity>
                   :
                   <TouchableOpacity style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
                     <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/loading.gif")}></ImageBackground>
                   </TouchableOpacity>
+                }
+                {
+                  errorFlag == true &&
+                  <Text style={{color: "red", fontSize: 20, marginTop: 10, textAlign: "center"}}>{errorLabel}</Text>
                 }
               </View>
             }
