@@ -14,8 +14,11 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
   const password = route.params[0]['password'];
   const [confirmationCode, setConfirmationCode] = useState([]);
   const [loadingGif, setLoadingGif] = useState(false);
+  const [invalidCode, setInvalidCode] = useState(false);
 
   const confirmUser = async () => {
+
+    setInvalidCode(false);
 
     const bodyParams = {}
     bodyParams['confirmationCode'] = confirmationCode;
@@ -32,8 +35,12 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
     console.log('response', response.status)
     const output = await response.json();
     console.log(output)
-
-    if (response.status != '200') return;
+    if (response.status == '500')
+    if (response.status != '200')
+    {
+      setInvalidCode(true);
+      return;
+    }
     login();
   }
 
@@ -133,6 +140,10 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
             <TouchableOpacity style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
               <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/loading.gif")}></ImageBackground>
             </TouchableOpacity>
+          }
+          {
+            invalidCode == true &&
+            <Text style={{color: "red", fontSize: 20, marginTop: 10, textAlign: "center"}}>Error Invalid Code</Text>
           }
         </View>
       </ScrollView>

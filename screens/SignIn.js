@@ -11,6 +11,8 @@ const SignIn = ({navigation, route, setValidLogin}) => {
   const [email, setEmail] = useState([]);
   const [password, setPassword] = useState([]);
   const [loadingGif, setLoadingGif] = useState(false);
+  const [errorFlag, setErrorFlag] = useState(false);
+  const [errorLabel, setErrorLabel] = useState([]);
 
   const login = async () => {
 
@@ -27,7 +29,14 @@ const SignIn = ({navigation, route, setValidLogin}) => {
       body: JSON.stringify(apiParams)
     });
     const output = await response.json();
-
+    console.log(output)
+    if (output && output.err && output.err.code == "NotAuthorizedException")
+    {
+      setErrorFlag(true);
+      setErrorLabel("Username or password incorrect");
+      setLoadingGif(false)
+      return;
+    }
     if (output && output.err && output.err.code && output.err.code == 'UserNotConfirmedException')
     {
       console.log('error ???????')
@@ -113,6 +122,9 @@ const SignIn = ({navigation, route, setValidLogin}) => {
             <TouchableOpacity style={{backgroundColor: "white", width: "90%", height: 50, marginTop: 15, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
               <ImageBackground style={{color: "white", height: 20, width: 20}} source={require("../media/loading.gif")}></ImageBackground>
             </TouchableOpacity>
+          }
+          { errorFlag &&
+            <Text style={{color: "red", fontSize: 20, marginTop: 10, textAlign: "center"}}>{errorLabel}</Text>
           }
         </View>
       </ScrollView>
