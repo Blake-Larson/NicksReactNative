@@ -19,8 +19,8 @@ const Login = ({navigation}) => {
         <View style={{bottom: 60, flex: 1,width: ScreenWidth, position: "absolute"}}>
           <TouchableOpacity
             onPress={() => navigation.navigate('SignUp', [])}
-            style={{backgroundColor: "red", borderRadius: 25, width: "90%",height: 60, fontSize: 24, marginTop: 90, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
-            <Text style={{color: "white", fontSize: 25, fontWeight: "bold"}}>Create Account</Text>
+            style={{backgroundColor: '#D6B22E', borderRadius: 25, width: "90%",height: 60, fontSize: 24, marginTop: 90, alignSelf: 'center', alignItems: "center", justifyContent: "center"}}>
+            <Text style={{color: "black", fontSize: 25, fontWeight: "bold"}}>Create Account</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate('SignIn', [])}

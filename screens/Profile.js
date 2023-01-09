@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ImageBackground, TouchableOpacity, Dimensions, Image, StyleSheet, TextInput, Modal, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("window");
+/*
 import appleAuth, {
   AppleButton,
   AppleAuthError,
   AppleAuthRequestScope,
   AppleAuthRequestOperation,
-} from '@invertase/react-native-apple-authentication';
+} from '@invertase/react-native-apple-authentication';*/
 import EncryptedStorage from 'react-native-encrypted-storage';
+import apiMiddleware from '../backend/apiMiddleware.js';
 
 const Profile = ({setValidLogin, navigation}) => {
 
@@ -18,6 +20,7 @@ const Profile = ({setValidLogin, navigation}) => {
   const [lastName, setLastName] = useState(null);
   const [originalFirstName, setOriginalFirstName] = useState([]);
   const [originalLastName, setOriginalLastName] = useState([]);
+  const [password, setPassword] = useState([]);
 
   useEffect(() => {
     getUserMetaData();
@@ -70,6 +73,31 @@ const Profile = ({setValidLogin, navigation}) => {
 
   const revokeAccount = async () => {
 
+    const userMetaData = await EncryptedStorage.getItem("USER_METADATA");
+    const json_userMetaData = JSON.parse(userMetaData);
+    console.log('userMetaData', json_userMetaData);
+    console.log('userMetaData', json_userMetaData[0]);
+    console.log('userMetaData', json_userMetaData[0]['email']);
+    const email = json_userMetaData[0]['email'];
+    const password = json_userMetaData[0]['password'];
+
+    const api = `https://by56u2h634.execute-api.us-west-1.amazonaws.com/dev/hw_deleteUser`;
+    const apiParams = {};
+    apiParams['email'] = email;
+    apiParams['password'] = password;
+
+    const response = await apiMiddleware(api, apiParams, setValidLogin);
+    console.log('response', response);
+    const output = await response.json();
+    console.log('output', output);
+
+
+
+    setDeleteModal(false)
+    EncryptedStorage.setItem("REFRESH_TOKEN", "");
+    setValidLogin(false);
+
+/*
     const appleAuthRequestResponse = await appleAuth.performRequest({
       requestedOperation: appleAuth.Operation.LOGIN,
       requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
@@ -77,10 +105,7 @@ const Profile = ({setValidLogin, navigation}) => {
     console.log('appleAuthRequestResponse:', appleAuthRequestResponse);
     const {authorizationCode, identityToken, nonce, user} = appleAuthRequestResponse;
     if (!authorizationCode) console.log('Authorization code not found after signin');
-    console.log(authorizationCode)
-    console.log(identityToken)
-    console.log(nonce)
-    console.log(user)
+
 
     const userParams = {};
     userParams['apple_sub'] = user;
@@ -88,9 +113,8 @@ const Profile = ({setValidLogin, navigation}) => {
     userParams['nonce'] = nonce;
     userParams['authorization_code'] = authorizationCode;
     console.log(userParams);
+    */
 
-    EncryptedStorage.setItem("REFRESH_TOKEN", "");
-    setValidLogin(false);
 /*
     const userResponse = await fetch(`https://hautewellnessapp.com/api/revokeAppleToken`, {
       method: 'POST',
@@ -153,17 +177,21 @@ const Profile = ({setValidLogin, navigation}) => {
             animationType="slide"
             visible={deleteModal}
             onRequestClose={() => { setDeleteModal(!deleteModal) }}>
-              <View style={styles.apnModalContainer} onPress={() => {setDeleteModal(false)}}>
-                <Pressable style={styles.apnModalContainer} onPress={() => {setDeleteModal(false);}}>
+              <View style={styles.apnModalContainer}>
+                <Pressable style={styles.apnModalContainer}>
                    <View style={styles.deleteModalView}>
                    <Text style={{color: "white", fontSize: 28, fontWeight: "bold", textAlign: "center"}}>Are you sure?</Text>
                    <Text style={{color: "white", fontSize: 18, textAlign: "center", paddingTop: 10}}>Account deletion cannot be undone</Text>
-                   <Text style={{color: "white", fontSize: 15, textAlign: "center", marginTop: 20, padding: 15}}>Warning: if you have auto-renewable subscriptions, your billling will continue through Apple. Please cancel your subscription before continuing with deleting your account</Text>
+                   <View style={{flexDirection: "row", paddingTop: 10}}>
+                     <Text style={{"color": "white", width: 140, marginLeft: 20, marginTop: 50,fontWeight: "bold", fontSize: 14}}>Confirm Password:</Text>
+                     <TextInput style={{color: "black", backgroundColor: "white", marginTop: 50, fontWeight: "bold", fontSize: 18, width: 150}} onChangeText={(e) => {setPassword(e)}} value={password} keyboardType="default" />
+                   </View>
+                  <Text style={{color: "white", fontSize: 15, textAlign: "center", marginTop: 20, padding: 15}}>Warning: if you have auto-renewable subscriptions, your billling will continue through Apple. Please cancel your subscription before continuing with deleting your account</Text>
                     <View style={{flexDirection: "row"}}>
                      <TouchableOpacity style={styles.deleteModal} onPress={() => {setDeleteModal(false)}}>
                         <Text style={{color: "white", fontSize: 18, fontWeight: "bold"}}>Cancel</Text>
                      </TouchableOpacity>
-                     <TouchableOpacity style={styles.deleteModal} onPress={() => {revokeAccount(); setDeleteModal(false)}}>
+                     <TouchableOpacity style={styles.deleteModal} onPress={() => {revokeAccount();}}>
                         <Text style={{color: "red", fontSize: 18, fontWeight: "bold"}}>Delete</Text>
                      </TouchableOpacity>
                    </View>

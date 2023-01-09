@@ -59,6 +59,7 @@ const SignIn = ({navigation, route, setValidLogin}) => {
 
     const metadataResponse = await apiMiddleware(metadataApi, metadataApiParams, setValidLogin);
     const metadata = await metadataResponse.json();
+    console.log('setting meta data!', metadata)
 
     await EncryptedStorage.setItem("USER_METADATA", JSON.stringify(metadata));
     setLoadingGif(false);
@@ -99,10 +100,10 @@ const SignIn = ({navigation, route, setValidLogin}) => {
         <View style={{"backgroundColor": "black", paddingTop: 25}}>
           <Text style={{color: "white", fontSize: 35, marginLeft: 20, fontWeight: "bold"}}>Sign In</Text>
           <Text style={{color: "white", marginLeft: 20, marginTop: 50, fontSize: 25}}>Email</Text>
-          <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setEmail(e)}} value={email.toString()} keyboardType="default" />
+          <TextInput autoCapitalize={"none"} style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setEmail(e)}} value={email.toString()} keyboardType="default" />
           <Text style={{color: "white", marginTop: 50, marginLeft: 20, fontSize: 25}}>Password</Text>
           <View style={{flexDirection: "row",  marginTop: 10, marginLeft: 20, height: 45, }}>
-            <TextInput secureTextEntry={hidePassword} style={{backgroundColor: "white",fontWeight: "bold", fontSize: 18, width: "80%"}} onChangeText={(e) => {setPassword(e)}} value={password.toString()}  keyboardType="default" />
+            <TextInput autoCapitalize={"none"} secureTextEntry={hidePassword} style={{backgroundColor: "white",fontWeight: "bold", fontSize: 18, width: "80%"}} onChangeText={(e) => {setPassword(e)}} value={password.toString()}  keyboardType="default" />
             <TouchableOpacity style={{width: "10%", backgroundColor: "white",  verticalAlign: "center"}} onPress={() => setHidePassword(!hidePassword)}>
               {
                 hidePassword == true ? <ImageBackground style={{color: "red", height: 25, width: 25, marginTop: 5}} source={require("../media/hidepassword.png")} /> :

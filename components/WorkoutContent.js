@@ -37,8 +37,8 @@ const WorkoutContent = ({navigation, route, content}) => {
             </TouchableOpacity>
           </View>
           <View style={{flex:1, marginRight: 5, marginLeft: 15, marginTop: 5}}>
-            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15, fontFamily: "Didot-Bold"}}>{item.name}</Text>
-            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontSize: 12, fontFamily: "Didot-Bold"}}>{item.description}</Text>
+            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontWeight: "bold", fontSize: 15}}>{item.name}</Text>
+            <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white", fontSize: 12}}>Sets: {item.sets}</Text>
             <Text style={{justifyContent: 'flex-end', marginTop: 10, color: "white"}}>
               {item.minutes} {': '}
               {item.seconds == '0' && <Text style={{color: "white"}}>{'00'}</Text>}

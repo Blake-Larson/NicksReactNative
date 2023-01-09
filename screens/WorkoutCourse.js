@@ -38,6 +38,8 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
   const [countdownSeconds, setCountdownSeconds] = useState((parseInt(VideoData[currentNumber]['minutes']) * 60) + parseInt(VideoData[currentNumber]['seconds']));
   const [musicModal, setMusicModal] = useState(false);
   const [endWorkoutModal, setEndWorkoutModal] = useState(false);
+  const [currentSet, setCurrentSet] = useState(0);
+  const [totalExerciseSets, setTotalExerciseSets] = useState(parseInt(VideoData[currentNumber]['sets']));
 
   useEffect(() => {
 
@@ -45,7 +47,6 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
     setWorkoutImage(VideoData[currentNumber]['image']);
     setTitleVideo(VideoData[currentNumber]['name']);
     setTotalNumber(VideoData.length - 1);
-    setCountdownSeconds((VideoData[currentNumber]['minutes'] * 60) + VideoData[currentNumber]['seconds']);
     if (VideoData[currentNumber + 1]) setUpNext(VideoData[currentNumber + 1]['name']);
 
     if (paused == false) setDisplayButton(require('../media/pauseButton.png'));
@@ -67,7 +68,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
 
     setTotalSeconds(totalSeconds + 1);
 
-    if (totalSeconds >= 9)
+    if (totalSeconds >= 60)
     {
       setTotalSeconds(0)
       setTotalMinutes(totalMinutes + 1)
@@ -90,6 +91,18 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
   const nextVideo = () => {
 
     setPaused(true);
+
+    if (currentSet + 1 < totalExerciseSets)
+    {
+      setCurrentSet(currentSet + 1);
+      setSeconds(parseInt(VideoData[currentNumber]['seconds']));
+      setMinutes(parseInt(VideoData[currentNumber]['minutes']));
+      setCountdownSeconds((VideoData[currentNumber]['minutes'] * 60) + VideoData[currentNumber]['seconds']);
+      setDisplayButton(require('../media/pauseButton.png'));
+      setPaused(false);
+      return;
+    }
+
     if (currentNumber >= (VideoData.length - 1))
     {
       completeWorkout();
@@ -97,13 +110,14 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
     }
 
     if (!VideoData[currentNumber + 1]) return;
-
     setUpNext(VideoData[currentNumber + 1]['name']);
     setWorkoutVideo(VideoData[currentNumber + 1]['filename']);
     setTitleVideo(VideoData[currentNumber + 1]['title']);
     setSeconds(parseInt(VideoData[currentNumber + 1]['seconds']));
     setMinutes(parseInt(VideoData[currentNumber + 1]['minutes']));
     setCurrentNumber(currentNumber + 1);
+    setCurrentSet(0);
+    setTotalExerciseSets(parseInt(VideoData[currentNumber + 1]['sets']))
     setDisplayButton(require('../media/pauseButton.png'));
     setPaused(false);
   }
@@ -191,11 +205,10 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', paddingTop: 5,flex: 1, width: ScreenWidth, backgroundColor: "black" }}>
-            <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 15, marginLeft: 10, width: ScreenWidth*.75, marginBottom: 10}}>{titleVideo}</Text>
-            <Text style={{color: "white", fontWeight: "bold", fontSize:20, marginTop: 25, marginLeft: 15,  width: ScreenWidth*.25}}>  {currentNumber + 1} / {totalNumber + 1}</Text>
+            <Text style={{color: "white", fontWeight: "bold", fontSize:30, marginTop: 15, marginLeft: 10, width: ScreenWidth*.9, marginBottom: 10}}>{titleVideo}</Text>
           </View>
-          <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} awsLink={VideoData[currentNumber]['filename']} pausedVideo={paused}/>
-            <View style={{flexDirection: 'row', paddingTop: 40, paddingLeft: 20}}>
+          <VideoComponent fileName={`file://${RNFS.DocumentDirectoryPath}/${workoutVideo}.mp4`} awsLink={VideoData[currentNumber]['filename']} pausedVideo={paused} nextVideo={nextVideo}/>
+            <View style={{flexDirection: 'row', paddingLeft: 20}}>
               <View style={{width: ScreenWidth*.3}}>
                 <CountdownCircleTimer
                   isPlaying={!paused}
@@ -203,7 +216,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
                   size={90}
                   colors={['#A30000']}
                   colorsTime={[]}
-                  key={currentNumber}>
+                  key={currentSet}>
                   {
                     () => <View><TouchableOpacity onPress={pauseVideo}>
                       <ImageBackground
@@ -214,34 +227,37 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
                   }
                 </CountdownCircleTimer>
               </View>
-              <View style={{width: 100, marginTop: 50}}>
-                { seconds >= 10 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : {seconds}</Text> }
-                { seconds == 9 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 09 </Text> }
-                { seconds == 8 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 08 </Text> }
-                { seconds == 7 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 07 </Text> }
-                { seconds == 6 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 06 </Text> }
-                { seconds == 5 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 05 </Text> }
-                { seconds == 4 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 04 </Text> }
-                { seconds == 3 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 03 </Text> }
-                { seconds == 2 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 02 </Text> }
-                { seconds == 1 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 01 </Text> }
-                { seconds == 0 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 00 </Text> }
-              </View>
-              {
-                paused == true && currentNumber < VideoData.length - 1 &&
-                <View style={{width: 100, marginTop: 50, paddingLeft: 0}}>
-                  <Pressable style={{backgroundColor: "white", width: 130, height: 40, borderRadius: 16}} onPress={() => { setEndWorkoutModal(true); setPaused(true) }}>
-                    <Text style={{color: "black", fontSize: 18, fontWeight: "bold", textAlign: "center", paddingTop: 10}}>End Workout</Text>
-                  </Pressable>
+              <View style={{flexDirection: 'row', paddingLeft: 20}}>
+                <View style={{width: 100, marginTop: 50}}>
+                  { seconds >= 10 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : {seconds}</Text> }
+                  { seconds == 9 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 09 </Text> }
+                  { seconds == 8 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 08 </Text> }
+                  { seconds == 7 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 07 </Text> }
+                  { seconds == 6 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 06 </Text> }
+                  { seconds == 5 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 05 </Text> }
+                  { seconds == 4 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 04 </Text> }
+                  { seconds == 3 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 03 </Text> }
+                  { seconds == 2 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 02 </Text> }
+                  { seconds == 1 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 01 </Text> }
+                  { seconds == 0 && <Text style={{fontSize: 30, color: "white"}}>{minutes} : 00 </Text> }
                 </View>
-              }
+                <Text style={{color: "white", marginTop: 50, fontSize: 18, width: ScreenWidth*.25}}>SET: {currentSet + 1} / {totalExerciseSets}</Text>
+                {
+                  paused == true && currentNumber < VideoData.length - 1 &&
+                  <View style={{width: 100, marginTop: 0, position: 'absolute', paddingLeft: 0}}>
+                    <Pressable style={{backgroundColor: "white", width: 130, height: 40, borderRadius: 16}} onPress={() => { setEndWorkoutModal(true); setPaused(true) }}>
+                      <Text style={{color: "black", fontSize: 18, fontWeight: "bold", textAlign: "center", paddingTop: 10}}>End Workout</Text>
+                    </Pressable>
+                  </View>
+                }
+              </View>
           </View>
         <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 5}}>
         {
           currentNumber < VideoData.length - 1 &&
-          <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 10, paddingLeft: 10}}>
+          <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row', paddingTop: 0, paddingLeft: 10}}>
             <View style={{width: ScreenWidth*.2}}>
-              <Text style={{color: "white", marginLeft: 5, fontFamily: "System", fontSize: 22, marginTop: 12}}>Up Next:</Text>
+              <Text style={{color: "white", marginLeft: 5, fontFamily: "System", fontSize: 22}}>Up Next:</Text>
             </View>
             <View style={{width: ScreenWidth*.5}}>
               <Text style={{color: "white", fontFamily: "System", fontSize: 25, marginTop: 12, marginLeft: 0}}>{upNext}</Text>
@@ -257,7 +273,7 @@ const WorkoutCourse = ({navigation, route, setWorkoutComplete, workoutComplete, 
         {
           currentNumber == VideoData.length - 1 &&
           <View style={{alignItems: 'center', justifyContent: 'center',flexDirection: 'row'}}>
-            <TouchableOpacity style={{width: 10, height: 10, marginBottom: 10}} style={styles.buttonStart} onPress={() => {setEndWorkoutModal(true); setPaused(true)}}  >
+            <TouchableOpacity style={{width: 10, height: 10, marginBottom: 0}} style={styles.buttonStart} onPress={() => {setEndWorkoutModal(true); setPaused(true)}}  >
               <Text style={{fontWeight: "bold", fontSize: 20}}>End Workout</Text>
             </TouchableOpacity>
           </View>
@@ -327,7 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     elevation: 3,
     backgroundColor: '#D6B22E',
-    marginTop: 85,
+    marginTop: 15,
   },
   apnModalContainer: {
     flex: 1,

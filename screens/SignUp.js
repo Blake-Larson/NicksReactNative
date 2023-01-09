@@ -32,7 +32,7 @@ const SignUp = ({navigation, route}) => {
       credentials: 'same-origin',
       body: JSON.stringify(bodyParams)
     });
-
+    console.log('response', response);
     console.log('response', response.status);
     const output = await response.json();
     console.log(output)
@@ -93,9 +93,9 @@ const SignUp = ({navigation, route}) => {
           <Text style={{color: "white", marginLeft: 20, marginTop: 20, fontSize: 25}}>Last Name</Text>
           <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setLastName(e)}} value={lastName} keyboardType="default" />
           <Text style={{color: "white", marginLeft: 20, marginTop: 20, fontSize: 25}}>Email</Text>
-          <TextInput style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setEmail(e)}} value={email} keyboardType="default" />
+          <TextInput autoCapitalize={"none"} style={{backgroundColor: "white",  marginLeft: 20, marginTop: 10, height: 45, fontWeight: "bold", fontSize: 18, width: "90%"}} onChangeText={(e) => {setEmail(e)}} value={email} keyboardType="default" />
           <Text style={{color: "white", marginTop: 20, marginLeft: 20, fontSize: 25}}>Password</Text>
-          <View style={{flexDirection: "row",  marginTop: 10, marginLeft: 20, height: 45, }}>
+          <View autoCapitalize={"none"} style={{flexDirection: "row",  marginTop: 10, marginLeft: 20, height: 45, }}>
             <TextInput secureTextEntry={hidePassword} style={{backgroundColor: "white",fontWeight: "bold", fontSize: 18, width: "80%"}} onChangeText={(e) => {setPassword(e)}} value={password} keyboardType="default" />
             <TouchableOpacity style={{width: "10%", backgroundColor: "white",  verticalAlign: "center"}} onPress={() => setHidePassword(!hidePassword)}>
               {

@@ -1,6 +1,6 @@
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-  const newRefreshTokens = async () => {
+  const newRefreshTokens = async (setValidLogin) => {
 
     console.log(`newRefreshTokens
     newRefreshTokens
@@ -19,6 +19,16 @@ import EncryptedStorage from 'react-native-encrypted-storage';
     });
 
     const output = await userResponse.json();
+    if (userResponse.status == 400 || userResponse.status == 401 || userResponse.status == 403 || userResponse.status == 404)
+    {
+      console.log('issue here....');
+      return setValidLogin(false);
+    }
+    if (!output.access_token)
+    {
+      console.log('no access token!!');
+      return setValidLogin(false);
+    }
     const access_token = output.access_token;
 
     await EncryptedStorage.setItem("HW_ACCESS_TOKEN", access_token);
@@ -47,7 +57,7 @@ const apiMiddleware = async (apiName, params, setValidLogin, bypass) => {
 
   if (userResponse.status == 401)
   {
-    const new_access_token = await newRefreshTokens();
+    const new_access_token = await newRefreshTokens(setValidLogin);
     console.log('NEW', new_access_token)
 
     const retryResponse = await fetch(apiName, {

@@ -18,6 +18,12 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
 
   const confirmUser = async () => {
 
+    console.log('..confirmUser')
+    console.log('..confirmUser')
+    console.log('..confirmUser')
+    console.log('..confirmUser')
+    console.log('..confirmUser')
+
     setInvalidCode(false);
 
     const bodyParams = {}
@@ -35,7 +41,6 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
     console.log('response', response.status)
     const output = await response.json();
     console.log(output)
-    if (response.status == '500')
     if (response.status != '200')
     {
       setInvalidCode(true);
@@ -76,7 +81,8 @@ const VerifyEmail = ({navigation, route, setValidLogin}) => {
       body: JSON.stringify(apiParams)
     });
     const output = await response.json();
-
+    console.log(output)
+    console.log(response.status);
     if (output && output.err && output.err.code && output.err.code == 'UserNotConfirmedException')
     {
       console.log('error ???????')

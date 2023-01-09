@@ -53,6 +53,12 @@ const App = () => {
   const validateSession = async () => {
 
     const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
+    if (!userMetaDataString)
+    {
+      setLoadingScreen(false);
+      setValidLogin(false);
+      return;
+    }
     const userMetaData = JSON.parse(userMetaDataString);
     if (!userMetaData || !userMetaData[0])
     {
@@ -155,7 +161,7 @@ const App = () => {
 
     const getWorkouts = async () => {
 
-      const date = new Date("9/5/2022");
+      const date = new Date("1/8/2023");
       const mon = moment(date).isoWeekday(1).format('YYYY-MM-DD');
       const tues = moment(date).isoWeekday(2).format('YYYY-MM-DD')
       const wed = moment(date).isoWeekday(3).format('YYYY-MM-DD');
@@ -205,7 +211,7 @@ const App = () => {
 
     const getCompletedWorkouts = async () => {
 
-      const date = new Date("9/5/2022");
+      const date = new Date("1/8/2023");
       const completedWeekArray = [];
       completedWeekArray.push(moment(date).isoWeekday(1).format('YYYY-MM-DD'));
       completedWeekArray.push(moment(date).isoWeekday(2).format('YYYY-MM-DD'));
@@ -216,7 +222,9 @@ const App = () => {
       completedWeekArray.push(moment(date).isoWeekday(7).format('YYYY-MM-DD'));
 
       const userMetaDataString = await EncryptedStorage.getItem("USER_METADATA");
+      if (!userMetaDataString) return setValidLogin(false);
       const userMetaData = JSON.parse(userMetaDataString);
+      if (!userMetaData || !userMetaData[0] || !userMetaData[0]['userid']) return setValidLogin(false);
       const userid = userMetaData[0]['userid'];
 
       const api = `https://3cn9i38spk.execute-api.us-west-1.amazonaws.com/dev/getCompletedWorkouts`;
