@@ -79,7 +79,6 @@ const Profile = ({setValidLogin, navigation}) => {
     console.log('userMetaData', json_userMetaData[0]);
     console.log('userMetaData', json_userMetaData[0]['email']);
     const email = json_userMetaData[0]['email'];
-    const password = json_userMetaData[0]['password'];
 
     const api = `https://by56u2h634.execute-api.us-west-1.amazonaws.com/dev/hw_deleteUser`;
     const apiParams = {};
@@ -87,11 +86,7 @@ const Profile = ({setValidLogin, navigation}) => {
     apiParams['password'] = password;
 
     const response = await apiMiddleware(api, apiParams, setValidLogin);
-    console.log('response', response);
     const output = await response.json();
-    console.log('output', output);
-
-
 
     setDeleteModal(false)
     EncryptedStorage.setItem("REFRESH_TOKEN", "");
